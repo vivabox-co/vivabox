@@ -7,7 +7,11 @@ const FOUNDERS = [
     name: "Gotie",
     photo: "/images/founders/Gotie.png",
     ring: "var(--color-accent-green)",
-    quote: "Para mí, el mejor regalo siempre ha sido una buena historia que contar.",
+    paragraphs: [
+      "Para mí, el mejor regalo siempre ha sido una buena historia que contar.",
+      "Me gusta preguntarle a la gente qué fue lo último que la sorprendió, y me quedo pensando en la respuesta.",
+      "Un poco de eso buscamos en cada experiencia Vivabox: que valga la pena contarla después.",
+    ],
     circlePath:
       "M50,4 C74,3 97,23 96,49 C97,76 73,97 49,96 C24,97 4,75 4,50 C3,25 26,5 50,4 Z",
   },
@@ -15,7 +19,11 @@ const FOUNDERS = [
     name: "Franko",
     photo: "/images/founders/Franko.png",
     ring: "var(--color-primary)",
-    quote: "Me gusta pensar en cada Vivabox como una excusa para vivir algo nuevo.",
+    paragraphs: [
+      "Me gusta pensar en cada Vivabox como una excusa para vivir algo nuevo.",
+      "Prefiero un buen plan improvisado a uno perfecto sobre el papel.",
+      "Por eso disfruto tanto ver qué experiencia elige cada persona: casi nunca es la que uno esperaba.",
+    ],
     circlePath:
       "M50,3 C71,2 96,19 97,50 C98,79 76,98 49,97 C23,98 3,77 3,49 C2,22 25,4 50,3 Z",
   },
@@ -25,24 +33,31 @@ export default function StoryTeam() {
   return (
     <section className="bg-ink py-20 md:py-[120px]">
 
-      <div className="max-w-[720px] mx-auto px-6">
+      <div className="max-w-[840px] mx-auto px-6">
 
         <Reveal duration={400}>
           <BrandDots className="justify-center md:justify-start" />
         </Reveal>
 
         <Reveal duration={400} delay={60}>
-          <h2 className="h2 text-white mb-10 text-center md:text-left">
+          <h2 className="h2 text-white mb-4 text-center md:text-left">
             Quiénes somos
           </h2>
         </Reveal>
 
-        <div className="flex justify-center gap-10 md:gap-16 mb-12">
+        <Reveal duration={400} delay={100}>
+          <p className="text-white/70 leading-relaxed mb-12 text-center md:text-left">
+            Detrás de Vivabox estamos Gotie y Franko, un equipo colombo-francés
+            que creó Vivabox en Colombia.
+          </p>
+        </Reveal>
+
+        <div className="grid sm:grid-cols-2 gap-12 md:gap-16">
 
           {FOUNDERS.map((founder, index) => (
-            <Reveal key={founder.name} duration={400} delay={120 + index * 100}>
-              <div className="text-center">
-                <div className="relative w-32 h-32 md:w-36 md:h-36 mx-auto mb-4">
+            <Reveal key={founder.name} duration={400} delay={160 + index * 100}>
+              <div className="text-center sm:text-left">
+                <div className="relative w-32 h-32 md:w-36 md:h-36 mx-auto sm:mx-0 mb-4">
                   <div className="absolute inset-0 rounded-full overflow-hidden">
                     <Image
                       src={founder.photo}
@@ -66,44 +81,23 @@ export default function StoryTeam() {
                   </svg>
                 </div>
 
-                <p className="font-semibold text-white">{founder.name}</p>
-                <p className="text-xs text-white/50 uppercase tracking-wide mb-3">
-                  Cofundador
-                </p>
+                <p className="font-semibold text-white mb-3">{founder.name}</p>
 
-                <p className="text-sm italic text-white/60 max-w-[180px] mx-auto leading-relaxed">
-                  &ldquo;{founder.quote}&rdquo;
-                </p>
+                <div className="space-y-3">
+                  {founder.paragraphs.map((paragraph) => (
+                    <p
+                      key={paragraph}
+                      className="text-sm text-white/60 leading-relaxed"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
               </div>
             </Reveal>
           ))}
 
         </div>
-
-        <Reveal duration={400} delay={320}>
-          <div>
-            <p className="text-white/70 leading-relaxed mb-4">
-              Detrás de Vivabox estamos Gotie y Franko.
-            </p>
-
-            <p className="text-white/70 leading-relaxed mb-4">
-              Somos un equipo colombo-francés y creamos Vivabox en Colombia
-              con una idea muy sencilla: hacer que regalar vuelva a sentirse
-              especial.
-            </p>
-
-            <p className="text-white/70 leading-relaxed mb-4">
-              Compartimos el gusto por descubrir lugares, vivir nuevas
-              experiencias y apoyar negocios locales que hacen bien su
-              trabajo.
-            </p>
-
-            <p className="text-white/70 leading-relaxed">
-              Esa forma de ver las cosas es la que intentamos transmitir en
-              cada Vivabox.
-            </p>
-          </div>
-        </Reveal>
 
       </div>
 

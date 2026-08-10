@@ -8,7 +8,9 @@ import StoryWhy from "@/sections/story/StoryWhy";
 import StoryIdea from "@/sections/story/StoryIdea";
 import StoryTeam from "@/sections/story/StoryTeam";
 import StoryValues from "@/sections/story/StoryValues";
-import StoryVision from "@/sections/story/StoryVision";
+import StoryCommitments from "@/sections/story/StoryCommitments";
+import StoryPromise from "@/sections/story/StoryPromise";
+import StoryThanks from "@/sections/story/StoryThanks";
 import StoryCTA from "@/sections/story/StoryCTA";
 
 export default function StoryPage() {
@@ -34,9 +36,11 @@ export default function StoryPage() {
           objectPosition="center 35%"
         />
 
-        <StoryTeam />
         <StoryValues />
-        <StoryVision />
+        <StoryTeam />
+        <StoryCommitments />
+        <StoryPromise />
+        <StoryThanks />
         <StoryCTA />
       </main>
 

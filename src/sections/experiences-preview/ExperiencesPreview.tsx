@@ -15,12 +15,17 @@ export default function ExperiencesPreview() {
       <div className="max-w-[1200px] mx-auto px-6">
 
         <div className="mb-6">
-          <BrandDots />
+          <div className="flex items-center gap-3 mb-3">
+            <BrandDots className="!mb-0" />
+            <span className="inline-block bg-accent-tint text-primary text-xs font-semibold px-3 py-1 rounded-full">
+              Una experiencia a elegir
+            </span>
+          </div>
           <h2 className="h2 mb-1">
             Muchas formas de disfrutar una Vivabox
           </h2>
           <p className="text-muted">
-            Descubre algunas de las experiencias disponibles.
+            Quien la reciba escoge 1 entre más de 20.
           </p>
         </div>
 

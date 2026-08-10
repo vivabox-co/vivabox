@@ -36,6 +36,7 @@ Detailed context lives in `docs/`. Don't load a doc unless the current task touc
 | Product page (`/regalar`) | `docs/08_product-page.md` |
 | Checkout flow (steps, screens, Wompi integration) | `docs/09_checkout.md` |
 | "Nuestra historia" page | `docs/10_nuestra-historia.md` |
+| Le CTA "Activar" et tout ce qui touche à la transition vers la web app bénéficiaire (projet séparé) | `docs/11_webapp-handoff.md` |
 
 `docs/04_website-ux.md` gives the site-wide map (which pages exist, nav, overall flow). Docs `07-10` are the detailed, section-by-section specs for the pages that already have validated architecture — open the specific one instead of relying on `04` alone when actually building a page.
 

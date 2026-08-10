@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import ExperienceModal from "@/components/ExperienceModal";
 import type { Experience } from "@/types/experience";
 import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR } from "@/data/categories";
 
-const CARD_IMAGE_SIZES = "(min-width: 1280px) 220px, (min-width: 1024px) 280px, 260px";
+const CARD_IMAGE_SIZES = "(min-width: 1024px) 260px, 260px";
+const SCROLL_STEP = 584; // ~2 cards (260px card + 16px gap) x2
 
 export default function ExperiencesGrid({
   experiencesPreview,
@@ -16,13 +18,66 @@ export default function ExperiencesGrid({
 
   const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      el.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [updateScrollState, experiencesPreview]);
+
+  const scrollByStep = (direction: "left" | "right") => {
+    scrollRef.current?.scrollBy({
+      left: direction === "left" ? -SCROLL_STEP : SCROLL_STEP,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <>
-      <div
-        ref={scrollRef}
-        className="flex gap-4 overflow-x-auto pb-2 scroll-pl-4 no-scrollbar snap-x snap-mandatory scroll-smooth lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:overflow-visible lg:pb-0"
-      >
+      <div className="relative">
+
+        {/* DESKTOP SCROLL ARROWS — horizontal scroll has no discoverable affordance with a mouse */}
+        <button
+          type="button"
+          onClick={() => scrollByStep("left")}
+          aria-label="Ver experiencias anteriores"
+          className={`hidden lg:flex absolute left-0 top-[60px] -translate-x-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-white shadow-[0_8px_22px_rgba(0,0,0,0.12)] transition-opacity duration-200 hover:bg-neutral-50 ${
+            canScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <ChevronLeft size={20} className="text-primary" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => scrollByStep("right")}
+          aria-label="Ver más experiencias"
+          className={`hidden lg:flex absolute right-0 top-[60px] translate-x-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-white shadow-[0_8px_22px_rgba(0,0,0,0.12)] transition-opacity duration-200 hover:bg-neutral-50 ${
+            canScrollRight ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <ChevronRight size={20} className="text-primary" />
+        </button>
+
+        <div
+          ref={scrollRef}
+          className="flex gap-4 overflow-x-auto pb-2 scroll-pl-4 no-scrollbar snap-x snap-mandatory scroll-smooth"
+        >
 
         {experiencesPreview.map((exp, index) => {
 
@@ -39,7 +94,7 @@ export default function ExperiencesGrid({
             <div
               key={index}
               onClick={() => setSelectedExperience(exp)}
-              className="group cursor-pointer snap-start min-w-[260px] lg:min-w-0 bg-white rounded-[18px] shadow-[0_8px_22px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.1)] hover:-translate-y-[2px] transition-all duration-300 overflow-hidden"
+              className="group cursor-pointer snap-start min-w-[260px] bg-white rounded-[18px] shadow-[0_8px_22px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.1)] hover:-translate-y-[2px] transition-all duration-300 overflow-hidden"
             >
 
               {/* IMAGE */}
@@ -63,7 +118,7 @@ export default function ExperiencesGrid({
               <div className="p-4">
 
                 <span
-                  className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full mb-2 ${badgeColor}`}
+                  className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full mb-2 capitalize ${badgeColor}`}
                 >
                   {exp.category}
                 </span>
@@ -86,7 +141,7 @@ export default function ExperiencesGrid({
         })}
 
         {/* LAST CARD */}
-        <div className="group snap-start min-w-[260px] lg:min-w-0 bg-white rounded-[18px] shadow-[0_8px_22px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.1)] hover:-translate-y-[2px] transition-all duration-300 overflow-hidden">
+        <div className="group snap-start min-w-[260px] bg-white rounded-[18px] shadow-[0_8px_22px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.1)] hover:-translate-y-[2px] transition-all duration-300 overflow-hidden">
 
           <div className="relative w-full h-[160px] overflow-hidden rounded-t-[18px] bg-gradient-to-br from-[#fff4ec] to-[#f7f7f7] flex items-center justify-center">
 
@@ -117,6 +172,8 @@ export default function ExperiencesGrid({
             </p>
 
           </div>
+
+        </div>
 
         </div>
 
