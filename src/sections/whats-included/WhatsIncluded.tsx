@@ -98,15 +98,55 @@ function IncludedCard({
   )
 }
 
+// tipAlign keeps the tooltip bubble from overflowing the box on the two
+// edge categories -- it anchors to the icon's outer edge instead of centering.
 const CATEGORIES = [
-  { label: "Bienestar", src: "/images/box-includes/Bienestar.svg", size: "w-11 h-11 sm:w-[58px] sm:h-[58px] md:w-[72px] md:h-[72px]", offset: "translate-y-3 md:translate-y-4" },
-  { label: "Aventura", src: "/images/box-includes/Aventura.svg", size: "w-[46px] h-[46px] sm:w-[62px] sm:h-[62px] md:w-[80px] md:h-[80px]", offset: "-translate-y-3 md:-translate-y-4" },
-  { label: "Gastronomía", src: "/images/box-includes/Gastronomía.svg", size: "w-[50px] h-[50px] sm:w-[68px] sm:h-[68px] md:w-[92px] md:h-[92px]", offset: "translate-y-3 md:translate-y-4" },
-  { label: "Estancias", src: "/images/box-includes/Estancias.svg", size: "w-[50px] h-[50px] sm:w-[68px] sm:h-[68px] md:w-[92px] md:h-[92px]", offset: "-translate-y-3 md:-translate-y-4" },
-  { label: "Cultura", src: "/images/box-includes/Cultura.svg", size: "w-10 h-10 sm:w-[52px] sm:h-[52px] md:w-[68px] md:h-[68px]", offset: "translate-y-3 md:translate-y-4" },
+  { label: "Bienestar", examples: ["masajes", "spa", "yoga"], src: "/images/box-includes/Bienestar.svg", size: "w-11 h-11 sm:w-[58px] sm:h-[58px] md:w-[72px] md:h-[72px]", offset: "translate-y-3 md:translate-y-4", tipAlign: "left" },
+  { label: "Aventura", examples: ["parapente", "rafting", "escalada"], src: "/images/box-includes/Aventura.svg", size: "w-[46px] h-[46px] sm:w-[62px] sm:h-[62px] md:w-[80px] md:h-[80px]", offset: "-translate-y-3 md:-translate-y-4", tipAlign: "center" },
+  { label: "Gastronomía", examples: ["brunch", "catas", "cocina"], src: "/images/box-includes/Gastronomía.svg", size: "w-[50px] h-[50px] sm:w-[68px] sm:h-[68px] md:w-[92px] md:h-[92px]", offset: "translate-y-3 md:translate-y-4", tipAlign: "center" },
+  { label: "Estancias", examples: ["glamping", "cabañas", "fincas"], src: "/images/box-includes/Estancias.svg", size: "w-[50px] h-[50px] sm:w-[68px] sm:h-[68px] md:w-[92px] md:h-[92px]", offset: "-translate-y-3 md:-translate-y-4", tipAlign: "center" },
+  { label: "Cultura", examples: ["tours", "talleres", "museos"], src: "/images/box-includes/Cultura.svg", size: "w-10 h-10 sm:w-[52px] sm:h-[52px] md:w-[68px] md:h-[68px]", offset: "translate-y-3 md:translate-y-4", tipAlign: "right" },
 ] as const
 
+const TIP_ALIGN_CLASS: Record<string, string> = {
+  left: "left-0",
+  center: "left-1/2 -translate-x-1/2",
+  right: "right-0",
+}
+
+const TIP_ARROW_ALIGN_CLASS: Record<string, string> = {
+  left: "left-4",
+  center: "left-1/2 -translate-x-1/2",
+  right: "right-4",
+}
+
 export default function WhatsIncluded() {
+
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+
+  const toggleCategory = (label: string) => {
+    setActiveCategory((current) => (current === label ? null : label))
+  }
+
+  // Auto-dismiss the tooltip after a few idle seconds, or as soon as the
+  // visitor interacts anywhere outside the category picker.
+  useEffect(() => {
+    if (!activeCategory) return
+
+    const timeout = setTimeout(() => setActiveCategory(null), 4000)
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest("[data-category-picker]")) {
+        setActiveCategory(null)
+      }
+    }
+    document.addEventListener("mousedown", handleOutsideClick)
+
+    return () => {
+      clearTimeout(timeout)
+      document.removeEventListener("mousedown", handleOutsideClick)
+    }
+  }, [activeCategory])
 
   return (
     <section className="bg-surface">
@@ -115,7 +155,7 @@ export default function WhatsIncluded() {
 
       <div className="bg-ink py-3 md:py-4 px-3 md:px-6">
 
-        <div className="max-w-[820px] mx-auto flex flex-row items-center justify-center gap-2 sm:gap-5 md:gap-8">
+        <div className="max-w-[820px] mx-auto flex flex-row items-center justify-between gap-0 sm:gap-5 md:gap-8">
 
           <div className="shrink-0 flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
             <Image
@@ -125,34 +165,34 @@ export default function WhatsIncluded() {
               height={32}
               className="shrink-0 h-8 w-auto md:h-[38px]"
             />
-            <p className="w-[92px] md:w-[134px] text-white font-semibold text-[13px] md:text-[19px] leading-snug whitespace-nowrap">
+            <p className="w-[100px] md:w-[170px] text-white font-semibold text-[13px] md:text-[19px] leading-snug whitespace-nowrap">
               Tú regalas
               <br />
               una Vivabox.
             </p>
           </div>
 
-          <ArrowRight size={16} strokeWidth={1.5} className="shrink-0 text-white md:w-5 md:h-5" />
+          <ArrowRight size={14} strokeWidth={1.5} className="shrink-0 text-white md:w-5 md:h-5" />
 
           <div className="shrink-0 flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
             <User size={32} strokeWidth={2} className="text-white shrink-0 md:w-9 md:h-9" />
-            <p className="md:hidden text-white font-semibold text-[13px] leading-snug whitespace-nowrap">
+            <p className="md:hidden text-white font-semibold text-[12px] leading-snug whitespace-nowrap">
               Quien la recibe
               <br />
-              elige su experiencia.
+              elige 1 experiencia.
             </p>
             <p className="hidden md:block text-white font-semibold text-[19px] leading-snug">
               Quien la recibe
               <br />
-              elige su experiencia.
+              elige 1 experiencia.
             </p>
           </div>
 
-          <ArrowRight size={16} strokeWidth={1.5} className="shrink-0 text-white md:w-5 md:h-5" />
+          <ArrowRight size={14} strokeWidth={1.5} className="shrink-0 text-white md:w-5 md:h-5" />
 
           <div className="shrink-0 flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
             <CalendarCheck size={32} strokeWidth={2} className="text-white shrink-0 md:w-8 md:h-8" />
-            <p className="md:hidden w-[110px] text-white font-semibold text-[13px] leading-snug">
+            <p className="md:hidden w-[100px] text-white font-semibold text-[13px] leading-snug">
               Gestionamos la reserva.
             </p>
             <p className="hidden md:block md:w-[170px] text-white font-semibold text-[19px] leading-snug">
@@ -207,8 +247,8 @@ export default function WhatsIncluded() {
 
             <div className="relative w-full aspect-[10/13.5]">
 
-              {/* Lista para regalar. — to the left of the box, vertically centered on it, drawn in closer so it reads as tied to the box */}
-              <p className="absolute z-40 left-[4%] top-[16%] w-[13%] text-right font-hand text-ink/90 text-[20px] sm:text-[25px] md:text-[32px] leading-snug -rotate-2">
+              {/* Lista para regalar. — to the left of the box, vertically centered on it. Left edge unchanged (no clipping risk); width trimmed so the right edge (where text-right anchors every line) sits at 10%, clear of the box's left edge (12%). No break-words: words stay whole and any word wider than the column simply extends into the open space to the left, never into the box. */}
+              <p className="absolute z-40 left-[4%] top-[16%] w-[6%] text-right font-hand text-ink/90 text-[20px] sm:text-[25px] md:text-[32px] leading-snug -rotate-2">
                 Lista para regalar.
               </p>
 
@@ -319,7 +359,7 @@ export default function WhatsIncluded() {
 
         {/* GROUPING CONTAINER — border only, groups the categories title + grid */}
 
-        <div className="-mt-2 sm:-mt-6 md:-mt-9 border-2 border-[#3A2E22] rounded-[28px] sm:rounded-[36px] md:rounded-[48px] px-4 pt-3 pb-6 sm:px-8 sm:pt-5 sm:pb-8 md:px-12 md:pt-6 md:pb-10">
+        <div className="-mt-2 sm:-mt-6 md:-mt-9 border-2 border-[#3A2E22] rounded-[28px] sm:rounded-[36px] md:rounded-[48px] px-4 pt-3 pb-4 sm:px-8 sm:pt-5 sm:pb-6 md:px-12 md:pt-6 md:pb-7">
 
           {/* CATALOGUE CONTINUATION — categories read as an extension of "Para elegir.", not a new section */}
 
@@ -331,31 +371,51 @@ export default function WhatsIncluded() {
 
           </div>
 
-          <div className="mt-4 md:mt-6">
+          <div className="mt-6 sm:mt-6 md:mt-8">
 
-            <div className="grid grid-cols-5 gap-x-1 sm:gap-x-6 md:gap-x-10">
+            <div data-category-picker className="grid grid-cols-5 gap-x-1 sm:gap-x-6 md:gap-x-10">
 
               {CATEGORIES.map((cat) => (
-                <div key={cat.label} className={`flex flex-col items-center text-center ${cat.offset}`} aria-label={`Categoría ${cat.label}`}>
+                <button
+                  key={cat.label}
+                  type="button"
+                  onClick={() => toggleCategory(cat.label)}
+                  className={`relative flex flex-col items-center text-center ${cat.offset} transition-opacity ${activeCategory === cat.label ? "z-30 opacity-100" : activeCategory ? "opacity-70" : "opacity-100"}`}
+                  aria-pressed={activeCategory === cat.label}
+                  aria-label={`Ver ejemplos de ${cat.label}`}
+                >
+                  <div
+                    className={`absolute bottom-full mb-2 ${TIP_ALIGN_CLASS[cat.tipAlign]} z-20 transition-opacity duration-300 ${activeCategory === cat.label ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                    aria-hidden={activeCategory !== cat.label}
+                  >
+                    <div className="bg-ink text-white text-[11px] font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap first-letter:uppercase">
+                      {cat.examples.join(", ")}…
+                    </div>
+                    <div className={`absolute top-full -mt-1 ${TIP_ARROW_ALIGN_CLASS[cat.tipAlign]} w-2 h-2 bg-ink rotate-45`} />
+                  </div>
                   <div className="h-[50px] sm:h-[68px] md:h-[92px] flex items-end justify-center mb-0.5 md:mb-1">
                     <div className={`relative ${cat.size}`}>
-                      <Image src={cat.src} alt={`Categoría ${cat.label}`} fill sizes="92px" className="object-contain" />
+                      <Image src={cat.src} alt="" fill sizes="92px" className="object-contain" />
                     </div>
                   </div>
-                  <span className="text-ink text-[12px] sm:text-[16px] md:text-[20px] font-medium leading-tight">
+                  <span className={`text-[12px] sm:text-[16px] md:text-[20px] font-medium leading-tight ${activeCategory === cat.label ? "text-primary underline" : "text-ink"}`}>
                     {cat.label}
                   </span>
-                </div>
+                </button>
               ))}
 
             </div>
+
+            <p className="mt-7 md:mt-8 text-muted text-[13px] sm:text-[14px] text-center">
+              Toca una categoría para ver ejemplos
+            </p>
 
           </div>
 
         </div>
 
         <p className="mt-5 md:mt-6 text-muted text-[14px] sm:text-[15px] md:text-[16px] text-center">
-          Más de 20 experiencias en Bogotá y Cundinamarca.
+          Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 20 experiencias en Bogotá y Cundinamarca.
         </p>
 
         {/* CTA — editorial, no price shown here */}
@@ -363,10 +423,6 @@ export default function WhatsIncluded() {
         <div className="mt-8 md:mt-10 flex flex-col items-center text-center">
 
           <div className="w-10 h-px bg-ink/10 mb-3 md:mb-4" />
-
-          <p className="text-muted text-[15px] md:text-[17px] mb-4 md:mb-5">
-            Una experiencia a elegir.
-          </p>
 
           <a
             href={`/proximamente?next=/cajas/${vivabox.slug}`}
@@ -481,31 +537,51 @@ export default function WhatsIncluded() {
 
           {/* STAGE 4 — experience categories, same bordered grouping as the mobile version */}
 
-          <div className="mt-28 xl:mt-32 max-w-[960px] mx-auto border-2 border-[#3A2E22] rounded-[48px] px-12 py-8 xl:px-14 xl:py-9 text-center">
+          <div className="mt-28 xl:mt-32 max-w-[960px] mx-auto border-2 border-[#3A2E22] rounded-[48px] px-12 pt-8 pb-6 xl:px-14 xl:pt-9 xl:pb-7 text-center">
 
             <p className="text-ink text-[30px] xl:text-[34px] font-semibold tracking-tight mb-8">
               ¿Qué experiencias podrá elegir?
             </p>
 
-            <div className="flex justify-center gap-20 xl:gap-24">
+            <div data-category-picker className="flex justify-center gap-20 xl:gap-24">
               {CATEGORIES.map((cat) => (
-                <div key={cat.label} className="flex flex-col items-center">
+                <button
+                  key={cat.label}
+                  type="button"
+                  onClick={() => toggleCategory(cat.label)}
+                  className={`relative flex flex-col items-center transition-opacity ${activeCategory === cat.label ? "z-30 opacity-100" : activeCategory ? "opacity-70" : "opacity-100"}`}
+                  aria-pressed={activeCategory === cat.label}
+                  aria-label={`Ver ejemplos de ${cat.label}`}
+                >
+                  <div
+                    className={`absolute bottom-full mb-2 ${TIP_ALIGN_CLASS[cat.tipAlign]} z-20 transition-opacity duration-300 ${activeCategory === cat.label ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                    aria-hidden={activeCategory !== cat.label}
+                  >
+                    <div className="bg-ink text-white text-[13px] font-medium px-3.5 py-2 rounded-lg shadow-lg whitespace-nowrap first-letter:uppercase">
+                      {cat.examples.join(", ")}…
+                    </div>
+                    <div className={`absolute top-full -mt-1 ${TIP_ARROW_ALIGN_CLASS[cat.tipAlign]} w-2.5 h-2.5 bg-ink rotate-45`} />
+                  </div>
                   <div className="h-[84px] flex items-end justify-center mb-4">
                     <div className="relative w-[70px] h-[70px]">
-                      <Image src={cat.src} alt={`Categoría ${cat.label}`} fill sizes="70px" className="object-contain" />
+                      <Image src={cat.src} alt="" fill sizes="70px" className="object-contain" />
                     </div>
                   </div>
-                  <span className="text-ink text-[16px] font-medium">
+                  <span className={`text-[16px] font-medium ${activeCategory === cat.label ? "text-primary underline" : "text-ink"}`}>
                     {cat.label}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
+
+            <p className="mt-9 text-muted text-[15px] text-center">
+              Toca una categoría para ver ejemplos
+            </p>
 
           </div>
 
           <p className="mt-4 text-muted text-[14px] text-center">
-            Más de 20 experiencias en Bogotá y Cundinamarca.
+            Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 20 experiencias en Bogotá y Cundinamarca.
           </p>
 
           {/* STAGE 5 — the purchase action, only after the product has been understood */}
@@ -513,10 +589,6 @@ export default function WhatsIncluded() {
           <div className="mt-20 flex flex-col items-center text-center">
 
             <div className="w-10 h-px bg-ink/10 mb-5" />
-
-            <p className="text-muted text-[17px] mb-5">
-              Una experiencia a elegir.
-            </p>
 
             <a
               href={`/proximamente?next=/cajas/${vivabox.slug}`}
