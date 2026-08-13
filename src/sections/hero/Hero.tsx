@@ -6,6 +6,8 @@ import { boxes } from "@/data/boxes"
 
 const DESKTOP_SRC = "/videos/hero/hero.mp4"
 const MOBILE_SRC = "/videos/hero/hero-mobile.mp4"
+const DESKTOP_POSTER = "/images/hero/hero-poster.jpg"
+const MOBILE_POSTER = "/images/hero/hero-poster-mobile.jpg"
 
 const vivabox = boxes[0]
 
@@ -16,6 +18,7 @@ export default function Hero() {
   // tool for this but iOS WebKit resolves it inconsistently between Safari
   // and Chrome-for-iOS, so the source is picked in JS instead.
   const [src, setSrc] = useState(DESKTOP_SRC)
+  const poster = src === MOBILE_SRC ? MOBILE_POSTER : DESKTOP_POSTER
 
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 767px)")
@@ -46,6 +49,7 @@ export default function Hero() {
         key={src}
         ref={videoRef}
         src={src}
+        poster={poster}
         autoPlay
         muted
         loop
