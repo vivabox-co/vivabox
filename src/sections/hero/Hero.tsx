@@ -103,9 +103,9 @@ export default function Hero() {
             [text-shadow:0_2px_16px_rgba(0,0,0,.35)]
           "
         >
-          El regalo que
+          Tú regalas,
           <br />
-          deja elegir.
+          ellos eligen.
         </h1>
 
         {/* SUBTITLE */}

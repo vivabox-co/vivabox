@@ -47,7 +47,7 @@ recipient gets to choose.
 
 ## Headline
 
-> **El mejor regalo deja elegir.**
+> **Tú regalas, ellos eligen.**
 
 ## Supporting Copy
 

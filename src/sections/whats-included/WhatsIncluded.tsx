@@ -193,10 +193,10 @@ export default function WhatsIncluded() {
           <div className="shrink-0 flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
             <CalendarCheck size={32} strokeWidth={2} className="text-white shrink-0 md:w-8 md:h-8" />
             <p className="md:hidden w-[100px] text-white font-semibold text-[13px] leading-snug">
-              Gestionamos la reserva.
+              Acompañamos la reserva.
             </p>
             <p className="hidden md:block md:w-[170px] text-white font-semibold text-[19px] leading-snug">
-              Gestionamos la reserva.
+              Acompañamos la reserva.
             </p>
           </div>
 
