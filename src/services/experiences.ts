@@ -15,6 +15,21 @@ const categoryMap: Record<string,string> = {
 const PLACEHOLDER_IMAGE = "/images/box-includes/vivabox-caja-regalo.png"
 const LOCAL_CACHE_DIR = path.join(process.cwd(), "public", "images", "experiences")
 
+// Minimum photos per gallery so the modal always shows a real carousel.
+// Rows without enough "imagenes_adicionales" get padded with generic
+// experience shots -- relevance doesn't matter here, just variety.
+const MIN_GALLERY_IMAGES = 3
+const FALLBACK_GALLERY_IMAGES = [
+  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0",
+  "https://images.unsplash.com/photo-1551218808-94e220e084d2",
+  "https://images.unsplash.com/photo-1540541338287-41700207dee6",
+  "https://images.unsplash.com/photo-1544161515-4ab6ce6db874",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+  "https://images.unsplash.com/photo-1560275619-4662e36fa65c",
+  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4",
+  "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
+]
+
 function isRemoteExperienceImage(url?: string): url is string {
   return !!url && (url.includes("images.pexels.com") || url.includes("images.unsplash.com"))
 }
@@ -50,7 +65,14 @@ function resolveGallery(row: any): string[] {
     .filter(Boolean)
     .map(resolveExperienceImage)
 
-  return [resolveExperienceImage(row.image), ...additional]
+  const gallery = [resolveExperienceImage(row.image), ...additional]
+
+  for (let i = 0; gallery.length < MIN_GALLERY_IMAGES && i < FALLBACK_GALLERY_IMAGES.length; i++) {
+    const fallback = resolveExperienceImage(FALLBACK_GALLERY_IMAGES[i])
+    if (!gallery.includes(fallback)) gallery.push(fallback)
+  }
+
+  return gallery
 }
 
 export async function getExperiencesPreview():Promise<Experience[]> {

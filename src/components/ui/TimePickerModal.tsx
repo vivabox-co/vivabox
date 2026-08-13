@@ -32,14 +32,20 @@ export default function TimePickerModal({ onClose, onConfirm }: Props) {
   }
 
   return (
-    <div style={overlay} onClick={onClose}>
-      <div style={drawer} onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/25 z-[3000] flex items-end justify-center"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-[500px] bg-[var(--color-card)] rounded-t-[28px] p-6 pb-8 text-center shadow-[0_-10px_30px_var(--nm-dark)]"
+        onClick={(e) => e.stopPropagation()}
+      >
 
         {/* TITLE */}
-        <h3 style={title}>Elige la hora</h3>
+        <h3 className="text-lg font-semibold mb-4">Elige la hora</h3>
 
         {/* GRID */}
-        <div style={grid}>
+        <div className="grid grid-cols-3 gap-2.5 mb-4">
           {hours.map((h) => {
             const isSelected = selected.includes(h)
 
@@ -47,11 +53,11 @@ export default function TimePickerModal({ onClose, onConfirm }: Props) {
               <button
                 key={h}
                 onClick={() => toggleHour(h)}
-                style={{
-                  ...hourBtn,
-                  background: isSelected ? "#111" : "#f5f5f5",
-                  color: isSelected ? "#fff" : "#111",
-                }}
+                className={`py-3 rounded-xl text-sm font-medium transition active:scale-95 ${
+                  isSelected
+                    ? "bg-[var(--color-accent-tint)] text-primary shadow-[inset_3px_3px_7px_var(--nm-dark-strong),inset_-3px_-3px_7px_var(--nm-light)]"
+                    : "bg-[var(--color-card)] text-ink shadow-[3px_3px_8px_var(--nm-dark),-3px_-3px_8px_var(--nm-light)]"
+                }`}
               >
                 {h}:00
               </button>
@@ -60,7 +66,7 @@ export default function TimePickerModal({ onClose, onConfirm }: Props) {
         </div>
 
         {/* INFO */}
-        <p style={info}>
+        <p className="text-xs text-muted mb-4">
           Puedes elegir hasta 2 horarios
         </p>
 
@@ -68,87 +74,17 @@ export default function TimePickerModal({ onClose, onConfirm }: Props) {
         <button
           onClick={handleConfirm}
           disabled={selected.length === 0}
-          style={{
-            ...confirmBtn,
-            opacity: selected.length === 0 ? 0.4 : 1,
-          }}
+          className="vb-btn-primary w-full h-[52px] text-[15px] mb-2.5"
         >
           Confirmar horario
         </button>
 
         {/* CANCEL */}
-        <button onClick={onClose} style={cancelBtn}>
+        <button onClick={onClose} className="text-[13px] text-muted">
           Cancelar
         </button>
 
       </div>
     </div>
   )
-}
-
-/* ---------- STYLES ---------- */
-
-const overlay: React.CSSProperties = {
-  position: "fixed",
-  inset: 0,
-  background: "rgba(0,0,0,0.25)",
-  display: "flex",
-  alignItems: "flex-end",
-  justifyContent: "center",
-  zIndex: 3000,
-}
-
-const drawer: React.CSSProperties = {
-  width: "100%",
-  maxWidth: 500,
-  background: "#fff",
-  borderRadius: "28px 28px 0 0",
-  padding: "24px 20px 30px",
-  textAlign: "center",
-}
-
-const title: React.CSSProperties = {
-  fontSize: 18,
-  fontWeight: 600,
-  marginBottom: 16,
-}
-
-const grid: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(3, 1fr)",
-  gap: 10,
-  marginBottom: 16,
-}
-
-const hourBtn: React.CSSProperties = {
-  padding: "12px 0",
-  borderRadius: 12,
-  border: "none",
-  fontWeight: 500,
-  fontSize: 14,
-}
-
-const info: React.CSSProperties = {
-  fontSize: 12,
-  opacity: 0.6,
-  marginBottom: 16,
-}
-
-const confirmBtn: React.CSSProperties = {
-  width: "100%",
-  padding: 14,
-  borderRadius: 12,
-  border: "none",
-  background: "#111",
-  color: "#fff",
-  fontSize: 15,
-  fontWeight: 600,
-  marginBottom: 10,
-}
-
-const cancelBtn: React.CSSProperties = {
-  fontSize: 13,
-  background: "none",
-  border: "none",
-  color: "#888",
 }

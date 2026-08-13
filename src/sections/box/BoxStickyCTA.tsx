@@ -50,7 +50,7 @@ export default function BoxStickyCTA({ price, slug }: Props) {
 
   return (
     <div
-      className={`lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-sm border-t border-border px-4 pt-3 shadow-[0_-8px_24px_rgba(24,20,15,0.06)] transition-transform duration-300 ease-out ${
+      className={`vb-sticky-bar lg:hidden fixed bottom-0 inset-x-0 z-40 px-4 pt-3 transition-transform duration-300 ease-out ${
         visible ? "translate-y-0" : "translate-y-full"
       }`}
       style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
@@ -70,7 +70,7 @@ export default function BoxStickyCTA({ price, slug }: Props) {
         <button
           onClick={() => router.push(`/checkout/${slug}`)}
           tabIndex={visible ? 0 : -1}
-          className="h-12 px-8 shrink-0 rounded-xl bg-primary text-white font-semibold hover:bg-primary-hover transition shadow-[0_10px_30px_rgba(254,132,47,.32)]"
+          className="vb-btn-primary h-12 px-8 shrink-0"
         >
           Comprar ahora
         </button>

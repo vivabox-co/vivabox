@@ -8,7 +8,7 @@ type Props = {
 
 export default function BoxFinalCTA({ price, slug }: Props) {
   return (
-    <section className="relative w-screen left-1/2 -translate-x-1/2 bg-ink">
+    <section className="vb-dark relative w-screen left-1/2 -translate-x-1/2 bg-ink">
 
       <div className="relative w-full h-[380px] md:h-[480px]">
         <Image
@@ -30,7 +30,7 @@ export default function BoxFinalCTA({ price, slug }: Props) {
         <a
           href={`/checkout/${slug}`}
           aria-label="Comprar ahora"
-          className="inline-flex items-center justify-center h-14 px-12 rounded-xl bg-primary text-white text-[17px] font-semibold transition hover:bg-primary-hover shadow-[0_10px_35px_rgba(254,132,47,.35)]"
+          className="vb-btn-primary inline-flex h-14 px-12 text-[17px]"
         >
           Comprar ahora
         </a>

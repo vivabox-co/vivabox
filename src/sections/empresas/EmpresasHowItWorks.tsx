@@ -10,7 +10,7 @@ const STEPS = [
 
 export default function EmpresasHowItWorks() {
   return (
-    <section id="como-funciona-empresas" className="bg-ink">
+    <section id="como-funciona-empresas" className="vb-dark bg-ink">
 
       <div className="max-w-6xl mx-auto px-6 py-14 md:py-20">
 
@@ -31,7 +31,7 @@ export default function EmpresasHowItWorks() {
                 const Icon = step.icon;
                 return (
                   <div key={step.title} className="flex flex-col items-center text-center px-2">
-                    <div className="h-14 w-14 rounded-full bg-white/10 border border-white/15 flex items-center justify-center mb-5">
+                    <div className="vb-icon-btn h-14 w-14 mb-5">
                       <Icon size={22} strokeWidth={1.5} className="text-primary" />
                     </div>
                     <span className="text-white text-base font-semibold leading-snug max-w-[200px]">
@@ -61,7 +61,7 @@ export default function EmpresasHowItWorks() {
               return (
                 <Reveal key={step.title} delay={index * 80}>
                   <div className="relative flex items-center gap-4">
-                    <div className="relative z-10 h-14 w-14 shrink-0 rounded-full bg-ink border border-white/15 flex items-center justify-center -ml-7">
+                    <div className="vb-icon-btn relative z-10 h-14 w-14 shrink-0 -ml-7">
                       <Icon size={20} strokeWidth={1.5} className="text-primary" />
                     </div>
                     <div>

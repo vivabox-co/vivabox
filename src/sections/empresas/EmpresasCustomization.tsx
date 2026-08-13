@@ -11,7 +11,7 @@ const CHIPS = [
 
 export default function EmpresasCustomization() {
   return (
-    <section className="bg-ink">
+    <section className="vb-dark bg-ink">
 
       <div className="max-w-6xl mx-auto px-6 py-14 md:py-20 grid md:grid-cols-2 items-center gap-14 md:gap-16">
 

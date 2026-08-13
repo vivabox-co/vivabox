@@ -36,7 +36,7 @@ export default function WhatsappButton() {
 
       {/* label desktop */}
 
-      <div className="hidden lg:block bg-white text-sm text-foreground px-4 py-2 rounded-full shadow-md">
+      <div className="hidden lg:block bg-[var(--color-card)] text-sm text-foreground px-4 py-2 rounded-full shadow-[3px_3px_8px_var(--nm-dark),-3px_-3px_8px_var(--nm-light)]">
         ¿Te ayudamos?
       </div>
 

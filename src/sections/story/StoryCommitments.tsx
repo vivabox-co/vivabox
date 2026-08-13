@@ -9,7 +9,7 @@ const COMMITMENTS = [
 
 export default function StoryCommitments() {
   return (
-    <section className="bg-[#fff4ec] py-20 md:py-[120px]">
+    <section className="bg-accent-tint py-20 md:py-[120px]">
 
       <div className="max-w-[640px] mx-auto px-6">
 

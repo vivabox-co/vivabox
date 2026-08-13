@@ -2,7 +2,7 @@ import Reveal from "@/components/ui/Reveal";
 
 export default function StoryThanks() {
   return (
-    <section className="bg-[#F7F7F7] py-20 md:py-[120px]">
+    <section className="vb-surface-base py-20 md:py-[120px]">
 
       <div className="max-w-[560px] mx-auto px-6 text-center">
 

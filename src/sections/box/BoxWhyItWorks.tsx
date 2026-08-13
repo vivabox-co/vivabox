@@ -10,7 +10,7 @@ const items = [
   {
     image: "/images/final-cta/persona-regalando-vivabox.png",
     title: "El regalo se vive dos veces.",
-    text: "Primero al abrir la caja. Después al disfrutar la experiencia.",
+    text: "Primero al recibir la caja. Después al disfrutar la experiencia.",
   },
   {
     image: "/images/box-includes/vivabox-catalogo-experiencias.png",
@@ -36,8 +36,8 @@ export default function BoxWhyItWorks() {
           {items.map(({ image, title, text }, i) => (
             <div
               key={title}
-              className={`flex items-center gap-4 py-5 border-t border-border ${
-                i === items.length - 1 ? "border-b" : ""
+              className={`vb-divider-top flex items-center gap-4 py-5 ${
+                i === items.length - 1 ? "border-b border-border" : ""
               }`}
             >
 

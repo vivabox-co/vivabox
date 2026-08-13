@@ -4,7 +4,7 @@ type Props = {
 
 export default function Card({ children }: Props) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
+    <div className="vb-card overflow-hidden">
       {children}
     </div>
   )

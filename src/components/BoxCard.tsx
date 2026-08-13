@@ -26,8 +26,8 @@ export default function BoxCard({ box }: BoxCardProps) {
   const imageSize = box.highlight ? "w-[230px]" : "w-[250px]"
 
   const cardStyle = box.highlight
-    ? "shadow-[0_25px_60px_rgba(0,0,0,0.16)] md:-mt-6 border border-border"
-    : "shadow-[0_16px_35px_rgba(0,0,0,0.08)] border border-border"
+    ? "md:-mt-6 ring-2 ring-primary/25"
+    : ""
 
   return (
     <div className="relative pt-16 text-center group">
@@ -48,7 +48,7 @@ export default function BoxCard({ box }: BoxCardProps) {
       {/* CARD */}
 
       <div
-        className={`relative overflow-hidden bg-white rounded-[18px] p-8 pt-28 transition hover:-translate-y-2 hover:shadow-[0_30px_60px_rgba(0,0,0,0.12)] ${cardStyle}`}
+        className={`vb-card relative overflow-hidden p-8 pt-28 transition hover:-translate-y-2 ${cardStyle}`}
       >
 
         {/* DIAGONAL RIBBON */}
@@ -115,7 +115,7 @@ export default function BoxCard({ box }: BoxCardProps) {
 
         <Link
           href={`/cajas/${box.slug}`}
-          className="inline-flex items-center justify-center h-12 px-7 rounded-xl bg-primary text-white text-[15px] font-semibold transition hover:brightness-95"
+          className="vb-btn-primary h-12 px-7 text-[15px]"
         >
           Descubrir
         </Link>

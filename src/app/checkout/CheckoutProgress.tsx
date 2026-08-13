@@ -12,15 +12,19 @@ const steps: { key: Step; label: string }[] = [
 
 type Props = {
   current: Step
+  // Marca el paso actual como completado (check) en vez de "activo" —
+  // se usa en "enviar" una vez guardado el mensaje, para que los 3 pasos
+  // muestren el mismo check de validación.
+  completed?: boolean
 }
 
-export default function CheckoutProgress({ current }: Props) {
+export default function CheckoutProgress({ current, completed = false }: Props) {
 
   const order: Step[] = ["elegir", "pagar", "enviar"]
 
   return (
-    <div className="bg-card border-b border-[#ECECEC]">
-      <div className="max-w-[1100px] mx-auto px-6 py-4 flex items-center justify-between">
+    <div className="checkout-container pt-4">
+      <div className="vb-steps max-w-[1100px] mx-auto" role="list" aria-label="Progreso de la compra">
 
         {steps.map((step, index) => {
 
@@ -31,56 +35,19 @@ export default function CheckoutProgress({ current }: Props) {
             stepIndex < currentIndex
               ? "done"
               : stepIndex === currentIndex
-              ? "active"
+              ? (completed ? "done" : "active")
               : "pending"
 
           return (
-            <div key={step.key} className="flex items-center gap-3">
-
-              {/* STEP */}
-              <div className="flex items-center gap-2">
-
-                <div
-                  className={`
-                    w-6 h-6 rounded-full flex items-center justify-center text-xs transition-colors duration-300
-                    ${
-                      state === "done"
-                        ? "bg-primary text-white"
-                        : state === "active"
-                        ? "border-2 border-ink text-ink"
-                        : "border border-[#ECECEC] text-gray-400"
-                    }
-                  `}
-                >
-                  {state === "done" ? (
-                    <Check className="w-3 h-3" strokeWidth={1.5} />
-                  ) : (
-                    index + 1
-                  )}
-                </div>
-
-                <div className="flex flex-col leading-tight">
-                  <span
-                    className={`
-                      text-sm
-                      ${
-                        state === "active"
-                          ? "font-medium text-ink"
-                          : "text-gray-500"
-                      }
-                    `}
-                  >
-                    {step.label}
-                  </span>
-                </div>
-
-              </div>
-
-              {/* LINE */}
-              {index < steps.length - 1 && (
-                <div className="flex-1 h-[1px] bg-[#ECECEC] mx-3" />
-              )}
-
+            <div
+              key={step.key}
+              role="listitem"
+              className={`vb-step ${state === "active" ? "is-active" : ""} ${state === "done" ? "is-done" : ""}`}
+            >
+              <span className="vb-step-dot">
+                {state === "done" ? <Check className="w-3 h-3" strokeWidth={2} /> : index + 1}
+              </span>
+              {step.label}
             </div>
           )
         })}
@@ -89,3 +56,4 @@ export default function CheckoutProgress({ current }: Props) {
     </div>
   )
 }
+

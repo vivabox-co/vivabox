@@ -10,7 +10,7 @@ import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import CheckoutSummary from "@/app/checkout/components/CheckoutSummary"
 import WelcomeShippingModal from "@/app/checkout/components/WelcomeShippingModal"
 
-import { Truck, Home, Gift } from "lucide-react"
+import { Truck, Home, Gift, ArrowRight, Lock, CheckCircle2, Loader2 } from "lucide-react"
 
 type CheckoutBox = {
   slug: string
@@ -269,7 +269,7 @@ export default function CheckoutStep({ box }: Props) {
   // ======================
 
   return (
-    <section className="pt-2 pb-28 lg:pb-10">
+    <section className="pt-2 pb-28">
       <div className="checkout-container">
 
         <Link href={`/cajas/${box.slug}`} className="text-sm text-[#6B6B6B] mb-3 inline-block">
@@ -278,19 +278,21 @@ export default function CheckoutStep({ box }: Props) {
 
         {/* PRODUCT + PROMOTIONS — same frame */}
         <div
-          className="checkout-card p-4 mb-5 space-y-4 animate-step"
+          className="vb-card p-4 mb-5 space-y-4 animate-step"
           style={{ animationDelay: "0ms" }}
         >
           <div className="flex items-center gap-4">
 
             {box.image && (
-              <Image
-                src={box.image}
-                alt={box.name}
-                width={68}
-                height={68}
-                className="shrink-0 rounded-xl object-contain drop-shadow-[0_8px_16px_rgba(24,20,15,0.12)]"
-              />
+              <span className="vb-thumb shrink-0">
+                <Image
+                  src={box.image}
+                  alt={box.name}
+                  width={56}
+                  height={56}
+                  className="rounded-xl object-contain"
+                />
+              </span>
             )}
 
             <div className="min-w-0 flex-1">
@@ -313,7 +315,7 @@ export default function CheckoutStep({ box }: Props) {
 
           </div>
 
-          <div className="pt-3 border-t border-[#ECECEC]">
+          <div className="pt-4 vb-divider-top">
             {promoApplied ? (
               <div className="text-xs text-green-700">
                 ✓ Código aplicado — Envío incluido
@@ -324,7 +326,7 @@ export default function CheckoutStep({ box }: Props) {
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="rounded-2xl bg-[#FFF4EC] p-4 space-y-2.5">
+                <div className="vb-well p-4 space-y-2.5">
                   <div className="flex items-center gap-2">
                     <Gift size={16} strokeWidth={2} className="text-primary shrink-0" />
                     <p className="text-sm font-semibold text-ink">
@@ -336,9 +338,10 @@ export default function CheckoutStep({ box }: Props) {
                   </p>
                   <button
                     onClick={() => setWelcomeOpen(true)}
-                    className="checkout-btn-primary w-full h-10 text-sm"
+                    className="vb-btn-secondary w-full h-10 text-sm"
                   >
                     Obtener envío incluido
+                    <Truck size={16} strokeWidth={2} className="vb-cta-icon" />
                   </button>
                 </div>
 
@@ -357,13 +360,13 @@ export default function CheckoutStep({ box }: Props) {
                           if (promoError) setPromoError("")
                         }}
                         onKeyDown={(e) => e.key === "Enter" && handleApplyPromo()}
-                        className="checkout-input flex-1 text-sm"
+                        className="vb-input flex-1 text-sm"
                         autoFocus
                       />
                       <button
                         onClick={handleApplyPromo}
                         disabled={promoChecking || !promoInput.trim()}
-                        className="px-4 rounded-2xl border border-[#ECECEC] text-sm font-medium text-ink transition hover:bg-black/[0.02] active:scale-[0.98] disabled:opacity-50"
+                        className="vb-btn-soft px-4 text-sm"
                       >
                         {promoChecking ? "..." : "Aplicar"}
                       </button>
@@ -393,7 +396,7 @@ export default function CheckoutStep({ box }: Props) {
 
             {/* DELIVERY + DESTINATION */}
             <div
-              className="checkout-card p-5 space-y-4 animate-step"
+              className="vb-card p-5 space-y-4 animate-step"
               style={{ animationDelay: "60ms" }}
             >
               <div>
@@ -412,27 +415,25 @@ export default function CheckoutStep({ box }: Props) {
                 </p>
               </div>
 
-              <div className="pt-3 space-y-3 border-t border-[#ECECEC]">
-                <div className="space-y-3">
-                  <label className="flex items-center gap-3 cursor-pointer">
+              <div className="pt-4 vb-divider-top space-y-3">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="vb-choice">
                     <input
                       type="radio"
                       checked={deliveryDestination === "self"}
                       onChange={() => setDestination("self")}
-                      className="accent-primary"
                     />
-                    <Home size={16} strokeWidth={1.75} className="text-primary" />
+                    <span className="vb-choice-icon"><Home size={16} strokeWidth={1.75} /></span>
                     <span className="text-sm">En mi dirección</span>
                   </label>
 
-                  <label className="flex items-center gap-3 cursor-pointer">
+                  <label className="vb-choice">
                     <input
                       type="radio"
                       checked={deliveryDestination === "recipient"}
                       onChange={() => setDestination("recipient")}
-                      className="accent-primary"
                     />
-                    <Gift size={16} strokeWidth={1.75} className="text-primary" />
+                    <span className="vb-choice-icon"><Gift size={16} strokeWidth={1.75} /></span>
                     <span className="text-sm">Directamente a quien la recibe</span>
                   </label>
                 </div>
@@ -444,7 +445,7 @@ export default function CheckoutStep({ box }: Props) {
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <div className="pt-3 space-y-3 border-t border-[#ECECEC]">
+                    <div className="pt-4 vb-divider-top space-y-3">
                       {deliveryDestination === "recipient" && (
                         <>
                           <input
@@ -452,14 +453,14 @@ export default function CheckoutStep({ box }: Props) {
                             placeholder="Nombre"
                             value={recipientName}
                             onChange={(e) => setRecipientInfo({ name: e.target.value, phone: recipientPhone })}
-                            className="checkout-input"
+                            className="vb-input"
                           />
                           <input
                             type="text"
                             placeholder="WhatsApp"
                             value={recipientPhone}
                             onChange={(e) => setRecipientInfo({ name: recipientName, phone: e.target.value })}
-                            className="checkout-input"
+                            className="vb-input"
                           />
                         </>
                       )}
@@ -469,21 +470,21 @@ export default function CheckoutStep({ box }: Props) {
                         placeholder="Dirección"
                         value={address}
                         onChange={(e) => setAddressInfo({ address: e.target.value, city, addressExtra })}
-                        className="checkout-input"
+                        className="vb-input"
                       />
                       <input
                         type="text"
                         placeholder="Ciudad"
                         value={city}
                         onChange={(e) => setAddressInfo({ address, city: e.target.value, addressExtra })}
-                        className="checkout-input"
+                        className="vb-input"
                       />
                       <input
                         type="text"
                         placeholder="Detalles adicionales (opcional)"
                         value={addressExtra}
                         onChange={(e) => setAddressInfo({ address, city, addressExtra: e.target.value })}
-                        className="checkout-input"
+                        className="vb-input"
                       />
                     </div>
                   </div>
@@ -491,7 +492,7 @@ export default function CheckoutStep({ box }: Props) {
               </div>
 
               {/* BUYER — merged into the same card */}
-              <div className="pt-3 space-y-3 border-t border-[#ECECEC]">
+              <div className="pt-4 vb-divider-top space-y-3">
                 <p className="font-semibold text-ink text-sm">Tus datos de contacto</p>
 
                 <input
@@ -499,7 +500,7 @@ export default function CheckoutStep({ box }: Props) {
                   placeholder="Nombre completo"
                   value={buyerName}
                   onChange={(e) => setBuyer({ name: e.target.value, email: buyerEmail, phone: buyerPhone })}
-                  className="checkout-input"
+                  className="vb-input"
                 />
 
                 <input
@@ -507,7 +508,7 @@ export default function CheckoutStep({ box }: Props) {
                   placeholder="Email"
                   value={buyerEmail}
                   onChange={(e) => setBuyer({ name: buyerName, email: e.target.value, phone: buyerPhone })}
-                  className="checkout-input"
+                  className="vb-input"
                 />
 
                 <input
@@ -515,7 +516,7 @@ export default function CheckoutStep({ box }: Props) {
                   placeholder="WhatsApp"
                   value={buyerPhone}
                   onChange={(e) => setBuyer({ name: buyerName, email: buyerEmail, phone: e.target.value })}
-                  className="checkout-input"
+                  className="vb-input"
                 />
               </div>
             </div>
@@ -530,24 +531,19 @@ export default function CheckoutStep({ box }: Props) {
 
             <CheckoutSummary estimatedPricing={estimatedPricing} />
 
-            <button
-              onClick={handleGoToPayment}
-              disabled={loading}
-              className="hidden lg:block checkout-btn-primary w-full h-12 disabled:opacity-60"
-            >
-              {loading ? "Procesando..." : "Ir a pagar"}
-            </button>
-
-            {submitAttempted && missingFields.length > 0 && (
-              <p className="hidden lg:block text-xs text-accent-red text-center">
-                Falta completar: {missingFields.join(", ")}.
-              </p>
-            )}
-
-            <div className="text-xs text-[#6B6B6B]/70 text-center space-y-1">
-              <p>🔒 Pago seguro</p>
-              <p>✔ Entrega garantizada</p>
-              <p>✔ Lo completas después</p>
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs font-medium text-ink/75">
+              <span className="inline-flex items-center gap-1.5">
+                <Lock size={13} strokeWidth={2} className="text-primary shrink-0" />
+                Pago seguro
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 size={13} strokeWidth={2} className="text-green-700 shrink-0" />
+                Entrega garantizada
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 size={13} strokeWidth={2} className="text-green-700 shrink-0" />
+                Tu mensaje, después
+              </span>
             </div>
 
           </div>
@@ -556,8 +552,8 @@ export default function CheckoutStep({ box }: Props) {
 
       </div>
 
-      {/* MOBILE STICKY CTA — total + pay button always reachable without scrolling */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-sm border-t border-[#ECECEC] px-4 pt-3 shadow-[0_-8px_24px_rgba(24,20,15,0.06)]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
+      {/* STICKY CTA — total + pay button always reachable without scrolling, on every breakpoint */}
+      <div className="fixed bottom-0 inset-x-0 z-40 vb-sticky-bar px-4 pt-3" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
         <div className="flex items-center gap-3 max-w-[1050px] mx-auto">
           <div className="flex-1 min-w-0">
             <p className="text-[11px] text-[#6B6B6B] leading-tight">Total</p>
@@ -566,9 +562,19 @@ export default function CheckoutStep({ box }: Props) {
           <button
             onClick={handleGoToPayment}
             disabled={loading}
-            className="checkout-btn-primary h-12 px-8 shrink-0 disabled:opacity-60"
+            className="vb-btn-primary h-12 px-8 shrink-0 disabled:opacity-60"
           >
-            {loading ? "Procesando..." : "Ir a pagar"}
+            {loading ? (
+              <>
+                Procesando...
+                <Loader2 size={18} strokeWidth={2} className="animate-spin" />
+              </>
+            ) : (
+              <>
+                Ir a pagar
+                <ArrowRight size={18} strokeWidth={2} className="vb-cta-icon" />
+              </>
+            )}
           </button>
         </div>
         {submitAttempted && missingFields.length > 0 && (
@@ -588,3 +594,5 @@ export default function CheckoutStep({ box }: Props) {
     </section>
   )
 }
+
+

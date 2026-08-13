@@ -39,16 +39,7 @@ export default async function ProximamentePage({
 
       {/* CARD */}
       <section
-        className="
-          relative z-10 w-full max-w-md
-          rounded-[32px]
-          bg-white/55
-          backdrop-blur-xl
-          border border-white/50
-          shadow-[0_30px_80px_rgba(0,0,0,0.35)]
-          px-8 py-12
-          text-center
-        "
+        className="modal-glass relative z-10 w-full max-w-md rounded-[26px] px-8 py-12 text-center"
       >
 
         {/* LOGO */}
@@ -98,7 +89,7 @@ export default async function ProximamentePage({
         <div className="mt-10 flex flex-col items-center gap-4">
           <Link
             href="/"
-            className="w-full h-[54px] rounded-xl bg-white/40 border border-primary text-foreground text-[16px] font-semibold inline-flex items-center justify-center transition hover:bg-primary/5"
+            className="vb-btn-soft w-full h-[54px] text-[16px]"
           >
             Seguir explorando
           </Link>

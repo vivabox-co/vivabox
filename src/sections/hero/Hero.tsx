@@ -138,22 +138,7 @@ export default function Hero() {
 
             <a
               href={`/proximamente?next=/cajas/${vivabox.slug}`}
-              className="
-                flex-[1.25] md:flex-none
-                h-[54px]
-                md:px-10
-                rounded-xl
-                bg-primary
-                text-white
-                text-[17px]
-                font-semibold
-                inline-flex
-                items-center
-                justify-center
-                shadow-[0_10px_35px_rgba(254,132,47,.35)]
-                transition
-                hover:bg-primary-hover
-              "
+              className="vb-btn-primary flex-[1.25] md:flex-none h-[54px] md:px-10 text-[17px]"
             >
               Comprar Vivabox
             </a>
@@ -166,7 +151,7 @@ export default function Hero() {
                 flex-1 md:flex-none
                 h-[54px]
                 md:px-8
-                rounded-xl
+                rounded-[18px]
                 border-2
                 border-white/70
                 bg-white/5

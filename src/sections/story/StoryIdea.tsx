@@ -2,7 +2,7 @@ import Reveal from "@/components/ui/Reveal";
 
 export default function StoryIdea() {
   return (
-    <section className="bg-[#fff4ec] py-20 md:py-[120px]">
+    <section className="bg-accent-tint py-20 md:py-[120px]">
 
       <div className="max-w-[720px] mx-auto px-6 text-center">
 

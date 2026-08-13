@@ -8,7 +8,7 @@ const LINES = [
 
 export default function StoryPromise() {
   return (
-    <section className="bg-ink py-20 md:py-[120px]">
+    <section className="vb-dark bg-ink py-20 md:py-[120px]">
 
       <div className="max-w-[640px] mx-auto px-6">
 

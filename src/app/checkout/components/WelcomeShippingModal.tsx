@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { X } from "lucide-react"
+import { X, Mail, CheckCircle2, Loader2 } from "lucide-react"
 import { track } from "@/utils/analytics"
 
 type Props = {
@@ -172,7 +172,7 @@ export default function WelcomeShippingModal({ onClose, onSuccess }: Props) {
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={() => setTouched(true)}
                   onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                  className="checkout-input"
+                  className="vb-input"
                 />
                 {emailError && (
                   <p className="text-xs text-accent-red mt-1.5">Ingresa un correo válido</p>
@@ -201,9 +201,19 @@ export default function WelcomeShippingModal({ onClose, onSuccess }: Props) {
               <button
                 onClick={handleSubmit}
                 disabled={!canSubmit}
-                className="checkout-btn-primary w-full h-12"
+                className="vb-btn-secondary w-full h-12"
               >
-                {status === "submitting" ? "Enviando..." : "Recibir mi código"}
+                {status === "submitting" ? (
+                  <>
+                    Enviando...
+                    <Loader2 size={18} strokeWidth={2} className="animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    Recibir mi código
+                    <Mail size={18} strokeWidth={2} className="vb-cta-icon" />
+                  </>
+                )}
               </button>
 
               <button
@@ -227,7 +237,7 @@ export default function WelcomeShippingModal({ onClose, onSuccess }: Props) {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-[#FFF4EC] px-4 py-3">
+            <div className="vb-well px-4 py-3">
               <p className="text-xs text-[#6B6B6B] mb-1">Código</p>
               <p className="text-lg font-semibold tracking-wide text-ink">{code}</p>
             </div>
@@ -235,14 +245,15 @@ export default function WelcomeShippingModal({ onClose, onSuccess }: Props) {
             <div className="space-y-2">
               <button
                 onClick={handleApplyAutomatically}
-                className="checkout-btn-primary w-full h-12"
+                className="vb-btn-secondary w-full h-12"
               >
                 Aplicar automáticamente
+                <CheckCircle2 size={18} strokeWidth={2} className="vb-cta-icon" />
               </button>
 
               <button
                 onClick={handleCopy}
-                className="w-full h-11 rounded-2xl border border-[#ECECEC] text-sm font-medium text-ink transition hover:bg-black/[0.02] active:scale-[0.98]"
+                className="vb-btn-soft w-full h-11 text-sm"
               >
                 {copied ? "Copiado ✓" : "Copiar código"}
               </button>

@@ -5,7 +5,7 @@ const linkClasses =
 
 export default function Footer() {
   return (
-    <footer className="bg-ink text-white py-20 md:py-24">
+    <footer className="vb-dark bg-ink text-white py-20 md:py-24">
 
       <div className="max-w-6xl mx-auto px-6">
 

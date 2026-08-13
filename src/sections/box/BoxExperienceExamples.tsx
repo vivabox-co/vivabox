@@ -9,7 +9,7 @@ async function BoxExperienceExamplesLoader() {
 
 export default function BoxExperienceExamples() {
   return (
-    <section className="bg-ink py-10 md:py-14">
+    <section className="vb-dark bg-ink py-10 md:py-14">
 
       <div className="max-w-[1000px] mx-auto px-6">
 

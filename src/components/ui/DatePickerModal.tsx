@@ -66,33 +66,39 @@ export default function DatePickerModal({ onClose, onSelect }: Props) {
   }
 
   return (
-    <div style={overlay} onClick={onClose}>
-      <div style={drawer} onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/25 z-[3000] flex items-end justify-center"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-[500px] bg-[var(--color-card)] rounded-t-[28px] p-6 pb-8 shadow-[0_-10px_30px_var(--nm-dark)]"
+        onClick={(e) => e.stopPropagation()}
+      >
 
         {/* HEADER */}
-        <div style={header}>
-          <button onClick={() => changeMonth(-1)}>
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={() => changeMonth(-1)} className="vb-icon-btn w-9 h-9" aria-label="Mes anterior">
             <ChevronLeft size={20} strokeWidth={1.5} />
           </button>
 
-          <div style={monthLabel}>
+          <div className="font-semibold text-base capitalize">
             {formatMonth(currentMonth)}
           </div>
 
-          <button onClick={() => changeMonth(1)}>
+          <button onClick={() => changeMonth(1)} className="vb-icon-btn w-9 h-9" aria-label="Mes siguiente">
             <ChevronRight size={20} strokeWidth={1.5} />
           </button>
         </div>
 
         {/* WEEK DAYS */}
-        <div style={weekRow}>
+        <div className="grid grid-cols-7 mb-2">
           {["L", "M", "M", "J", "V", "S", "D"].map((d, i) => (
-  <div key={i} style={weekDay}>{d}</div>
-))}
+            <div key={i} className="text-center text-xs text-muted">{d}</div>
+          ))}
         </div>
 
         {/* DAYS */}
-        <div style={grid}>
+        <div className="grid grid-cols-7 gap-1.5">
           {days.map((day, i) => {
             if (!day) return <div key={i} />
 
@@ -102,11 +108,12 @@ export default function DatePickerModal({ onClose, onSelect }: Props) {
               <button
                 key={i}
                 onClick={() => handleSelect(day)}
-                style={{
-                  ...dayBtn,
-                  opacity: disabled ? 0.3 : 1,
-                  cursor: disabled ? "not-allowed" : "pointer",
-                }}
+                disabled={disabled}
+                className={`h-10 rounded-[11px] text-sm font-medium transition active:scale-95 ${
+                  disabled
+                    ? "opacity-30 cursor-not-allowed bg-[var(--color-card)]"
+                    : "bg-[var(--color-card)] shadow-[2px_2px_6px_var(--nm-dark),-2px_-2px_6px_var(--nm-light)]"
+                }`}
               >
                 {day.getDate()}
               </button>
@@ -115,78 +122,11 @@ export default function DatePickerModal({ onClose, onSelect }: Props) {
         </div>
 
         {/* FOOTER */}
-        <button onClick={onClose} style={closeBtn}>
+        <button onClick={onClose} className="vb-btn-soft w-full mt-4 h-11">
           Cancelar
         </button>
 
       </div>
     </div>
   )
-}
-
-/* ---------- STYLES ---------- */
-
-const overlay: React.CSSProperties = {
-  position: "fixed",
-  inset: 0,
-  background: "rgba(0,0,0,0.25)",
-  display: "flex",
-  alignItems: "flex-end",
-  justifyContent: "center",
-  zIndex: 3000,
-}
-
-const drawer: React.CSSProperties = {
-  width: "100%",
-  maxWidth: 500,
-  background: "#fff",
-  borderRadius: "28px 28px 0 0",
-  padding: "24px 20px 30px",
-}
-
-const header: React.CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: 16,
-}
-
-const monthLabel: React.CSSProperties = {
-  fontWeight: 600,
-  fontSize: 16,
-}
-
-const weekRow: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(7, 1fr)",
-  marginBottom: 8,
-}
-
-const weekDay: React.CSSProperties = {
-  textAlign: "center",
-  fontSize: 12,
-  opacity: 0.6,
-}
-
-const grid: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(7, 1fr)",
-  gap: 6,
-}
-
-const dayBtn: React.CSSProperties = {
-  height: 40,
-  borderRadius: 10,
-  border: "none",
-  background: "#f5f5f5",
-  fontSize: 14,
-}
-
-const closeBtn: React.CSSProperties = {
-  marginTop: 16,
-  width: "100%",
-  padding: 12,
-  borderRadius: 12,
-  border: "none",
-  background: "#eee",
 }

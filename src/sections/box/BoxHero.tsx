@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import Image from "next/image"
 import { formatPrice } from "@/utils/formatPrice"
-import { Check } from "lucide-react"
+import { Check, Minus, Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 
@@ -110,15 +110,15 @@ export default function BoxHero({
             ¿Cuántas Vivabox quieres regalar?
           </p>
 
-          <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md border border-white/15 text-white rounded-2xl px-5 py-3.5 mb-6 shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
+          <div className="vb-dark vb-card flex items-center gap-4 px-5 py-3.5 mb-6">
 
             <div className="flex items-center gap-3">
               <button
                 onClick={decrease}
                 aria-label="Restar"
-                className="w-8 h-8 rounded-full border border-white/25 flex items-center justify-center text-[16px] font-semibold hover:bg-white/10 transition"
+                className="vb-icon-btn w-8 h-8"
               >
-                –
+                <Minus size={16} strokeWidth={2} />
               </button>
 
               <span className="text-[17px] font-semibold w-5 text-center">
@@ -128,9 +128,9 @@ export default function BoxHero({
               <button
                 onClick={increase}
                 aria-label="Sumar"
-                className="w-8 h-8 rounded-full border border-white/25 flex items-center justify-center text-[16px] font-semibold hover:bg-white/10 transition"
+                className="vb-icon-btn w-8 h-8"
               >
-                +
+                <Plus size={16} strokeWidth={2} />
               </button>
             </div>
 
@@ -147,7 +147,7 @@ export default function BoxHero({
           {/* CTA */}
           <button
             onClick={handleCheckout}
-            className="w-full sm:w-auto h-14 px-12 rounded-xl bg-primary-hover text-white font-semibold text-[17px] hover:brightness-95 transition shadow-xl"
+            className="vb-btn-primary w-full sm:w-auto h-14 px-12 text-[17px]"
           >
             Comprar ahora
           </button>

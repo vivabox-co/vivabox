@@ -31,7 +31,7 @@ export default function CheckoutSummary({ estimatedPricing }: Props) {
 
   if (!hasHydrated || !box) {
     return (
-      <div className="checkout-card p-4">
+      <div className="vb-card p-4">
         <p className="text-sm text-[#6B6B6B]">Cargando...</p>
       </div>
     )
@@ -56,7 +56,7 @@ export default function CheckoutSummary({ estimatedPricing }: Props) {
   const displayTotal = isEstimated ? total - discount : total
 
   return (
-    <div className="checkout-card p-4 sticky top-24 space-y-3">
+    <div className="vb-card p-4 sticky top-24 space-y-3">
 
       <div>
         <BrandDots />
@@ -93,7 +93,7 @@ export default function CheckoutSummary({ estimatedPricing }: Props) {
 
       </div>
 
-      <div className="rounded-2xl bg-[#FFF4EC] px-4 py-3 flex items-center justify-between">
+      <div className="vb-well px-4 py-3 flex items-center justify-between">
         <span className="text-sm font-medium text-ink">Total</span>
         <span className="text-2xl font-semibold text-ink tracking-tight">${formatPrice(displayTotal)}</span>
       </div>

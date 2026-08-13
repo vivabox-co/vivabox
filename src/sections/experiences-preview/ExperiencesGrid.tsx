@@ -56,7 +56,7 @@ export default function ExperiencesGrid({
           type="button"
           onClick={() => scrollByStep("left")}
           aria-label="Ver experiencias anteriores"
-          className={`hidden lg:flex absolute left-0 top-[60px] -translate-x-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-white shadow-[0_8px_22px_rgba(0,0,0,0.12)] transition-opacity duration-200 hover:bg-neutral-50 ${
+          className={`vb-icon-btn hidden lg:flex absolute left-0 top-[60px] -translate-x-1/2 z-20 w-10 h-10 transition-opacity duration-200 ${
             canScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
         >
@@ -67,7 +67,7 @@ export default function ExperiencesGrid({
           type="button"
           onClick={() => scrollByStep("right")}
           aria-label="Ver más experiencias"
-          className={`hidden lg:flex absolute right-0 top-[60px] translate-x-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-white shadow-[0_8px_22px_rgba(0,0,0,0.12)] transition-opacity duration-200 hover:bg-neutral-50 ${
+          className={`vb-icon-btn hidden lg:flex absolute right-0 top-[60px] translate-x-1/2 z-20 w-10 h-10 transition-opacity duration-200 ${
             canScrollRight ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
         >
@@ -76,7 +76,7 @@ export default function ExperiencesGrid({
 
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto pb-2 scroll-pl-4 no-scrollbar snap-x snap-mandatory scroll-smooth"
+          className="flex gap-4 overflow-x-auto pb-6 scroll-pl-4 no-scrollbar snap-x snap-mandatory scroll-smooth"
         >
 
         {experiencesPreview.map((exp, index) => {
@@ -94,11 +94,11 @@ export default function ExperiencesGrid({
             <div
               key={index}
               onClick={() => setSelectedExperience(exp)}
-              className="group cursor-pointer snap-start min-w-[260px] bg-white rounded-[18px] shadow-[0_8px_22px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.1)] hover:-translate-y-[2px] transition-all duration-300 overflow-hidden"
+              className="vb-card group cursor-pointer snap-start min-w-[260px] hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden"
             >
 
               {/* IMAGE */}
-              <div className="relative w-full h-[160px] overflow-hidden rounded-t-[18px]">
+              <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px]">
 
                 <Image
                   src={exp.image || "/images/box-includes/vivabox-caja-regalo.png"}
@@ -141,9 +141,9 @@ export default function ExperiencesGrid({
         })}
 
         {/* LAST CARD */}
-        <div className="group snap-start min-w-[260px] bg-white rounded-[18px] shadow-[0_8px_22px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.1)] hover:-translate-y-[2px] transition-all duration-300 overflow-hidden">
+        <div className="vb-card group snap-start min-w-[260px] hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden">
 
-          <div className="relative w-full h-[160px] overflow-hidden rounded-t-[18px] bg-gradient-to-br from-[#fff4ec] to-[#f7f7f7] flex items-center justify-center">
+          <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px] bg-gradient-to-br from-[#fff4ec] to-[#f7f7f7] flex items-center justify-center">
 
             <Image
               src="/icons/logo.png"

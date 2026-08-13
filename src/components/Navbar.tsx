@@ -144,13 +144,13 @@ export default function Navbar() {
                 className={`
                   inline-flex items-center gap-2
                   h-10 px-3.5 md:px-4
-                  rounded-full border-2
                   text-sm font-semibold
                   whitespace-nowrap shrink-0
                   transition-all duration-200
+                  rounded-[18px] border-2
                   ${
                     solid
-                      ? "border-ink text-ink hover:bg-primary hover:text-white"
+                      ? "border-ink/40 text-ink hover:bg-ink hover:text-white hover:border-ink"
                       : "border-white text-white hover:bg-white hover:text-primary"
                   }
                 `}
@@ -204,7 +204,7 @@ export default function Navbar() {
 
   {/* PANEL */}
   <div
-    className={`absolute left-0 top-0 h-full w-[300px] bg-surface shadow-[0_20px_60px_rgba(0,0,0,0.12)] transform transition-transform duration-300 ${
+    className={`absolute left-0 top-0 h-full w-[300px] bg-[var(--color-base)] shadow-[10px_0_30px_var(--nm-dark)] transform transition-transform duration-300 ${
       menuOpen ? "translate-x-0" : "-translate-x-full"
     }`}
   >
@@ -219,7 +219,7 @@ export default function Navbar() {
 
         <button
           onClick={() => setMenuOpen(false)}
-          className="p-1 opacity-70 hover:opacity-100 transition"
+          className="vb-icon-btn p-1.5"
         >
           <X size={24} strokeWidth={1.5} />
         </button>
@@ -229,16 +229,7 @@ export default function Navbar() {
 <Link
   href="/#incluye"
   onClick={() => setMenuOpen(false)}
-  className="
-    mb-4 h-12 flex items-center justify-center
-    rounded-full
-    bg-white
-    text-foreground
-    font-medium
-    border border-black/10
-    active:scale-[0.97]
-    transition
-  "
+  className="vb-btn-secondary mb-4 h-12 font-medium"
 >
   Ver las cajas
 </Link>
@@ -248,15 +239,7 @@ export default function Navbar() {
   <Link
     href="/proximamente"
     onClick={() => setMenuOpen(false)}
-    className="
-      mb-10 h-12 flex items-center justify-center gap-2
-      rounded-full
-      border border-primary/50
-      text-primary
-      font-medium
-      active:scale-[0.97]
-      transition
-    "
+    className="vb-btn-soft mb-10 h-12 font-medium"
   >
     <QrCode size={15} strokeWidth={1.5} />
     Activar mi box

@@ -69,7 +69,7 @@ export default function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section className="bg-ink py-8 md:py-10">
+    <section className="vb-dark bg-ink py-8 md:py-10">
 
       <div className="container max-w-[760px]">
 
@@ -77,7 +77,7 @@ export default function FAQ() {
           Preguntas frecuentes
         </h2>
 
-        <div className="divide-y divide-white/10">
+        <div className="flex flex-col gap-3">
 
           {faqs.map((faq, i) => {
 
@@ -88,7 +88,7 @@ export default function FAQ() {
 
               <div
                 key={i}
-                className="py-5 transition-colors hover:bg-white/5"
+                className="vb-card px-5 py-4"
               >
 
                 <button
@@ -128,7 +128,10 @@ export default function FAQ() {
                   }`}
                 >
 
-                  <p className="text-white/60 text-sm leading-relaxed pl-7">
+                  <p
+                    onClick={() => setOpen(null)}
+                    className="text-white/60 text-sm leading-relaxed pl-7 cursor-pointer"
+                  >
                     {faq.answer}
                   </p>
 

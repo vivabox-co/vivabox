@@ -46,7 +46,7 @@ export default function Occasions() {
   ];
 
   return (
-    <section className="bg-ink py-12 md:py-14">
+    <section className="vb-dark bg-ink py-12 md:py-14">
 
       <div className="max-w-6xl mx-auto px-6 mb-6 md:mb-8">
 
@@ -66,7 +66,7 @@ export default function Occasions() {
 
             <div
               key={item.name}
-              className="group relative shrink-0 w-[78vw] sm:w-[320px] lg:w-auto aspect-[3/4.3] rounded-[24px] overflow-hidden snap-start shadow-[0_6px_20px_rgba(0,0,0,0.25)] transition-shadow duration-300 ease-out hover:shadow-[0_14px_34px_rgba(0,0,0,0.4)]"
+              className="vb-card group relative shrink-0 w-[78vw] sm:w-[320px] lg:w-auto aspect-[3/4.3] overflow-hidden snap-start"
               aria-label={item.ariaLabel}
             >
 

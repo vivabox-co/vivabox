@@ -7,19 +7,7 @@ import { PAGE_PATH, Order, formatDate } from "./types"
 
 export function ActionButton({ label }: { label: string }) {
   return (
-    <button
-      type="submit"
-      style={{
-        background: "#fe842f",
-        color: "white",
-        border: "none",
-        borderRadius: 8,
-        padding: "10px 18px",
-        fontWeight: 600,
-        fontSize: 14,
-        cursor: "pointer",
-      }}
-    >
+    <button type="submit" className="vb-btn-primary h-11 px-5 text-sm">
       {label}
     </button>
   )
@@ -30,30 +18,30 @@ export function OrderCard({ order, action, actionLabel }: { order: Order; action
   const contacto = order.recipient_contact || order.buyer_email
 
   return (
-    <div style={{ border: "1px solid #e2e2e2", borderRadius: 12, padding: 20 }}>
-      <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: 1, marginBottom: 14, color: "#fe842f" }}>
+    <div className="vb-card p-5">
+      <div className="text-[26px] font-bold tracking-wide mb-3.5 text-primary">
         {order.code ?? "⚠ Sin código generado"}
       </div>
 
-      <p style={{ margin: "4px 0" }}><strong>Caja:</strong> {order.box_slug} x{order.quantity}</p>
-      <p style={{ margin: "4px 0" }}><strong>Comprador:</strong> {order.buyer_name} ({order.buyer_email})</p>
-      <p style={{ margin: "4px 0" }}><strong>Destinatario:</strong> {destinatario} {contacto ? `(${contacto})` : ""}</p>
+      <p className="my-1 text-[15px]"><strong>Caja:</strong> {order.box_slug} x{order.quantity}</p>
+      <p className="my-1 text-[15px]"><strong>Comprador:</strong> {order.buyer_name} ({order.buyer_email})</p>
+      <p className="my-1 text-[15px]"><strong>Destinatario:</strong> {destinatario} {contacto ? `(${contacto})` : ""}</p>
       {order.delivery_direccion && (
-        <p style={{ margin: "4px 0" }}>
+        <p className="my-1 text-[15px]">
           <strong>Dirección:</strong> {order.delivery_direccion}, {order.delivery_ciudad}
           {order.delivery_detalles ? ` — ${order.delivery_detalles}` : ""}
         </p>
       )}
       {order.prepared_at && (
-        <p style={{ margin: "4px 0", color: "#666" }}><strong>Preparada:</strong> {formatDate(order.prepared_at)}</p>
+        <p className="my-1 text-[15px] text-muted"><strong>Preparada:</strong> {formatDate(order.prepared_at)}</p>
       )}
       {order.shipped_at && (
-        <p style={{ margin: "4px 0", color: "#666" }}><strong>Enviada:</strong> {formatDate(order.shipped_at)}</p>
+        <p className="my-1 text-[15px] text-muted"><strong>Enviada:</strong> {formatDate(order.shipped_at)}</p>
       )}
-      <p style={{ color: "#999", fontSize: 12, margin: "10px 0 0" }}>Venta ID: {order.id}</p>
+      <p className="text-muted text-xs mt-2.5">Venta ID: {order.id}</p>
 
       {action && actionLabel && (
-        <form action={action} style={{ marginTop: 14 }}>
+        <form action={action} className="mt-3.5">
           <input type="hidden" name="ventaId" value={order.id} />
           <ActionButton label={actionLabel} />
         </form>
@@ -74,19 +62,8 @@ export function BottomNav({ counts }: { counts: Counts }) {
   const pathname = usePathname()
 
   return (
-    <nav
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: "white",
-        borderTop: "1px solid #e2e2e2",
-        display: "flex",
-        zIndex: 10,
-      }}
-    >
-      <div style={{ display: "flex", width: "100%", maxWidth: 860, margin: "0 auto" }}>
+    <nav className="vb-sticky-bar fixed bottom-0 left-0 right-0 flex z-10">
+      <div className="flex w-full max-w-[860px] mx-auto">
         {TABS.map(({ href, label, icon: Icon, countKey }) => {
           const active = pathname === href
           const count = countKey ? counts[countKey] : null
@@ -95,41 +72,14 @@ export function BottomNav({ counts }: { counts: Counts }) {
             <Link
               key={href}
               href={href}
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 4,
-                padding: "10px 4px 14px",
-                textDecoration: "none",
-                color: active ? "#fe842f" : "#888",
-                fontSize: 12,
-                fontWeight: active ? 700 : 500,
-                position: "relative",
-              }}
+              className={`flex-1 flex flex-col items-center gap-1 pt-2.5 px-1 pb-3.5 relative text-xs ${
+                active ? "text-primary font-bold" : "text-muted font-medium"
+              }`}
             >
               <Icon size={20} strokeWidth={active ? 2.25 : 1.75} />
               {label}
               {!!count && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: 4,
-                    right: "28%",
-                    background: "#fe842f",
-                    color: "white",
-                    borderRadius: 999,
-                    fontSize: 10,
-                    fontWeight: 700,
-                    minWidth: 16,
-                    height: 16,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "0 4px",
-                  }}
-                >
+                <span className="absolute top-1 right-[28%] flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-primary text-white text-[10px] font-bold">
                   {count}
                 </span>
               )}

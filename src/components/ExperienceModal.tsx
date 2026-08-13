@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { X, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import {
@@ -35,11 +35,19 @@ type Props = {
 
 export default function ExperienceModal({ experience, onClose }: Props) {
 
+  const scrollRef = useRef<HTMLDivElement>(null)
   const [photoIndex, setPhotoIndex] = useState(0)
 
   useEffect(() => {
     setPhotoIndex(0)
+    scrollRef.current?.scrollTo({ left: 0 })
   }, [experience])
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current
+    if (!el || !el.clientWidth) return
+    setPhotoIndex(Math.round(el.scrollLeft / el.clientWidth))
+  }, [])
 
   if (!experience) return null
 
@@ -61,43 +69,61 @@ export default function ExperienceModal({ experience, onClose }: Props) {
 
   const showNav = images.length > 1
 
-  const goToPrev = () => setPhotoIndex((i) => (i - 1 + images.length) % images.length)
-  const goToNext = () => setPhotoIndex((i) => (i + 1) % images.length)
+  const goToPhoto = (i: number) => {
+    const el = scrollRef.current
+    if (!el) return
+    el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" })
+  }
+
+  const goToPrev = () => goToPhoto((photoIndex - 1 + images.length) % images.length)
+  const goToNext = () => goToPhoto((photoIndex + 1) % images.length)
 
   return (
 
     <div
       onClick={onClose}
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6"
+      className="vb-light fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6"
     >
 
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white max-w-xl w-full rounded-2xl overflow-hidden relative shadow-xl"
+        className="bg-card border border-[var(--nm-border)] rounded-[26px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] max-w-xl w-full overflow-hidden relative"
       >
 
         {/* close */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 bg-white rounded-full p-2 shadow z-20"
+          aria-label="Cerrar"
+          className="absolute top-4 right-4 z-20 flex items-center justify-center w-8 h-8 rounded-full bg-black/45 text-white hover:bg-black/60 transition-colors"
         >
-          <X size={18} strokeWidth={1.5}/>
+          <X size={16} strokeWidth={2} />
         </button>
 
-        {/* image */}
-        <div className="relative w-full h-[160px] overflow-hidden">
+        {/* image gallery — scrollable strip, 16:9 stable */}
+        <div className="relative w-full aspect-video overflow-hidden">
 
-          <Image
-            src={images[photoIndex]}
-            alt={experience.title}
-            fill
-            sizes="(min-width: 576px) 576px, 100vw"
-            className="object-cover"
-          />
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth"
+          >
+            {images.map((src, i) => (
+              <div key={i} className="relative h-full w-full shrink-0 snap-start">
+                <Image
+                  src={src}
+                  alt={`${experience.title} ${i + 1}`}
+                  fill
+                  sizes="(min-width: 576px) 576px, 100vw"
+                  className="object-cover"
+                  priority={i === 0}
+                />
+              </div>
+            ))}
+          </div>
 
           {/* vertical category bar */}
           <div
-            className={`absolute left-0 top-0 bottom-0 w-[8px] ${barColor}`}
+            className={`absolute left-0 top-0 bottom-0 w-[8px] z-10 pointer-events-none ${barColor}`}
           />
 
           {/* category badge */}
@@ -116,7 +142,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
               <button
                 onClick={goToPrev}
                 aria-label="Foto anterior"
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1.5 shadow z-20"
+                className="vb-icon-btn hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 p-1.5 z-20"
               >
                 <ChevronLeft size={16} strokeWidth={1.5} />
               </button>
@@ -124,16 +150,20 @@ export default function ExperienceModal({ experience, onClose }: Props) {
               <button
                 onClick={goToNext}
                 aria-label="Foto siguiente"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1.5 shadow z-20"
+                className="vb-icon-btn hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 p-1.5 z-20"
               >
                 <ChevronRight size={16} strokeWidth={1.5} />
               </button>
 
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-20">
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
                 {images.map((_, i) => (
-                  <span
+                  <button
                     key={i}
-                    className={`w-1.5 h-1.5 rounded-full ${i === photoIndex ? "bg-white" : "bg-white/50"}`}
+                    onClick={() => goToPhoto(i)}
+                    aria-label={`Ver foto ${i + 1}`}
+                    className={`h-1.5 rounded-full transition-all duration-200 ${
+                      i === photoIndex ? "w-5 bg-white" : "w-1.5 bg-white/50"
+                    }`}
                   />
                 ))}
               </div>
@@ -189,7 +219,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
           </p>
 
           {/* WHY VIVABOX — curated editorial block */}
-          <div className="flex items-center gap-3 bg-surface rounded-xl p-3">
+          <div className="vb-well flex items-center gap-3 p-3">
 
             <Image src="/icons/logo.png" alt="Vivabox" width={26} height={26} className="shrink-0" />
 

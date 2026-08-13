@@ -14,8 +14,8 @@ export default async function PedidosLayout({ children }: { children: React.Reac
   const counts = await getCounts()
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", color: "#1a1a1a" }}>
-      <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 20px 100px" }}>
+    <div className="vb-surface-base min-h-screen text-foreground">
+      <div className="max-w-[860px] mx-auto px-5 pt-8 pb-[100px]">
         {children}
       </div>
       <BottomNav counts={counts} />

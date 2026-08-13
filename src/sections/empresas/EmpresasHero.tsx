@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function EmpresasHero() {
   return (
-    <section className="relative w-full overflow-hidden bg-ink">
+    <section className="vb-dark relative w-full overflow-hidden bg-ink">
 
       <div className="max-w-[1100px] mx-auto px-6 pt-28 pb-8 md:pt-24 md:pb-10">
 
@@ -29,7 +29,7 @@ export default function EmpresasHero() {
               href="https://wa.me/573142590291?text=Hola%2C%20me%20gustar%C3%ADa%20conocer%20las%20opciones%20de%20Vivabox%20para%20mi%20empresa."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center whitespace-nowrap bg-primary text-white px-5 sm:px-7 py-3 rounded-xl text-[14px] sm:text-[16px] font-semibold hover:bg-primary-hover transition shadow-lg"
+              className="vb-btn-primary whitespace-nowrap px-5 sm:px-7 py-3 text-[14px] sm:text-[16px]"
             >
               Hablar por WhatsApp
             </a>
@@ -46,7 +46,7 @@ export default function EmpresasHero() {
         </div>
 
         {/* CUSTOM BOXES GRID */}
-        <div className="relative w-full aspect-video rounded-[24px] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.35)]">
+        <div className="vb-card relative w-full aspect-video overflow-hidden">
           {/*
             PENDING: grid shows real company logos (Bancolombia, Sura, Davivienda,
             Ecopetrol...) — confirm these are actual confirmed clients before

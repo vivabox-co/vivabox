@@ -86,7 +86,7 @@ function IncludedCard({
   alt: string
 }) {
   return (
-    <div className="group relative w-full aspect-square rounded-2xl overflow-hidden shadow-[6px_10px_12px_-4px_rgba(24,20,15,0.4)]">
+    <div className="vb-card group relative w-full aspect-square overflow-hidden">
       <Image
         src={src}
         alt={alt}
@@ -426,7 +426,7 @@ export default function WhatsIncluded() {
 
           <a
             href={`/proximamente?next=/cajas/${vivabox.slug}`}
-            className="h-[54px] px-10 rounded-xl bg-primary text-white text-[17px] font-semibold inline-flex items-center justify-center transition hover:bg-primary-hover shadow-[0_10px_35px_rgba(254,132,47,.35)]"
+            className="vb-btn-primary h-[54px] px-10 text-[17px]"
           >
             Comprar Vivabox
           </a>
@@ -519,7 +519,7 @@ export default function WhatsIncluded() {
                 },
               ].map((item) => (
                 <div key={item.title} className="text-center">
-                  <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-[0_10px_28px_rgba(24,20,15,0.12)] mb-4">
+                  <div className="vb-card relative w-full aspect-square overflow-hidden mb-4">
                     <Image src={item.src} alt={item.alt} fill sizes="230px" className="object-cover" />
                   </div>
                   <h3 className="font-sans font-semibold text-ink text-[18px] tracking-tight">
@@ -611,7 +611,7 @@ export default function WhatsIncluded() {
 
       {/* Y DESPUÉS — la experiencia continúa en la app */}
 
-      <div className="relative w-screen left-1/2 -translate-x-1/2 bg-ink">
+      <div className="vb-dark relative w-screen left-1/2 -translate-x-1/2 bg-ink">
 
         <div className="max-w-[1200px] mx-auto grid grid-cols-2 items-stretch h-[480px] sm:h-[520px] md:h-[560px] lg:h-[620px]">
 

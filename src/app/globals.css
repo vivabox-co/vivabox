@@ -297,63 +297,460 @@ body {
 }
 
 
+/* Layered as @layer components so Tailwind utilities (hidden, lg:flex,
+   rounded-*, etc.) can still override these defaults when combined on the
+   same element — unlayered custom CSS would otherwise always win over
+   layered utilities regardless of source order, breaking things like
+   `hidden lg:flex` on an element that also carries a vb-* class setting
+   `display`. */
+@layer components {
+
 /* =========================================
-   Checkout — premium surfaces
+   Vivabox — neumorphic surface system
+   Site-wide design system (originated in the
+   checkout, now the shared standard). Pages sit
+   on a deeper warm-neutral base (--color-base);
+   cards/inputs/buttons float on --color-card,
+   lighter than the base, so depth reads from
+   real contrast first and soft warm-gray shadow
+   second — never from a brown/tan tint. Color
+   (orange, accent tint, category colors) stays
+   the only place saturation shows up. Radius
+   family: 26px cards → 18-20px inputs/buttons/
+   choices → 16px thumbnails → 13px pills → 11px
+   small icon badges. CTAs use 3 tiers of weight
+   (vb-btn-primary > vb-btn-secondary > vb-btn-
+   soft) — never differentiate tiers by breaking
+   this radius family (e.g. a pill shape) or by
+   using a pale fill that can vanish inside an
+   already-tinted container.
 ========================================= */
 
-.checkout-card {
+:root {
+  --color-base: #F1EAE0;
+  --nm-light: rgba(255, 255, 255, 0.9);
+  --nm-dark: rgba(24, 20, 15, 0.12);
+  --nm-dark-strong: rgba(24, 20, 15, 0.18);
+  --nm-border: rgba(24, 20, 15, 0.08);
+  --nm-dot-idle: #E7E1D6;
+  --vb-step-dot-text: var(--color-ink);
+}
+
+/* Dark-context override — wrap any bg-ink "anchor" section in .vb-dark and
+   every vb-* component inside it (vb-card, vb-input, vb-choice, vb-steps,
+   vb-thumb, vb-sticky-bar, vb-divider-top) automatically renders as a dark
+   neumorphic surface, since they all read these same custom properties.
+   Stays in the warm coffee/espresso family — never navy, never neutral gray.
+   Buttons (vb-btn-*) need no override: their saturated orange fills and
+   colored shadows already read correctly on light or dark. */
+.vb-dark {
+  --color-base: #18140F;
+  --color-card: #241E17;
+  --nm-light: rgba(255, 250, 245, 0.05);
+  --nm-dark: rgba(0, 0, 0, 0.45);
+  --nm-dark-strong: rgba(0, 0, 0, 0.6);
+  --nm-border: rgba(255, 255, 255, 0.06);
+  --nm-dot-idle: #3A322A;
+  --color-muted: #A79C8C;
+  --vb-step-dot-text: #F5F0E8;
+  color: #F5F0E8;
+}
+
+/* Light-context reset — some components (e.g. ExperienceModal) render as a
+   fixed overlay but stay nested in the DOM under a .vb-dark section, so
+   without this they'd inherit the dark neumorphic vars despite always
+   needing a light card. Forces the subtree back to the light defaults. */
+.vb-light {
+  --color-base: #F1EAE0;
+  --color-card: #FFFCF9;
+  --nm-light: rgba(255, 255, 255, 0.9);
+  --nm-dark: rgba(24, 20, 15, 0.12);
+  --nm-dark-strong: rgba(24, 20, 15, 0.18);
+  --nm-border: rgba(24, 20, 15, 0.08);
+  --nm-dot-idle: #E7E1D6;
+  --color-muted: #6B6B6B;
+  --vb-step-dot-text: var(--color-ink);
+  color: var(--color-foreground);
+}
+
+.vb-surface-base {
+  background: var(--color-base);
+}
+
+.vb-card {
   background: var(--color-card);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--nm-border);
   border-radius: 26px;
   box-shadow:
-    0 1px 2px rgba(24, 20, 15, 0.03),
-    0 16px 32px -12px rgba(24, 20, 15, 0.08);
+    8px 8px 20px var(--nm-dark),
+    -8px -8px 20px var(--nm-light);
 }
 
-.checkout-input {
+.vb-thumb {
+  display: inline-flex;
+  border-radius: 16px;
+  padding: 6px;
+  background: var(--color-card);
+  box-shadow:
+    4px 4px 10px var(--nm-dark),
+    -4px -4px 10px var(--nm-light);
+}
+
+.vb-divider-top {
+  position: relative;
+}
+
+.vb-divider-top::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--nm-border);
+}
+
+.vb-well {
+  border-radius: 20px;
+  background: var(--color-accent-tint);
+  box-shadow:
+    inset 4px 4px 9px rgba(196, 140, 90, 0.16),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.8);
+}
+
+.vb-input {
   width: 100%;
+  border: 1px solid var(--nm-border);
   border-radius: 18px;
-  border: 1px solid var(--color-border);
-  background: rgba(250, 247, 242, 0.6);
+  background: var(--color-card);
   padding: 0.75rem 1rem;
   font-size: 0.9375rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow:
+    3px 3px 8px var(--nm-dark),
+    -3px -3px 8px var(--nm-light);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.checkout-input::placeholder {
+.vb-input::placeholder {
   color: var(--color-muted);
   opacity: 0.7;
 }
 
-.checkout-input:focus {
+.vb-input:focus {
   outline: none;
-  border-color: rgba(254, 132, 47, 0.45);
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(254, 132, 47, 0.12);
+  border-color: rgba(254, 132, 47, 0.5);
+  box-shadow:
+    inset 3px 3px 7px var(--nm-dark-strong),
+    inset -2px -2px 6px var(--nm-light),
+    0 0 0 3px rgba(254, 132, 47, 0.18);
 }
 
-.checkout-btn-primary {
+/* Tier 1 — the one true conversion CTA per screen. Same 18px radius
+   family as every card/input/choice on the page — it belongs, it
+   just carries more color and weight. Richest state is :active
+   (thumb-pressed on mobile), not :hover. */
+.vb-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border-radius: 18px;
-  background: linear-gradient(180deg, #ff9450, var(--color-primary));
+  background: linear-gradient(135deg, var(--color-primary) 0%, #F0611E 100%);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 10px 30px rgba(254, 132, 47, 0.32);
+  letter-spacing: 0.01em;
+  box-shadow: 0 5px 14px rgba(254, 132, 47, 0.28);
   transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
-.checkout-btn-primary:hover:not(:disabled) {
+.vb-btn-primary .vb-cta-icon {
+  transition: transform 0.2s ease;
+}
+
+.vb-btn-primary:hover:not(:disabled) {
   filter: brightness(1.04);
-  box-shadow: 0 12px 34px rgba(254, 132, 47, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px rgba(254, 132, 47, 0.34);
 }
 
-.checkout-btn-primary:active:not(:disabled) {
-  transform: scale(0.98);
-  box-shadow: 0 6px 18px rgba(254, 132, 47, 0.3);
+.vb-btn-primary:hover:not(:disabled) .vb-cta-icon {
+  transform: translateX(3px);
 }
 
-.checkout-btn-primary:disabled {
+.vb-btn-primary:active:not(:disabled) {
+  transform: translateY(1px) scale(0.97);
+  filter: brightness(0.94);
+  box-shadow: 0 2px 6px rgba(254, 132, 47, 0.24);
+}
+
+.vb-btn-primary:disabled {
   opacity: 0.5;
   box-shadow: none;
+  transform: none;
+}
+
+/* Tier 2 — secondary CTAs (get a benefit, receive a code, apply it).
+   Solid, flat brand orange — genuinely visible even sitting inside an
+   already-tinted accent-tint well — but no gradient/glow, so it stays
+   a clear step under the tier-1 CTA. */
+.vb-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 18px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(254, 132, 47, 0.3);
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.vb-btn-secondary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  box-shadow: 0 6px 16px rgba(254, 132, 47, 0.36);
+}
+
+.vb-btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+  background: var(--color-primary-hover);
+  box-shadow: 0 2px 6px rgba(254, 132, 47, 0.26);
+}
+
+.vb-btn-secondary:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+/* Tier 3 — ghost utility actions (e.g. "Aplicar" a code, "Copiar"). */
+.vb-btn-soft {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(254, 132, 47, 0.35);
+  background: #FDF7F2;
+  color: var(--color-primary);
+  font-weight: 600;
+  box-shadow:
+    4px 4px 10px var(--nm-dark),
+    -4px -4px 10px var(--nm-light);
+  transition: box-shadow 0.15s ease, transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.vb-btn-soft:hover:not(:disabled) {
+  border-color: rgba(254, 132, 47, 0.6);
+  background: var(--color-accent-tint);
+}
+
+.vb-btn-soft:active:not(:disabled) {
+  transform: scale(0.98);
+  box-shadow:
+    inset 3px 3px 7px var(--nm-dark-strong),
+    inset -3px -3px 7px var(--nm-light);
+}
+
+.vb-btn-soft:disabled {
+  opacity: 0.5;
+}
+
+/* Round icon-only utility buttons (modal close, carousel arrows, etc.) —
+   same neumorphic language as vb-btn-soft, just circular instead of the
+   18px radius family since these are icon badges, not labeled CTAs. */
+.vb-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--color-card);
+  color: var(--color-ink);
+  line-height: 1;
+  padding: 0;
+  box-shadow:
+    3px 3px 8px var(--nm-dark),
+    -3px -3px 8px var(--nm-light);
+  transition: box-shadow 0.15s ease, transform 0.1s ease, color 0.15s ease;
+}
+
+.vb-icon-btn:hover:not(:disabled) {
+  color: var(--color-primary);
+}
+
+/* vb-icon-btn's default color is --color-ink, which .vb-dark never overrides
+   (unlike --color-base/--color-card/etc.) — without this, the +/- quantity
+   buttons render near-black text on the near-black dark card and disappear. */
+.vb-dark .vb-icon-btn {
+  color: #F5F0E8;
+  border: 1.5px solid rgba(245, 240, 232, 0.45);
+}
+
+.vb-dark .vb-icon-btn:hover:not(:disabled) {
+  color: var(--color-primary);
+}
+
+.vb-icon-btn:active:not(:disabled) {
+  transform: scale(0.94);
+  box-shadow:
+    inset 2px 2px 5px var(--nm-dark-strong),
+    inset -2px -2px 5px var(--nm-light);
+}
+
+.vb-btn-primary:focus-visible,
+.vb-btn-secondary:focus-visible,
+.vb-btn-soft:focus-visible {
+  outline: 2.5px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.vb-choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--nm-border);
+  background: var(--color-card);
+  box-shadow:
+    4px 4px 10px var(--nm-dark),
+    -4px -4px 10px var(--nm-light);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.vb-choice:has(input:checked) {
+  border-color: var(--color-primary);
+  background: var(--color-accent-tint);
+  box-shadow:
+    inset 4px 4px 9px var(--nm-dark-strong),
+    inset -4px -4px 9px var(--nm-light);
+}
+
+.vb-choice:has(input:focus-visible) {
+  outline: 2.5px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.vb-choice input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.vb-choice .vb-choice-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--color-card);
+  color: var(--color-muted);
+  box-shadow:
+    2px 2px 6px var(--nm-dark),
+    -2px -2px 6px var(--nm-light);
+  transition: box-shadow 0.15s ease, color 0.15s ease;
+}
+
+.vb-choice:has(input:checked) .vb-choice-icon {
+  color: var(--color-primary);
+  box-shadow:
+    inset 2px 2px 5px var(--nm-dark-strong),
+    inset -2px -2px 5px var(--nm-light);
+}
+
+.vb-steps {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 18px;
+  background: var(--color-base);
+  box-shadow:
+    inset 2px 2px 6px var(--nm-dark),
+    inset -2px -2px 6px var(--nm-light);
+}
+
+.vb-step {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border-radius: 13px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  transition: box-shadow 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.vb-step .vb-step-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.68rem;
+  flex-shrink: 0;
+  background: var(--nm-dot-idle);
+  color: var(--vb-step-dot-text);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.vb-step.is-active {
+  background: var(--color-card);
+  color: var(--color-primary);
+  box-shadow:
+    3px 3px 8px var(--nm-dark),
+    -3px -3px 8px var(--nm-light);
+}
+
+.vb-step.is-active .vb-step-dot {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.vb-step.is-done .vb-step-dot {
+  background: var(--color-accent-green);
+  color: #fff;
+}
+
+.vb-step.is-done {
+  color: var(--color-ink);
+}
+
+.vb-sticky-bar {
+  background: var(--color-card);
+  border-top: 1px solid var(--nm-border);
+  box-shadow: 0 -10px 24px var(--nm-dark);
+}
+
+} /* end @layer components */
+
+
+/* =========================================
+   Success check badge pop
+========================================= */
+
+@keyframes checkPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-check-pop {
+  animation: checkPop 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 
@@ -393,3 +790,8 @@ body {
     0 1px 2px rgba(24, 20, 15, 0.04),
     0 24px 60px -16px rgba(24, 20, 15, 0.24);
 }
+
+
+
+
+ 

@@ -33,10 +33,10 @@ export default function BoxExperienceExamplesGrid({
             <div
               key={index}
               onClick={() => setSelectedExperience(exp)}
-              className="group cursor-pointer snap-start min-w-[260px] lg:min-w-0 bg-white rounded-[18px] shadow-[0_8px_22px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.1)] hover:-translate-y-[2px] transition-all duration-300 overflow-hidden"
+              className="vb-card group cursor-pointer snap-start min-w-[260px] lg:min-w-0 hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden"
             >
 
-              <div className="relative w-full h-[160px] overflow-hidden rounded-t-[18px]">
+              <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px]">
 
                 <Image
                   src={exp.image || "/images/box-includes/vivabox-caja-regalo.png"}

@@ -62,7 +62,7 @@ const CASES = [
 
 export default function EmpresasUseCases() {
   return (
-    <section className="bg-[#F7F7F7] py-14 md:py-20">
+    <section className="vb-surface-base py-14 md:py-20">
 
       <div className="max-w-6xl mx-auto px-6 mb-8 md:mb-10">
         <h2 className="text-3xl md:text-4xl font-semibold text-center tracking-[-0.01em]">
@@ -80,7 +80,7 @@ export default function EmpresasUseCases() {
 
             <div
               key={item.title}
-              className="group relative shrink-0 w-[78vw] sm:w-[300px] lg:w-[270px] aspect-[3/4.3] rounded-[24px] overflow-hidden snap-start shadow-[0_6px_20px_rgba(0,0,0,0.1)] transition-shadow duration-300 ease-out hover:shadow-[0_14px_34px_rgba(0,0,0,0.22)]"
+              className="vb-card group relative shrink-0 w-[78vw] sm:w-[300px] lg:w-[270px] aspect-[3/4.3] overflow-hidden snap-start"
               aria-label={item.ariaLabel}
             >
 

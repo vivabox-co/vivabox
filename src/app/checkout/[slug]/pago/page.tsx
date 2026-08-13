@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { formatPrice } from "@/utils/formatPrice"
 import CheckoutProgress from "../../CheckoutProgress"
+import { Lock, Loader2 } from "lucide-react"
 
 export default function PagoPage() {
   const router = useRouter()
@@ -35,7 +36,7 @@ export default function PagoPage() {
   }, [hasHydrated, box, ventaId, router])
 
   if (!hasHydrated || !box || !ventaId) {
-    return <div className="p-6 text-center">Cargando...</div>
+    return <div className="min-h-screen vb-surface-base flex items-center justify-center text-[#6B6B6B]">Cargando...</div>
   }
 
   // 🔥 TS SAFE
@@ -43,7 +44,7 @@ export default function PagoPage() {
 
   // 🔴 NO FALLBACK → backend only
   if (!pricing) {
-    return <div className="p-6 text-center">Cargando precio...</div>
+    return <div className="min-h-screen vb-surface-base flex items-center justify-center text-[#6B6B6B]">Cargando precio...</div>
   }
 
   const { subtotal, delivery, total } = pricing
@@ -136,15 +137,16 @@ async function handleFakePayment() {
     <>
       <CheckoutProgress current="pagar" />
 
-      <div className="min-h-screen bg-[#F6F7F8] py-10 px-4">
+      <div className="min-h-screen vb-surface-base py-10 checkout-container">
 
-        <div className="w-full max-w-[900px] mx-auto grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 max-w-[900px] mx-auto">
 
           {/* LEFT */}
-          <div className="bg-white p-6 rounded-xl border space-y-5 h-fit">
+          <div className="vb-card p-6 space-y-5 h-fit">
 
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">
+              <h2 className="font-semibold text-ink flex items-center gap-2">
+                <Lock size={16} strokeWidth={2} className="text-primary shrink-0" />
                 Pago seguro
               </h2>
               <span className="text-xs text-[#6B6B6B]">
@@ -155,25 +157,25 @@ async function handleFakePayment() {
             <input
               type="text"
               placeholder="Número de tarjeta"
-              className="w-full border rounded-lg p-3"
+              className="vb-input"
             />
 
             <input
               type="text"
               placeholder="Nombre en la tarjeta"
-              className="w-full border rounded-lg p-3"
+              className="vb-input"
             />
 
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="text"
                 placeholder="MM/AA"
-                className="border rounded-lg p-3"
+                className="vb-input"
               />
               <input
                 type="text"
                 placeholder="CVV"
-                className="border rounded-lg p-3"
+                className="vb-input"
               />
             </div>
 
@@ -186,23 +188,23 @@ async function handleFakePayment() {
           {/* RIGHT */}
           <div className="flex flex-col gap-4">
 
-            <div className="bg-white p-6 rounded-xl border space-y-4">
+            <div className="vb-card p-6 space-y-4">
 
-              <h3 className="font-semibold">
+              <h3 className="font-semibold text-ink">
                 Resumen
               </h3>
 
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm text-[#6B6B6B]">
                 <span>{safeBox.name} x{quantity}</span>
                 <span>${formatPrice(subtotal)}</span>
               </div>
 
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm text-[#6B6B6B]">
                 <span>Entrega</span>
                 <span>{getDeliveryLabel()}</span>
               </div>
 
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm text-[#6B6B6B]">
                 <span>Envío</span>
                 <span>
                   {delivery === 0
@@ -211,7 +213,7 @@ async function handleFakePayment() {
                 </span>
               </div>
 
-              <div className="border-t pt-3 flex justify-between font-semibold text-lg">
+              <div className="pt-3 vb-divider-top flex justify-between font-semibold text-lg text-ink">
                 <span>Total</span>
                 <span>${formatPrice(total)}</span>
               </div>
@@ -221,11 +223,19 @@ async function handleFakePayment() {
             <button
               onClick={handleFakePayment}
               disabled={loading}
-              className="w-full h-12 rounded-xl bg-[#fe842f] text-white font-semibold disabled:opacity-50"
+              className="vb-btn-primary w-full h-12 disabled:opacity-60"
             >
-              {loading
-                ? "Procesando..."
-                : `Pagar $${formatPrice(total)}`}
+              {loading ? (
+                <>
+                  Procesando...
+                  <Loader2 size={18} strokeWidth={2} className="animate-spin" />
+                </>
+              ) : (
+                <>
+                  Pagar ${formatPrice(total)}
+                  <Lock size={18} strokeWidth={2} className="vb-cta-icon" />
+                </>
+              )}
             </button>
 
             <p className="text-xs text-[#6B6B6B] text-center">

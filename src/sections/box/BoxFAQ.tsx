@@ -52,7 +52,7 @@ export default function BoxFAQ({ validityMonths }: Props) {
           Preguntas frecuentes
         </h2>
 
-        <div className="divide-y divide-border">
+        <div className="flex flex-col gap-3">
 
           {faqs.map((faq, i) => {
 
@@ -60,7 +60,7 @@ export default function BoxFAQ({ validityMonths }: Props) {
 
             return (
 
-              <div key={i} className="py-4">
+              <div key={i} className="vb-card px-5 py-4">
 
                 <button
                   onClick={() => setOpen(isOpen ? null : i)}
@@ -86,7 +86,10 @@ export default function BoxFAQ({ validityMonths }: Props) {
                     isOpen ? "max-h-40 mt-2" : "max-h-0"
                   }`}
                 >
-                  <p className="text-muted text-[14px] leading-relaxed">
+                  <p
+                    onClick={() => setOpen(null)}
+                    className="text-muted text-[14px] leading-relaxed cursor-pointer"
+                  >
                     {faq.answer}
                   </p>
                 </div>

@@ -31,7 +31,7 @@ const FOUNDERS = [
 
 export default function StoryTeam() {
   return (
-    <section className="bg-ink py-20 md:py-[120px]">
+    <section className="vb-dark bg-ink py-20 md:py-[120px]">
 
       <div className="max-w-[840px] mx-auto px-6">
 

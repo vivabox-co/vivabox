@@ -34,7 +34,7 @@ export default function ExperiencesPreview() {
           <ExperiencesGridLoader />
         </Suspense>
 
-        <p className="text-sm text-muted mt-3">
+        <p className="text-sm text-muted mt-1">
           En Bogotá y Cundinamarca.
         </p>
 

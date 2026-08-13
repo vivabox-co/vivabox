@@ -3,7 +3,7 @@ import Reveal from "@/components/ui/Reveal";
 
 export default function StoryValues() {
   return (
-    <section className="bg-[#F7F7F7] py-20 md:py-[120px]">
+    <section className="vb-surface-base py-20 md:py-[120px]">
 
       <div className="max-w-[1040px] mx-auto px-6">
 
@@ -33,7 +33,7 @@ export default function StoryValues() {
           </Reveal>
 
           <Reveal duration={400} delay={100} className="order-1 md:order-2">
-            <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.1)]">
+            <div className="vb-card relative w-full aspect-[4/5] overflow-hidden">
               <Image
                 src="/images/occasions/pareja.jpg"
                 alt="Momento compartido gracias a una experiencia Vivabox"
