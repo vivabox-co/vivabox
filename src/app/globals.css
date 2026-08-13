@@ -59,6 +59,19 @@ body {
   padding-inline: 24px;
 }
 
+/* Checkout — narrower edge margin so cards read bigger on mobile */
+.checkout-container {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 12px;
+}
+
+@media (min-width: 768px) {
+  .checkout-container {
+    padding-inline: 24px;
+  }
+}
+
 /* Section spacing (more compact vertical rhythm) */
 
 .section {

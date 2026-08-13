@@ -270,7 +270,7 @@ export default function CheckoutStep({ box }: Props) {
 
   return (
     <section className="pt-2 pb-28 lg:pb-10">
-      <div className="container">
+      <div className="checkout-container">
 
         <Link href={`/cajas/${box.slug}`} className="text-sm text-[#6B6B6B] mb-3 inline-block">
           ← Volver
