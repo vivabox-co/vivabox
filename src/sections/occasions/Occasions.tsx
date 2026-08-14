@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-const CARD_IMAGE_SIZES = "(min-width: 1280px) 16vw, (min-width: 640px) 320px, 78vw";
+const CARD_IMAGE_SIZES = "(min-width: 1280px) 16vw, (min-width: 640px) 260px, 60vw";
 
 export default function Occasions() {
 
@@ -66,7 +66,7 @@ export default function Occasions() {
 
             <div
               key={item.name}
-              className="vb-card group relative shrink-0 w-[78vw] sm:w-[320px] lg:w-auto aspect-[3/4.3] overflow-hidden snap-start"
+              className="vb-card group relative shrink-0 w-[60vw] sm:w-[260px] lg:w-auto aspect-[3/4.3] overflow-hidden snap-start"
               aria-label={item.ariaLabel}
             >
 
@@ -80,13 +80,13 @@ export default function Occasions() {
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
 
-              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
+              <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5">
 
-                <h3 className="text-white text-[20px] md:text-[22px] font-semibold leading-tight truncate [text-shadow:0_2px_12px_rgba(0,0,0,.25)]">
+                <h3 className="text-white text-[16px] md:text-[22px] font-semibold leading-tight truncate [text-shadow:0_2px_12px_rgba(0,0,0,.25)]">
                   {item.name}
                 </h3>
 
-                <p className="mt-1 text-white/80 text-[13px] md:text-[14px] font-normal leading-snug line-clamp-2 [text-shadow:0_1px_8px_rgba(0,0,0,.3)]">
+                <p className="mt-1 text-white/80 text-[12px] md:text-[14px] font-normal leading-snug line-clamp-2 [text-shadow:0_1px_8px_rgba(0,0,0,.3)]">
                   {item.subtitle}
                 </p>
 

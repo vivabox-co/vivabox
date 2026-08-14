@@ -21,7 +21,8 @@ export default function ExperiencesPreview() {
           </h2>
           <p className="text-muted">
             Quien la reciba escoge 1 entre más de 20,
-            en Bogotá y Cundinamarca.
+            <br />
+            <span className="font-medium">en Bogotá y Cundinamarca.</span>
           </p>
         </div>
 

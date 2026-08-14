@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { X, MapPin, Clock, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { X, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import {
   CATEGORY_COLORS,
@@ -36,6 +36,7 @@ type Props = {
 export default function ExperienceModal({ experience, onClose }: Props) {
 
   const scrollRef = useRef<HTMLDivElement>(null)
+  const dragRef = useRef<{ startX: number; startScrollLeft: number; startIndex: number; dragging: boolean } | null>(null)
   const [photoIndex, setPhotoIndex] = useState(0)
 
   useEffect(() => {
@@ -45,7 +46,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current
-    if (!el || !el.clientWidth) return
+    if (!el || !el.clientWidth || dragRef.current?.dragging) return
     setPhotoIndex(Math.round(el.scrollLeft / el.clientWidth))
   }, [])
 
@@ -78,6 +79,41 @@ export default function ExperienceModal({ experience, onClose }: Props) {
   const goToPrev = () => goToPhoto((photoIndex - 1 + images.length) % images.length)
   const goToNext = () => goToPhoto((photoIndex + 1) % images.length)
 
+  const handlePointerDown = (e: React.PointerEvent) => {
+    const el = scrollRef.current
+    if (!el || !el.clientWidth) return
+    dragRef.current = {
+      startX: e.clientX,
+      startScrollLeft: el.scrollLeft,
+      startIndex: Math.round(el.scrollLeft / el.clientWidth),
+      dragging: true,
+    }
+    el.setPointerCapture(e.pointerId)
+  }
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    const el = scrollRef.current
+    const state = dragRef.current
+    if (!el || !state?.dragging) return
+    el.scrollLeft = state.startScrollLeft - (e.clientX - state.startX)
+  }
+
+  const handlePointerEnd = (e: React.PointerEvent) => {
+    const el = scrollRef.current
+    const state = dragRef.current
+    if (!el || !state?.dragging) return
+    dragRef.current = null
+
+    const dx = e.clientX - state.startX
+    const threshold = el.clientWidth * 0.15
+
+    let target = state.startIndex
+    if (dx <= -threshold) target = Math.min(state.startIndex + 1, images.length - 1)
+    else if (dx >= threshold) target = Math.max(state.startIndex - 1, 0)
+
+    goToPhoto(target)
+  }
+
   return (
 
     <div
@@ -105,17 +141,23 @@ export default function ExperienceModal({ experience, onClose }: Props) {
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerEnd}
+            onPointerCancel={handlePointerEnd}
+            onDragStart={(e) => e.preventDefault()}
+            className="flex h-full w-full overflow-x-auto no-scrollbar touch-pan-y select-none cursor-grab active:cursor-grabbing"
           >
             {images.map((src, i) => (
-              <div key={i} className="relative h-full w-full shrink-0 snap-start">
+              <div key={i} className="relative h-full w-full shrink-0">
                 <Image
                   src={src}
                   alt={`${experience.title} ${i + 1}`}
                   fill
                   sizes="(min-width: 576px) 576px, 100vw"
-                  className="object-cover"
+                  className="object-cover pointer-events-none"
                   priority={i === 0}
+                  draggable={false}
                 />
               </div>
             ))}
@@ -130,7 +172,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
           <div className="absolute top-4 left-4 z-10">
 
             <span
-              className={`px-3 py-1 rounded-full text-xs font-medium ${badgeColor}`}
+              className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${badgeColor}`}
             >
               {experience.category}
             </span>
@@ -198,15 +240,15 @@ export default function ExperienceModal({ experience, onClose }: Props) {
           )}
 
           {/* HIGHLIGHTS — unique to this experience, scannable at a glance */}
-          <div className="flex flex-wrap gap-2 mb-3">
+          <div className="flex flex-nowrap gap-1.5 mb-3">
             {highlights.map((highlight, i) => {
               const Icon = highlight.icon
               return (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-surface px-2.5 py-1 text-xs font-medium text-ink"
+                  className="inline-flex min-w-0 items-center gap-1 rounded-full bg-surface px-2 py-1 text-[11px] font-medium text-ink whitespace-nowrap"
                 >
-                  <Icon size={13} className="text-primary" strokeWidth={1.5} />
+                  <Icon size={12} className="text-primary shrink-0" strokeWidth={1.5} />
                   {highlight.label}
                 </span>
               )
@@ -221,8 +263,8 @@ export default function ExperienceModal({ experience, onClose }: Props) {
           {/* WHY VIVABOX — curated editorial block */}
           <div className="flex items-start gap-3 rounded-2xl bg-surface p-3">
 
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
-              <Sparkles size={15} className="text-primary" strokeWidth={1.75} />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white border border-black/10">
+              <Image src="/icons/logo.png" alt="" width={24} height={24} />
             </div>
 
             <div>

@@ -52,7 +52,7 @@ export default function BoxExperienceExamplesGrid({
 
               <div className="p-4">
 
-                <span className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full mb-2 ${badgeColor}`}>
+                <span className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full mb-2 capitalize ${badgeColor}`}>
                   {exp.category}
                 </span>
 
@@ -72,6 +72,41 @@ export default function BoxExperienceExamplesGrid({
 
           )
         })}
+
+        {/* LAST CARD */}
+        <div className="vb-card group snap-start min-w-[260px] lg:min-w-0 hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden">
+
+          <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px] bg-gradient-to-br from-[#fff4ec] to-[#f7f7f7] flex items-center justify-center">
+
+            <Image
+              src="/icons/logo.png"
+              alt="Vivabox"
+              width={82}
+              height={82}
+              className="opacity-100"
+            />
+
+            <div className="absolute left-0 top-0 bottom-0 w-[6px] flex flex-col z-10">
+              {Object.values(CATEGORY_COLORS).map((c) => (
+                <div key={c.dot} className={`flex-1 ${c.dot}`}></div>
+              ))}
+            </div>
+
+          </div>
+
+          <div className="p-4 text-center">
+
+            <h3 className="font-semibold mb-1">
+              Y muchas más por descubrir
+            </h3>
+
+            <p className="text-sm text-muted">
+              Siempre estamos incorporando nuevas experiencias.
+            </p>
+
+          </div>
+
+        </div>
 
       </div>
 
