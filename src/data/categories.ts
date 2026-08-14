@@ -23,14 +23,14 @@ import {
 
 // Colors per docs/01_product.md — Experience Categories table
 export const CATEGORY_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  gastronomia: { bg: "bg-amber-100", text: "text-amber-600", dot: "bg-amber-500" },
-  bienestar: { bg: "bg-blue-100", text: "text-blue-600", dot: "bg-blue-500" },
-  aventura: { bg: "bg-red-100", text: "text-red-600", dot: "bg-red-500" },
-  cultura: { bg: "bg-violet-100", text: "text-violet-600", dot: "bg-violet-500" },
-  estancias: { bg: "bg-green-100", text: "text-green-600", dot: "bg-green-500" },
+  gastronomia: { bg: "bg-amber-500", text: "text-white", dot: "bg-amber-500" },
+  bienestar: { bg: "bg-blue-500", text: "text-white", dot: "bg-blue-500" },
+  aventura: { bg: "bg-red-500", text: "text-white", dot: "bg-red-500" },
+  cultura: { bg: "bg-violet-500", text: "text-white", dot: "bg-violet-500" },
+  estancias: { bg: "bg-green-500", text: "text-white", dot: "bg-green-500" },
 }
 
-export const DEFAULT_CATEGORY_COLOR = { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-300" }
+export const DEFAULT_CATEGORY_COLOR = { bg: "bg-gray-500", text: "text-white", dot: "bg-gray-300" }
 
 // Emotional, feeling-first descriptions per category — answers "¿qué se siente vivir esta experiencia?"
 export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
