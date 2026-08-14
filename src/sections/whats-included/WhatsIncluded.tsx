@@ -99,7 +99,7 @@ function BridgeSteps() {
   const textRefs = useRef<(HTMLDivElement | null)[]>([])
   const line1Refs = useRef<(HTMLSpanElement | null)[]>([])
   const line2Refs = useRef<(HTMLSpanElement | null)[]>([])
-  const max = 16.5
+  const max = 16
   const [fontSize, setFontSize] = useState(max)
 
   useEffect(() => {
