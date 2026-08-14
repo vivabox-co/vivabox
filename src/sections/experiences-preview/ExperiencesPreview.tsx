@@ -15,17 +15,13 @@ export default function ExperiencesPreview() {
       <div className="max-w-[1200px] mx-auto px-6">
 
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-3">
-            <BrandDots className="!mb-0" />
-            <span className="inline-block bg-accent-tint text-primary text-xs font-semibold px-3 py-1 rounded-full">
-              Una experiencia a elegir
-            </span>
-          </div>
+          <BrandDots />
           <h2 className="h2 mb-1">
             Muchas formas de disfrutar una Vivabox
           </h2>
           <p className="text-muted">
-            Quien la reciba escoge 1 entre más de 20.
+            Quien la reciba escoge 1 entre más de 20,
+            en Bogotá y Cundinamarca.
           </p>
         </div>
 
@@ -33,10 +29,6 @@ export default function ExperiencesPreview() {
         <Suspense fallback={<div className="text-sm text-muted">Cargando experiencias...</div>}>
           <ExperiencesGridLoader />
         </Suspense>
-
-        <p className="text-sm text-muted mt-1">
-          En Bogotá y Cundinamarca.
-        </p>
 
       </div>
 

@@ -160,11 +160,25 @@ function FitLines({
 
 // Step number + its 2-line label, kept the same height as the number via
 // FitLines' heightRef so the pair always reads as one balanced unit.
-function BridgeStep({ number, lines }: { number: string; lines: [string, string] }) {
+//
+// centerNumber puts the NUMBER (not the number+label pair) on the column's
+// true center -- used for the middle step, which sits under the ribbon's
+// color midpoint above. A mirrored empty spacer column balances the number
+// column so it lands dead-center regardless of how wide the label ends up;
+// the label lives in its own bounded column so it can never spill into the
+// neighboring step (unlike translating the whole pair, which let a wide
+// label push past the column boundary).
+function BridgeStep({
+  number,
+  lines,
+}: {
+  number: string
+  lines: [string, string]
+}) {
   const numberRef = useRef<HTMLSpanElement>(null)
 
   return (
-    <div className="flex-1 min-w-0 flex items-center justify-center gap-1.5 md:gap-3">
+    <div className="flex items-center gap-1.5 md:gap-3">
       <span
         ref={numberRef}
         className="text-primary font-condensed font-semibold text-[26px] md:text-[40px] leading-none shrink-0"
@@ -284,17 +298,17 @@ export default function WhatsIncluded() {
 
       <div className="bg-ink py-4 md:py-5 px-4 md:px-8">
 
-        <div className="max-w-[820px] mx-auto flex items-center justify-between gap-1 sm:gap-6 md:gap-8">
+        <div className="max-w-[820px] mx-auto flex items-center justify-center gap-6 sm:gap-12 md:gap-16">
 
-          <BridgeStep number="01" lines={["Tú regalas", "una Vivabox."]} />
-
-          <span className="shrink-0 w-px h-8 md:h-10 bg-white/15" aria-hidden="true" />
-
-          <BridgeStep number="02" lines={["La persona", "elige 1 plan."]} />
+          <BridgeStep number="01" lines={["Tú", "regalas"]} />
 
           <span className="shrink-0 w-px h-8 md:h-10 bg-white/15" aria-hidden="true" />
 
-          <BridgeStep number="03" lines={["Facilitamos", "la reserva."]} />
+          <BridgeStep number="02" lines={["Eligen", "su plan"]} />
+
+          <span className="shrink-0 w-px h-8 md:h-10 bg-white/15" aria-hidden="true" />
+
+          <BridgeStep number="03" lines={["Reservamos", ""]} />
 
         </div>
 
@@ -711,19 +725,19 @@ export default function WhatsIncluded() {
 
       <div className="vb-dark relative w-screen left-1/2 -translate-x-1/2 bg-ink">
 
-        <div className="max-w-[1200px] mx-auto grid grid-cols-2 items-stretch h-[480px] sm:h-[520px] md:h-[560px] lg:h-[620px]">
+        <div className="max-w-[1200px] mx-auto grid grid-cols-2 items-stretch h-[380px] sm:h-[420px] md:h-[460px] lg:h-[500px]">
 
-          <div className="relative w-full h-full" aria-label="App Vivabox para descubrir, elegir y reservar experiencias">
+          <div className="relative w-full h-full overflow-hidden" aria-label="App Vivabox para descubrir, elegir y reservar experiencias">
             <Image
               src="/images/app-phone/vivabox-app-experiencias.png"
               alt="App Vivabox mostrando experiencias disponibles en Bogotá y Cundinamarca"
               fill
               sizes="(min-width: 1200px) 600px, 50vw"
-              className="object-cover"
+              className="object-cover scale-110"
             />
           </div>
 
-          <div className="flex flex-col justify-center px-4 sm:px-8 md:px-14 lg:px-20 text-left -translate-y-6 sm:-translate-y-8 md:-translate-y-10 lg:-translate-y-12">
+          <div className="flex flex-col justify-center px-4 sm:px-8 md:px-14 lg:px-20 text-left">
 
             <h2 className="text-white font-semibold tracking-tight leading-[1.05] text-[26px] sm:text-[32px] md:text-[42px] lg:text-[52px]">
               <span className="block">Explorar.</span>
