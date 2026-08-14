@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 
 const CARD_IMAGE_SIZES = "(min-width: 1280px) 16vw, (min-width: 640px) 260px, 60vw";
 
 export default function Occasions() {
+
+  const [revealed, setRevealed] = useState<string | null>(null);
 
   const occasions = [
     {
@@ -66,7 +69,16 @@ export default function Occasions() {
 
             <div
               key={item.name}
-              className="vb-card group relative shrink-0 w-[60vw] sm:w-[260px] lg:w-auto aspect-[3/4.3] overflow-hidden snap-start"
+              role="button"
+              tabIndex={0}
+              onClick={() => setRevealed((current) => (current === item.name ? null : item.name))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setRevealed((current) => (current === item.name ? null : item.name));
+                }
+              }}
+              className="vb-card group relative shrink-0 w-[60vw] sm:w-[260px] lg:w-auto aspect-[3/4.3] overflow-hidden snap-start cursor-pointer"
               aria-label={item.ariaLabel}
             >
 
@@ -80,11 +92,17 @@ export default function Occasions() {
 
               <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5">
 
-                <h3 className="text-white text-[16px] md:text-[22px] font-semibold leading-tight truncate [text-shadow:0_1px_3px_rgba(0,0,0,.9),0_2px_16px_rgba(0,0,0,.7)]">
+                <h3 className="text-white text-[16px] md:text-[22px] font-semibold leading-tight truncate [text-shadow:0_1px_4px_rgba(0,0,0,.85)]">
                   {item.name}
                 </h3>
 
-                <p className="mt-1 text-white/90 text-[14px] md:text-[16px] font-normal leading-snug line-clamp-2 [text-shadow:0_1px_3px_rgba(0,0,0,.9),0_2px_12px_rgba(0,0,0,.7)]">
+                <p
+                  className={`text-white/90 text-[14px] md:text-[16px] font-normal leading-snug line-clamp-2 [text-shadow:0_1px_4px_rgba(0,0,0,.85)] overflow-hidden transition-all duration-300 ease-out ${
+                    revealed === item.name
+                      ? "max-h-12 opacity-100 mt-1"
+                      : "max-h-0 opacity-0 mt-0 lg:group-hover:max-h-12 lg:group-hover:opacity-100 lg:group-hover:mt-1"
+                  }`}
+                >
                   {item.subtitle}
                 </p>
 
