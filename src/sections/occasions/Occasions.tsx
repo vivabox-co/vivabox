@@ -78,15 +78,13 @@ export default function Occasions() {
                 className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
               />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-
               <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5">
 
-                <h3 className="text-white text-[16px] md:text-[22px] font-semibold leading-tight truncate [text-shadow:0_2px_12px_rgba(0,0,0,.25)]">
+                <h3 className="text-white text-[16px] md:text-[22px] font-semibold leading-tight truncate [text-shadow:0_1px_3px_rgba(0,0,0,.9),0_2px_16px_rgba(0,0,0,.7)]">
                   {item.name}
                 </h3>
 
-                <p className="mt-1 text-white/80 text-[12px] md:text-[14px] font-normal leading-snug line-clamp-2 [text-shadow:0_1px_8px_rgba(0,0,0,.3)]">
+                <p className="mt-1 text-white/90 text-[14px] md:text-[16px] font-normal leading-snug line-clamp-2 [text-shadow:0_1px_3px_rgba(0,0,0,.9),0_2px_12px_rgba(0,0,0,.7)]">
                   {item.subtitle}
                 </p>
 
