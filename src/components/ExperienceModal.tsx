@@ -172,7 +172,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
           <div className="absolute top-4 left-4 z-10">
 
             <span
-              className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${badgeColor}`}
+              className={`inline-flex items-center leading-none px-3 py-1.5 rounded-full text-xs font-medium capitalize ${badgeColor}`}
             >
               {experience.category}
             </span>
@@ -246,7 +246,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
               return (
                 <span
                   key={i}
-                  className="inline-flex min-w-0 items-center gap-1 rounded-full bg-surface px-2 py-1 text-xs font-medium text-ink whitespace-nowrap"
+                  className="inline-flex min-w-0 items-center leading-none gap-1 rounded-full bg-card border border-black/10 px-2.5 py-1.5 text-xs font-medium text-ink whitespace-nowrap"
                 >
                   <Icon size={13} className="text-primary shrink-0" strokeWidth={1.5} />
                   {highlight.label}
@@ -261,20 +261,21 @@ export default function ExperienceModal({ experience, onClose }: Props) {
           </p>
 
           {/* WHY VIVABOX — curated editorial block */}
-          <div className="flex items-start gap-3 rounded-2xl bg-surface p-3">
+          <div className="rounded-2xl bg-card border border-black/10 p-3">
 
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white border border-black/10">
-              <Image src="/icons/logo.png" alt="" width={24} height={24} />
-            </div>
+            <div className="flex items-center gap-2 mb-1.5">
 
-            <div>
-              <p className="text-sm font-semibold text-ink mb-0.5">
+              <Image src="/icons/logo.png" alt="" width={28} height={28} className="shrink-0 -translate-y-1" />
+
+              <p className="text-sm font-semibold text-ink">
                 Elegida por Vivabox
               </p>
-              <p className="text-sm text-muted leading-snug">
-                {whyVivabox}
-              </p>
+
             </div>
+
+            <p className="text-sm text-muted leading-snug">
+              {whyVivabox}
+            </p>
 
           </div>
 

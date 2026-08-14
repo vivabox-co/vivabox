@@ -22,10 +22,10 @@ export default function BoxFAQ({ validityMonths }: Props) {
     },
     {
       question: "¿Tiene vencimiento?",
-      answer: `Sí. Es válida durante ${validityMonths} meses desde la activación.`,
+      answer: `Sí. Es válida durante ${validityMonths} meses desde la compra.`,
     },
     {
-      question: "¿Dónde puedo usar las experiencias?",
+      question: "¿En qué ciudades están disponibles las experiencias?",
       answer:
         "Por ahora las experiencias están disponibles en Bogotá y Cundinamarca. Vamos sumando más ciudades pronto.",
     },

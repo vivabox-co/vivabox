@@ -426,7 +426,7 @@ La Vivabox incluye la caja física lista para regalar.
 
 Sí.
 
-Es válida durante 12 meses desde la activación.
+Es válida durante 12 meses desde la compra.
 
 ---
 

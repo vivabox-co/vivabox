@@ -52,7 +52,7 @@ export default function BoxExperienceExamplesGrid({
 
               <div className="p-4">
 
-                <span className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full mb-2 capitalize ${badgeColor}`}>
+                <span className={`inline-flex items-center leading-none text-xs font-medium px-2.5 py-1.5 rounded-full mb-2 capitalize ${badgeColor}`}>
                   {exp.category}
                 </span>
 
