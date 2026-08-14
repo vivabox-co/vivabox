@@ -75,6 +75,113 @@ function FitLine({
   )
 }
 
+// Two fixed lines (chosen break point, never re-wrapped by the browser) —
+// scaled up together as large as possible while neither line overflows the
+// container. Like FitLine above, but fitting the widest of two nowrap lines
+// instead of a single one, so the break point stays exactly where intended
+// instead of wherever the browser's greedy wrap happens to land.
+function FitLines({
+  lines,
+  min,
+  max,
+  heightRef,
+  className = "",
+}: {
+  lines: [string, string]
+  min: number
+  max: number
+  heightRef?: React.RefObject<HTMLElement | null>
+  className?: string
+}) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const line1Ref = useRef<HTMLSpanElement>(null)
+  const line2Ref = useRef<HTMLSpanElement>(null)
+  const [fontSize, setFontSize] = useState(max)
+
+  useEffect(() => {
+    const container = containerRef.current
+    const line1 = line1Ref.current
+    const line2 = line2Ref.current
+    if (!container || !line1 || !line2) return
+
+    const measureWidestAt = (size: number) => {
+      line1.style.fontSize = `${size}px`
+      line2.style.fontSize = `${size}px`
+      return Math.max(line1.scrollWidth, line2.scrollWidth)
+    }
+
+    const fit = () => {
+      const containerWidth = container.clientWidth
+      if (containerWidth === 0) return
+
+      const naturalWidth = measureWidestAt(max)
+      if (naturalWidth === 0) return
+      let size = Math.min(max, Math.max(min, max * (containerWidth / naturalWidth)))
+
+      const measuredWidth = measureWidestAt(size)
+      if (measuredWidth > 0) {
+        size = Math.min(max, Math.max(min, size * (containerWidth / measuredWidth)))
+      }
+
+      // Cap total 2-line height to the reference element's height (the step
+      // number) so the text block never grows taller than it, which is what
+      // made it look oversized/off-center next to the number.
+      const capHeight = heightRef?.current?.getBoundingClientRect().height
+      if (capHeight) {
+        line1.style.fontSize = `${size}px`
+        const lineHeight = parseFloat(getComputedStyle(line1).lineHeight)
+        const totalHeight = lineHeight * 2
+        if (totalHeight > capHeight) {
+          size = Math.max(min, size * (capHeight / totalHeight))
+        }
+      }
+
+      setFontSize(size)
+    }
+
+    fit()
+    document.fonts?.ready.then(fit)
+    const ro = new ResizeObserver(fit)
+    ro.observe(container)
+    return () => ro.disconnect()
+  }, [lines, min, max, heightRef])
+
+  return (
+    <div ref={containerRef} className="flex-1 min-w-0">
+      <span ref={line1Ref} className={`block whitespace-nowrap ${className}`} style={{ fontSize }}>
+        {lines[0]}
+      </span>
+      <span ref={line2Ref} className={`block whitespace-nowrap ${className}`} style={{ fontSize }}>
+        {lines[1]}
+      </span>
+    </div>
+  )
+}
+
+// Step number + its 2-line label, kept the same height as the number via
+// FitLines' heightRef so the pair always reads as one balanced unit.
+function BridgeStep({ number, lines }: { number: string; lines: [string, string] }) {
+  const numberRef = useRef<HTMLSpanElement>(null)
+
+  return (
+    <div className="flex-1 min-w-0 flex items-center justify-center gap-1.5 md:gap-3">
+      <span
+        ref={numberRef}
+        className="text-primary font-condensed font-semibold text-[26px] md:text-[40px] leading-none shrink-0"
+      >
+        {number}
+      </span>
+      <FitLines
+        lines={lines}
+        min={8}
+        max={14}
+        heightRef={numberRef}
+        className="text-white/90 leading-none text-left"
+      />
+    </div>
+  )
+}
+
 const INCLUDED_CARD_SIZES = "(min-width: 1024px) 240px, 34vw"
 
 function IncludedCard({
@@ -85,7 +192,7 @@ function IncludedCard({
   alt: string
 }) {
   return (
-    <div className="vb-card group relative w-full aspect-square overflow-hidden">
+    <div className="group relative w-full aspect-square overflow-hidden rounded-[26px] border border-[var(--nm-border)] bg-[var(--color-card)] shadow-[6px_10px_24px_rgba(24,20,15,0.18)]">
       <Image
         src={src}
         alt={alt}
@@ -99,12 +206,41 @@ function IncludedCard({
 
 // tipAlign keeps the tooltip bubble from overflowing the box on the two
 // edge categories -- it anchors to the icon's outer edge instead of centering.
+// size/dsize are sized per icon's own SVG aspect ratio (not a forced square)
+// so every icon's longest edge hits the same cap and they read as the same
+// scale despite very different shapes (a wide plate vs. a tall thin pillar).
 const CATEGORIES = [
-  { label: "Bienestar", examples: ["masajes", "spa", "yoga"], src: "/images/box-includes/Bienestar.svg", size: "w-11 h-11 sm:w-[58px] sm:h-[58px] md:w-[72px] md:h-[72px]", offset: "translate-y-3 md:translate-y-4", tipAlign: "left" },
-  { label: "Aventura", examples: ["parapente", "rafting", "escalada"], src: "/images/box-includes/Aventura.svg", size: "w-[46px] h-[46px] sm:w-[62px] sm:h-[62px] md:w-[80px] md:h-[80px]", offset: "-translate-y-3 md:-translate-y-4", tipAlign: "center" },
-  { label: "Gastronomía", examples: ["brunch", "catas", "cocina"], src: "/images/box-includes/Gastronomía.svg", size: "w-[50px] h-[50px] sm:w-[68px] sm:h-[68px] md:w-[92px] md:h-[92px]", offset: "translate-y-3 md:translate-y-4", tipAlign: "center" },
-  { label: "Estancias", examples: ["glamping", "cabañas", "fincas"], src: "/images/box-includes/Estancias.svg", size: "w-[50px] h-[50px] sm:w-[68px] sm:h-[68px] md:w-[92px] md:h-[92px]", offset: "-translate-y-3 md:-translate-y-4", tipAlign: "center" },
-  { label: "Cultura", examples: ["tours", "talleres", "museos"], src: "/images/box-includes/Cultura.svg", size: "w-10 h-10 sm:w-[52px] sm:h-[52px] md:w-[68px] md:h-[68px]", offset: "translate-y-3 md:translate-y-4", tipAlign: "right" },
+  { label: "Bienestar", examples: ["masajes", "spa", "yoga"], src: "/images/box-includes/Bienestar.svg", size: "w-[50px] h-[40px] sm:w-[68px] sm:h-[54px] md:w-[92px] md:h-[73px]", dsize: "w-[70px] h-[56px]", offset: "translate-y-2 md:translate-y-3", tipAlign: "left" },
+  { label: "Aventura", examples: ["parapente", "rafting", "escalada"], src: "/images/box-includes/Aventura.svg", size: "w-[50px] h-[34px] sm:w-[68px] sm:h-[46px] md:w-[92px] md:h-[62px]", dsize: "w-[70px] h-[47px]", offset: "-translate-y-3 md:-translate-y-4", tipAlign: "center" },
+  { label: "Gastronomía", examples: ["brunch", "catas", "cocina"], src: "/images/box-includes/Gastronomía.svg", size: "w-[50px] h-[37px] sm:w-[68px] sm:h-[50px] md:w-[92px] md:h-[67px]", dsize: "w-[70px] h-[51px]", offset: "translate-y-2 md:translate-y-3", tipAlign: "center" },
+  { label: "Estancias", examples: ["glamping", "cabañas", "fincas"], src: "/images/box-includes/Estancias.svg", size: "w-[50px] h-[36px] sm:w-[68px] sm:h-[49px] md:w-[92px] md:h-[66px]", dsize: "w-[70px] h-[50px]", offset: "-translate-y-3 md:-translate-y-4", tipAlign: "center" },
+  { label: "Cultura", examples: ["tours", "talleres", "museos"], src: "/images/box-includes/Cultura.svg", size: "w-[38px] h-[50px] sm:w-[51px] sm:h-[68px] md:w-[70px] md:h-[92px]", dsize: "w-[53px] h-[70px]", offset: "translate-y-2 md:translate-y-3", tipAlign: "right" },
+] as const
+
+// The three guaranteed box contents — tapped from both the mobile illustration
+// and the desktop grid, so the copy and images live here once and feed both.
+const CONTENTS = [
+  {
+    title: "Catálogo",
+    subtitle: "De experiencias.",
+    desc: "Una selección para descubrir todo lo que podría vivir.",
+    src: "/images/box-includes/vivabox-catalogo-experiencias.png",
+    alt: "Catálogo de experiencias Vivabox",
+  },
+  {
+    title: "Mensaje",
+    subtitle: "Personal.",
+    desc: "Unas palabras tuyas para hacer el regalo aún más personal.",
+    src: "/images/box-includes/vivabox-dedicatoria-personal.png",
+    alt: "Dedicatoria personalizada Vivabox",
+  },
+  {
+    title: "Activación",
+    subtitle: "Código único.",
+    desc: "Le da acceso a su catálogo completo de experiencias en línea.",
+    src: "/images/box-includes/vivabox-codigo-activacion.png",
+    alt: "Código de activación Vivabox",
+  },
 ] as const
 
 const TIP_ALIGN_CLASS: Record<string, string> = {
@@ -121,65 +257,44 @@ const TIP_ARROW_ALIGN_CLASS: Record<string, string> = {
 
 export default function WhatsIncluded() {
 
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  // Bienestar starts active so the tooltip + underline are visible on load,
+  // teaching visitors the icons are clickable. Unlike the content picker
+  // below, category selection never auto-dismisses -- it only changes when
+  // another category (or the same one again) is clicked.
+  const [activeCategory, setActiveCategory] = useState<string | null>("Bienestar")
+  const [activeContent, setActiveContent] = useState<string | null>(null)
 
   const toggleCategory = (label: string) => {
     setActiveCategory((current) => (current === label ? null : label))
   }
 
-  // Auto-dismiss the tooltip after a few idle seconds, or as soon as the
-  // visitor interacts anywhere outside the category picker.
-  useEffect(() => {
-    if (!activeCategory) return
+  const toggleContent = (title: string) => {
+    setActiveContent((current) => (current === title ? null : title))
+  }
 
-    const timeout = setTimeout(() => setActiveCategory(null), 4000)
-
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (!(e.target as HTMLElement).closest("[data-category-picker]")) {
-        setActiveCategory(null)
-      }
-    }
-    document.addEventListener("mousedown", handleOutsideClick)
-
-    return () => {
-      clearTimeout(timeout)
-      document.removeEventListener("mousedown", handleOutsideClick)
-    }
-  }, [activeCategory])
+  // The shared caption strip (mobile + desktop) reads from whichever content
+  // item was last tapped -- unlike the category tooltip, it's a persistent
+  // line rather than a floating bubble, so it doesn't need to auto-dismiss.
+  const activeContentData = CONTENTS.find((item) => item.title === activeContent) ?? null
 
   return (
     <section className="bg-surface">
 
       {/* BRIDGE — connects the hero's promise to the explanation below */}
 
-      <div className="bg-ink py-4 md:py-5 px-3 md:px-6">
+      <div className="bg-ink py-4 md:py-5 px-4 md:px-8">
 
-        <div className="max-w-[820px] mx-auto flex items-center justify-between gap-2 sm:gap-6 md:gap-8">
+        <div className="max-w-[820px] mx-auto flex items-center justify-between gap-1 sm:gap-6 md:gap-8">
 
-          <div className="flex-1 min-w-0 flex items-center justify-center gap-2 md:gap-3">
-            <span className="text-primary font-condensed font-semibold text-[32px] md:text-[40px] leading-none shrink-0">01</span>
-            <span className="flex-1 min-w-0 text-white/90 text-[13px] sm:text-[14px] md:text-[17px] leading-snug text-left line-clamp-2">
-              Tú regalas una Vivabox.
-            </span>
-          </div>
+          <BridgeStep number="01" lines={["Tú regalas", "una Vivabox."]} />
 
           <span className="shrink-0 w-px h-8 md:h-10 bg-white/15" aria-hidden="true" />
 
-          <div className="flex-1 min-w-0 flex items-center justify-center gap-2 md:gap-3">
-            <span className="text-primary font-condensed font-semibold text-[32px] md:text-[40px] leading-none shrink-0">02</span>
-            <span className="flex-1 min-w-0 text-white/90 text-[13px] sm:text-[14px] md:text-[17px] leading-snug text-left line-clamp-2">
-              La persona elige 1 plan.
-            </span>
-          </div>
+          <BridgeStep number="02" lines={["La persona", "elige 1 plan."]} />
 
           <span className="shrink-0 w-px h-8 md:h-10 bg-white/15" aria-hidden="true" />
 
-          <div className="flex-1 min-w-0 flex items-center justify-center gap-2 md:gap-3">
-            <span className="text-primary font-condensed font-semibold text-[32px] md:text-[40px] leading-none shrink-0">03</span>
-            <span className="flex-1 min-w-0 text-white/90 text-[13px] sm:text-[14px] md:text-[17px] leading-snug text-left line-clamp-2">
-              Facilitamos la reserva.
-            </span>
-          </div>
+          <BridgeStep number="03" lines={["Facilitamos", "la reserva."]} />
 
         </div>
 
@@ -246,45 +361,45 @@ export default function WhatsIncluded() {
 
               {/* CATALOGUE — left card, nearly at the frame's left edge */}
 
-              <div className="absolute left-[2%] top-[67%] w-[34%] aspect-square z-10">
-                <div
-                  className="absolute inset-x-[18%] -bottom-[3%] h-[7%] rounded-[100%] blur-[3px]"
-                  style={{ background: "radial-gradient(ellipse, rgba(24,20,15,0.35) 0%, transparent 80%)" }}
-                />
+              <div
+                className="absolute left-[2%] top-[67%] w-[34%] aspect-square z-10 cursor-pointer"
+                onClick={() => toggleContent(CONTENTS[0].title)}
+              >
+                <div className="absolute inset-x-[22%] -bottom-[1.5%] h-[6%] rounded-[100%] bg-ink/20 blur-md" />
                 <div className="-rotate-3">
                   <IncludedCard
-                    src="/images/box-includes/vivabox-catalogo-experiencias.png"
-                    alt="Catálogo de experiencias Vivabox"
+                    src={CONTENTS[0].src}
+                    alt={CONTENTS[0].alt}
                   />
                 </div>
               </div>
 
               {/* PERSONAL MESSAGE — center card, real gaps on both sides */}
 
-              <div className="absolute left-[33%] top-[68%] w-[34%] aspect-square z-20">
-                <div
-                  className="absolute inset-x-[18%] -bottom-[3%] h-[7%] rounded-[100%] blur-[3px]"
-                  style={{ background: "radial-gradient(ellipse, rgba(24,20,15,0.35) 0%, transparent 80%)" }}
-                />
+              <div
+                className="absolute left-[33%] top-[68%] w-[34%] aspect-square z-20 cursor-pointer"
+                onClick={() => toggleContent(CONTENTS[1].title)}
+              >
+                <div className="absolute inset-x-[22%] -bottom-[1.5%] h-[6%] rounded-[100%] bg-ink/20 blur-md" />
                 <div className="rotate-1">
                   <IncludedCard
-                    src="/images/box-includes/vivabox-dedicatoria-personal.png"
-                    alt="Dedicatoria personalizada Vivabox"
+                    src={CONTENTS[1].src}
+                    alt={CONTENTS[1].alt}
                   />
                 </div>
               </div>
 
               {/* ACTIVATION CARD — right card, nearly at the frame's right edge */}
 
-              <div className="absolute left-[64%] top-[67.5%] w-[34%] aspect-square z-10">
-                <div
-                  className="absolute inset-x-[18%] -bottom-[3%] h-[7%] rounded-[100%] blur-[3px]"
-                  style={{ background: "radial-gradient(ellipse, rgba(24,20,15,0.35) 0%, transparent 80%)" }}
-                />
+              <div
+                className="absolute left-[64%] top-[67.5%] w-[34%] aspect-square z-10 cursor-pointer"
+                onClick={() => toggleContent(CONTENTS[2].title)}
+              >
+                <div className="absolute inset-x-[22%] -bottom-[1.5%] h-[6%] rounded-[100%] bg-ink/20 blur-md" />
                 <div className="rotate-2">
                   <IncludedCard
-                    src="/images/box-includes/vivabox-codigo-activacion.png"
-                    alt="Código de activación Vivabox"
+                    src={CONTENTS[2].src}
+                    alt={CONTENTS[2].alt}
                   />
                 </div>
               </div>
@@ -302,26 +417,23 @@ export default function WhatsIncluded() {
                 Dentro <span className="underline">encontrará</span>:
               </p>
 
-              {/* Catálogo — close above the catalogue card (card spans 2%-36%) */}
-              <div className="absolute z-40 left-[2%] top-[59.5%] w-[34%] text-center leading-snug">
-                <h3 className="font-sans font-semibold text-ink text-[17px] sm:text-[19px] md:text-[22px] tracking-tight">
-                  Catálogo
-                </h3>
-              </div>
-
-              {/* Mensaje — close above the message card (card spans 33%-67%) */}
-              <div className="absolute z-40 left-[33%] top-[59.5%] w-[34%] text-center leading-snug">
-                <h3 className="font-sans font-semibold text-ink text-[17px] sm:text-[19px] md:text-[22px] tracking-tight">
-                  Mensaje
-                </h3>
-              </div>
-
-              {/* Activación — close above the activation card (card spans 64%-98%) */}
-              <div className="absolute z-40 left-[64%] top-[59.5%] w-[34%] text-center leading-snug">
-                <h3 className="font-sans font-semibold text-ink text-[17px] sm:text-[19px] md:text-[22px] tracking-tight">
-                  Activación
-                </h3>
-              </div>
+              {/* Titles are also tap targets — the description itself surfaces
+                  in the shared caption strip below the illustration, not in a
+                  bubble anchored to the title. */}
+              {CONTENTS.map((item, i) => (
+                <button
+                  key={item.title}
+                  type="button"
+                  onClick={() => toggleContent(item.title)}
+                  aria-pressed={activeContent === item.title}
+                  aria-label={`Ver qué es ${item.title}`}
+                  className={`absolute z-40 ${["left-[2%]", "left-[33%]", "left-[64%]"][i]} top-[59.5%] w-[34%] text-center leading-snug`}
+                >
+                  <h3 className={`font-sans font-semibold text-[17px] sm:text-[19px] md:text-[22px] tracking-tight text-ink ${activeContent === item.title ? "underline" : ""}`}>
+                    {item.title}
+                  </h3>
+                </button>
+              ))}
 
             </div>
 
@@ -329,13 +441,25 @@ export default function WhatsIncluded() {
 
         </div>
 
+        {/* SHARED CAPTION — appears only once something's tapped; the <p> stays
+            a plain block so its spans wrap as normal inline text (flex here
+            would turn each span into its own row instead of one paragraph). */}
+        {activeContentData && (
+          <div className="max-w-[1100px] mx-auto px-6 -mt-1 mb-4 md:mb-5">
+            <p className="text-[13px] sm:text-[14px] leading-snug text-center">
+              <span className="font-semibold text-ink">{activeContentData.title}</span>
+              <span className="text-muted"> — {activeContentData.desc}</span>
+            </p>
+          </div>
+        )}
+
       </div>
 
       <div className="lg:hidden max-w-[1100px] mx-auto px-6">
 
         {/* GROUPING CONTAINER — border only, groups the categories title + grid */}
 
-        <div className="-mt-2 sm:-mt-6 md:-mt-9 border-2 border-[#3A2E22] rounded-[28px] sm:rounded-[36px] md:rounded-[48px] px-4 pt-3 pb-4 sm:px-8 sm:pt-5 sm:pb-6 md:px-12 md:pt-6 md:pb-7">
+        <div className="-mt-2 sm:-mt-6 md:-mt-9 border-2 border-[#3A2E22] rounded-[28px] sm:rounded-[36px] md:rounded-[48px] px-4 pt-4 pb-12 sm:px-8 sm:pt-6 sm:pb-16 md:px-12 md:pt-7 md:pb-20">
 
           {/* CATALOGUE CONTINUATION — categories read as an extension of "Para elegir.", not a new section */}
 
@@ -347,7 +471,7 @@ export default function WhatsIncluded() {
 
           </div>
 
-          <div className="mt-6 sm:mt-6 md:mt-8">
+          <div className="mt-1 sm:mt-2 md:mt-3">
 
             <div data-category-picker className="grid grid-cols-5 gap-x-1 sm:gap-x-6 md:gap-x-10">
 
@@ -360,15 +484,6 @@ export default function WhatsIncluded() {
                   aria-pressed={activeCategory === cat.label}
                   aria-label={`Ver ejemplos de ${cat.label}`}
                 >
-                  <div
-                    className={`absolute bottom-full mb-2 ${TIP_ALIGN_CLASS[cat.tipAlign]} z-20 transition-opacity duration-300 ${activeCategory === cat.label ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-                    aria-hidden={activeCategory !== cat.label}
-                  >
-                    <div className="bg-ink text-white text-[11px] font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap first-letter:uppercase">
-                      {cat.examples.join(", ")}…
-                    </div>
-                    <div className={`absolute top-full -mt-1 ${TIP_ARROW_ALIGN_CLASS[cat.tipAlign]} w-2 h-2 bg-ink rotate-45`} />
-                  </div>
                   <div className="h-[50px] sm:h-[68px] md:h-[92px] flex items-end justify-center mb-0.5 md:mb-1">
                     <div className={`relative ${cat.size}`}>
                       <Image src={cat.src} alt="" fill sizes="92px" className="object-contain" />
@@ -377,14 +492,19 @@ export default function WhatsIncluded() {
                   <span className={`text-[12px] sm:text-[16px] md:text-[20px] font-medium leading-tight ${activeCategory === cat.label ? "text-primary underline" : "text-ink"}`}>
                     {cat.label}
                   </span>
+                  <div
+                    className={`absolute top-full mt-2 ${TIP_ALIGN_CLASS[cat.tipAlign]} z-20 transition-opacity duration-300 ${activeCategory === cat.label ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                    aria-hidden={activeCategory !== cat.label}
+                  >
+                    <div className={`absolute bottom-full -mb-1 ${TIP_ARROW_ALIGN_CLASS[cat.tipAlign]} w-2 h-2 bg-ink rotate-45`} />
+                    <div className="bg-ink text-white text-[11px] font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap first-letter:uppercase">
+                      {cat.examples.join(", ")}…
+                    </div>
+                  </div>
                 </button>
               ))}
 
             </div>
-
-            <p className="mt-7 md:mt-8 text-muted text-[13px] sm:text-[14px] text-center">
-              Toca una categoría para ver ejemplos
-            </p>
 
           </div>
 
@@ -470,48 +590,58 @@ export default function WhatsIncluded() {
 
             <div className="grid grid-cols-3 gap-8 xl:gap-10 max-w-[760px] mx-auto">
 
-              {[
-                {
-                  title: "Catálogo",
-                  desc: "De experiencias.",
-                  src: "/images/box-includes/vivabox-catalogo-experiencias.png",
-                  alt: "Catálogo de experiencias Vivabox",
-                },
-                {
-                  title: "Mensaje",
-                  desc: "Personal.",
-                  src: "/images/box-includes/vivabox-dedicatoria-personal.png",
-                  alt: "Dedicatoria personalizada Vivabox",
-                },
-                {
-                  title: "Activación",
-                  desc: "Código único.",
-                  src: "/images/box-includes/vivabox-codigo-activacion.png",
-                  alt: "Código de activación Vivabox",
-                },
-              ].map((item) => (
-                <div key={item.title} className="text-center">
+              {CONTENTS.map((item) => (
+                <div
+                  key={item.title}
+                  className="text-center cursor-pointer group"
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={activeContent === item.title}
+                  aria-label={`Ver qué es ${item.title}`}
+                  onClick={() => toggleContent(item.title)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      toggleContent(item.title)
+                    }
+                  }}
+                >
                   <div className="vb-card relative w-full aspect-square overflow-hidden mb-4">
-                    <Image src={item.src} alt={item.alt} fill sizes="230px" className="object-cover" />
+                    <Image
+                      src={item.src}
+                      alt={item.alt}
+                      fill
+                      sizes="230px"
+                      className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                    />
                   </div>
-                  <h3 className="font-sans font-semibold text-ink text-[18px] tracking-tight">
+                  <h3 className={`font-sans font-semibold text-[18px] tracking-tight text-ink ${activeContent === item.title ? "underline" : ""}`}>
                     {item.title}
                   </h3>
                   <p className="font-sans text-ink/50 text-[14px] mt-1">
-                    {item.desc}
+                    {item.subtitle}
                   </p>
                 </div>
               ))}
 
             </div>
 
+            {/* SHARED CAPTION — same pattern as the mobile layout: appears only
+                once something's tapped, plain block so text wraps normally. */}
+            {activeContentData && (
+              <p className="text-center text-[15px] leading-snug mt-1 mb-8">
+                <span className="font-semibold text-ink">{activeContentData.title}</span>
+                <span className="text-ink/50"> — {activeContentData.desc}</span>
+              </p>
+            )}
+
           </div>
 
           {/* STAGE 4 — experience categories, same bordered grouping as the mobile version */}
 
-          <div className="mt-28 xl:mt-32 max-w-[960px] mx-auto border-2 border-[#3A2E22] rounded-[48px] px-12 pt-8 pb-6 xl:px-14 xl:pt-9 xl:pb-7 text-center">
+          <div className="mt-28 xl:mt-32 max-w-[960px] mx-auto border-2 border-[#3A2E22] rounded-[48px] px-12 pt-9 pb-16 xl:px-14 xl:pt-10 xl:pb-20 text-center">
 
-            <p className="text-ink text-[30px] xl:text-[34px] font-semibold tracking-tight mb-8">
+            <p className="text-ink text-[30px] xl:text-[34px] font-semibold tracking-tight mb-3">
               ¿Qué experiencias podrá elegir?
             </p>
 
@@ -525,30 +655,26 @@ export default function WhatsIncluded() {
                   aria-pressed={activeCategory === cat.label}
                   aria-label={`Ver ejemplos de ${cat.label}`}
                 >
-                  <div
-                    className={`absolute bottom-full mb-2 ${TIP_ALIGN_CLASS[cat.tipAlign]} z-20 transition-opacity duration-300 ${activeCategory === cat.label ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-                    aria-hidden={activeCategory !== cat.label}
-                  >
-                    <div className="bg-ink text-white text-[13px] font-medium px-3.5 py-2 rounded-lg shadow-lg whitespace-nowrap first-letter:uppercase">
-                      {cat.examples.join(", ")}…
-                    </div>
-                    <div className={`absolute top-full -mt-1 ${TIP_ARROW_ALIGN_CLASS[cat.tipAlign]} w-2.5 h-2.5 bg-ink rotate-45`} />
-                  </div>
                   <div className="h-[84px] flex items-end justify-center mb-4">
-                    <div className="relative w-[70px] h-[70px]">
+                    <div className={`relative ${cat.dsize}`}>
                       <Image src={cat.src} alt="" fill sizes="70px" className="object-contain" />
                     </div>
                   </div>
                   <span className={`text-[16px] font-medium ${activeCategory === cat.label ? "text-primary underline" : "text-ink"}`}>
                     {cat.label}
                   </span>
+                  <div
+                    className={`absolute top-full mt-2 ${TIP_ALIGN_CLASS[cat.tipAlign]} z-20 transition-opacity duration-300 ${activeCategory === cat.label ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                    aria-hidden={activeCategory !== cat.label}
+                  >
+                    <div className={`absolute bottom-full -mb-1 ${TIP_ARROW_ALIGN_CLASS[cat.tipAlign]} w-2.5 h-2.5 bg-ink rotate-45`} />
+                    <div className="bg-ink text-white text-[13px] font-medium px-3.5 py-2 rounded-lg shadow-lg whitespace-nowrap first-letter:uppercase">
+                      {cat.examples.join(", ")}…
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
-
-            <p className="mt-9 text-muted text-[15px] text-center">
-              Toca una categoría para ver ejemplos
-            </p>
 
           </div>
 

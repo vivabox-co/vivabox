@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { X, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, MapPin, Clock, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import Image from "next/image";
 import {
   CATEGORY_COLORS,
@@ -87,7 +87,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
 
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-card border border-[var(--nm-border)] rounded-[26px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] max-w-xl w-full overflow-hidden relative"
+        className="bg-card rounded-[26px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] max-w-xl w-full overflow-hidden relative"
       >
 
         {/* close */}
@@ -219,11 +219,11 @@ export default function ExperienceModal({ experience, onClose }: Props) {
           </p>
 
           {/* WHY VIVABOX — curated editorial block */}
-          <div className="vb-well flex items-center gap-3 p-3">
+          <div className="flex items-start gap-3 rounded-2xl bg-surface p-3">
 
-            <Image src="/icons/logo.png" alt="Vivabox" width={26} height={26} className="shrink-0" />
-
-            <div className="w-px self-stretch bg-ink/10 shrink-0" />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <Sparkles size={15} className="text-primary" strokeWidth={1.75} />
+            </div>
 
             <div>
               <p className="text-xs font-semibold text-ink mb-0.5">
