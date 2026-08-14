@@ -80,59 +80,60 @@ function FitLine({
 // container. Like FitLine above, but fitting the widest of two nowrap lines
 // instead of a single one, so the break point stays exactly where intended
 // instead of wherever the browser's greedy wrap happens to land.
-function FitLines({
-  lines,
-  min,
-  max,
-  heightRef,
-  className = "",
-}: {
-  lines: [string, string]
-  min: number
-  max: number
-  heightRef?: React.RefObject<HTMLElement | null>
-  className?: string
-}) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const line1Ref = useRef<HTMLSpanElement>(null)
-  const line2Ref = useRef<HTMLSpanElement>(null)
+
+const BRIDGE_STEPS = [
+  { number: "01", lines: ["Tú regalas", "Vivabox"] },
+  { number: "02", lines: ["Ellos eligen", "la experiencia"] },
+  { number: "03", lines: ["Nosotros", "reservamos"] },
+] as const
+
+// The 3-step bridge. Every column fits into an equal-width share of the row,
+// but the label font size is computed ONCE for all three (the size the
+// tightest column needs) rather than per column -- otherwise a step with
+// longer copy (e.g. "la experiencia") shrinks more than a step with short
+// copy (e.g. "Vivabox"), and the three labels end up visibly different
+// sizes even though they're meant to read as one balanced set.
+function BridgeSteps() {
+  const rowRef = useRef<HTMLDivElement>(null)
+  const numberRef = useRef<HTMLSpanElement>(null)
+  const textRefs = useRef<(HTMLDivElement | null)[]>([])
+  const line1Refs = useRef<(HTMLSpanElement | null)[]>([])
+  const line2Refs = useRef<(HTMLSpanElement | null)[]>([])
+  const max = 17
   const [fontSize, setFontSize] = useState(max)
 
   useEffect(() => {
-    const container = containerRef.current
-    const line1 = line1Ref.current
-    const line2 = line2Ref.current
-    if (!container || !line1 || !line2) return
-
-    const measureWidestAt = (size: number) => {
-      line1.style.fontSize = `${size}px`
-      line2.style.fontSize = `${size}px`
-      return Math.max(line1.scrollWidth, line2.scrollWidth)
-    }
-
     const fit = () => {
-      const containerWidth = container.clientWidth
-      if (containerWidth === 0) return
+      const capHeight = numberRef.current?.getBoundingClientRect().height
+      let size = max
 
-      const naturalWidth = measureWidestAt(max)
-      if (naturalWidth === 0) return
-      let size = Math.min(max, Math.max(min, max * (containerWidth / naturalWidth)))
+      // No lower floor here on purpose: the label must never be wider than
+      // its column, even on very narrow phones, so every column's true
+      // required size is allowed to win outright instead of being propped
+      // up to an arbitrary minimum (that's what previously pushed text past
+      // its column and into the next step on small screens).
+      for (let i = 0; i < BRIDGE_STEPS.length; i++) {
+        const container = textRefs.current[i]
+        const line1 = line1Refs.current[i]
+        const line2 = line2Refs.current[i]
+        if (!container || !line1 || !line2) continue
 
-      const measuredWidth = measureWidestAt(size)
-      if (measuredWidth > 0) {
-        size = Math.min(max, Math.max(min, size * (containerWidth / measuredWidth)))
+        const containerWidth = container.clientWidth
+        if (containerWidth === 0) continue
+
+        line1.style.fontSize = `${max}px`
+        line2.style.fontSize = `${max}px`
+        const naturalWidth = Math.max(line1.scrollWidth, line2.scrollWidth)
+        if (naturalWidth === 0) continue
+
+        size = Math.min(size, max * (containerWidth / naturalWidth))
       }
 
-      // Cap total 2-line height to the reference element's height (the step
-      // number) so the text block never grows taller than it, which is what
-      // made it look oversized/off-center next to the number.
-      const capHeight = heightRef?.current?.getBoundingClientRect().height
       if (capHeight) {
-        line1.style.fontSize = `${size}px`
-        const lineHeight = parseFloat(getComputedStyle(line1).lineHeight)
+        const lineHeight = size * 1.15
         const totalHeight = lineHeight * 2
         if (totalHeight > capHeight) {
-          size = Math.max(min, size * (capHeight / totalHeight))
+          size = size * (capHeight / totalHeight)
         }
       }
 
@@ -142,56 +143,38 @@ function FitLines({
     fit()
     document.fonts?.ready.then(fit)
     const ro = new ResizeObserver(fit)
-    ro.observe(container)
+    if (rowRef.current) ro.observe(rowRef.current)
     return () => ro.disconnect()
-  }, [lines, min, max, heightRef])
+  }, [])
 
   return (
-    <div ref={containerRef} className="flex-1 min-w-0">
-      <span ref={line1Ref} className={`block whitespace-nowrap ${className}`} style={{ fontSize }}>
-        {lines[0]}
-      </span>
-      <span ref={line2Ref} className={`block whitespace-nowrap ${className}`} style={{ fontSize }}>
-        {lines[1]}
-      </span>
-    </div>
-  )
-}
-
-// Step number + its 2-line label, kept the same height as the number via
-// FitLines' heightRef so the pair always reads as one balanced unit.
-//
-// centerNumber puts the NUMBER (not the number+label pair) on the column's
-// true center -- used for the middle step, which sits under the ribbon's
-// color midpoint above. A mirrored empty spacer column balances the number
-// column so it lands dead-center regardless of how wide the label ends up;
-// the label lives in its own bounded column so it can never spill into the
-// neighboring step (unlike translating the whole pair, which let a wide
-// label push past the column boundary).
-function BridgeStep({
-  number,
-  lines,
-}: {
-  number: string
-  lines: [string, string]
-}) {
-  const numberRef = useRef<HTMLSpanElement>(null)
-
-  return (
-    <div className="flex items-center gap-1.5 md:gap-3">
-      <span
-        ref={numberRef}
-        className="text-primary font-condensed font-semibold text-[26px] md:text-[40px] leading-none shrink-0"
-      >
-        {number}
-      </span>
-      <FitLines
-        lines={lines}
-        min={8}
-        max={14}
-        heightRef={numberRef}
-        className="text-white/90 leading-none text-left"
-      />
+    <div ref={rowRef} className="flex items-center gap-3 sm:gap-6 md:gap-8">
+      {BRIDGE_STEPS.map((step, i) => (
+        <div key={step.number} className="flex-1 min-w-0 flex items-center justify-center gap-1.5 md:gap-3">
+          <span
+            ref={i === 0 ? numberRef : undefined}
+            className="text-primary font-condensed font-semibold text-[30px] md:text-[46px] leading-none shrink-0"
+          >
+            {step.number}
+          </span>
+          <div ref={(el) => { textRefs.current[i] = el }} className="min-w-0">
+            <span
+              ref={(el) => { line1Refs.current[i] = el }}
+              className="block whitespace-nowrap text-white/90 leading-none text-left"
+              style={{ fontSize }}
+            >
+              {step.lines[0]}
+            </span>
+            <span
+              ref={(el) => { line2Refs.current[i] = el }}
+              className="block whitespace-nowrap text-white/90 leading-none text-left"
+              style={{ fontSize }}
+            >
+              {step.lines[1]}
+            </span>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
@@ -298,18 +281,8 @@ export default function WhatsIncluded() {
 
       <div className="bg-ink py-4 md:py-5 px-4 md:px-8">
 
-        <div className="max-w-[820px] mx-auto flex items-center justify-center gap-6 sm:gap-12 md:gap-16">
-
-          <BridgeStep number="01" lines={["Tú", "regalas"]} />
-
-          <span className="shrink-0 w-px h-8 md:h-10 bg-white/15" aria-hidden="true" />
-
-          <BridgeStep number="02" lines={["Eligen", "su plan"]} />
-
-          <span className="shrink-0 w-px h-8 md:h-10 bg-white/15" aria-hidden="true" />
-
-          <BridgeStep number="03" lines={["Reservamos", ""]} />
-
+        <div className="max-w-[820px] mx-auto">
+          <BridgeSteps />
         </div>
 
       </div>
@@ -427,7 +400,7 @@ export default function WhatsIncluded() {
               </div>
 
               {/* Dentro encontrarás — small section lead-in, centered between the box and the three cards */}
-              <p className="absolute z-40 inset-x-0 top-[51.2%] text-center text-accent-red font-hand text-[23px] sm:text-[28px] md:text-[34px] leading-snug">
+              <p className="absolute z-40 inset-x-0 top-[49.5%] text-center text-accent-red font-hand text-[23px] sm:text-[28px] md:text-[34px] leading-snug">
                 Dentro <span className="underline">encontrará</span>:
               </p>
 
