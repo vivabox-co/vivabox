@@ -23,6 +23,7 @@
   --font-sans: var(--font-jakarta), system-ui, sans-serif;
   --font-accent: var(--font-caveat-brush), cursive;
   --font-hand: var(--font-gloria-hallelujah), cursive;
+  --font-condensed: var(--font-archivo-narrow), system-ui, sans-serif;
 }
 
 /* =========================================

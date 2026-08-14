@@ -2,7 +2,6 @@
 
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
-import { ArrowRight, CalendarCheck, User } from "lucide-react"
 import BrandRibbon from "@/components/ui/BrandRibbon"
 import BenefitsBar from "@/components/BenefitsBar"
 import { boxes } from "@/data/boxes"
@@ -153,51 +152,33 @@ export default function WhatsIncluded() {
 
       {/* BRIDGE — connects the hero's promise to the explanation below */}
 
-      <div className="bg-ink py-3 md:py-4 px-3 md:px-6">
+      <div className="bg-ink py-4 md:py-5 px-3 md:px-6">
 
-        <div className="max-w-[820px] mx-auto flex flex-row items-center justify-between gap-0 sm:gap-5 md:gap-8">
+        <div className="max-w-[820px] mx-auto flex items-center justify-between gap-2 sm:gap-6 md:gap-8">
 
-          <div className="shrink-0 flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
-            <Image
-              src="/icons/logo-only-white.svg"
-              alt="Vivabox"
-              width={36}
-              height={32}
-              className="shrink-0 h-8 w-auto md:h-[38px]"
-            />
-            <p className="w-[100px] md:w-[170px] text-white font-semibold text-[13px] md:text-[19px] leading-snug whitespace-nowrap">
-              Tú regalas
-              <br />
-              una Vivabox.
-            </p>
+          <div className="flex-1 min-w-0 flex items-center justify-center gap-2 md:gap-3">
+            <span className="text-primary font-condensed font-semibold text-[32px] md:text-[40px] leading-none shrink-0">01</span>
+            <span className="flex-1 min-w-0 text-white/90 text-[13px] sm:text-[14px] md:text-[17px] leading-snug text-left line-clamp-2">
+              Tú regalas una Vivabox.
+            </span>
           </div>
 
-          <ArrowRight size={14} strokeWidth={1.5} className="shrink-0 text-white md:w-5 md:h-5" />
+          <span className="shrink-0 w-px h-8 md:h-10 bg-white/15" aria-hidden="true" />
 
-          <div className="shrink-0 flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
-            <User size={32} strokeWidth={2} className="text-white shrink-0 md:w-9 md:h-9" />
-            <p className="md:hidden text-white font-semibold text-[12px] leading-snug whitespace-nowrap">
-              Quien la recibe
-              <br />
-              elige 1 experiencia.
-            </p>
-            <p className="hidden md:block text-white font-semibold text-[19px] leading-snug">
-              Quien la recibe
-              <br />
-              elige 1 experiencia.
-            </p>
+          <div className="flex-1 min-w-0 flex items-center justify-center gap-2 md:gap-3">
+            <span className="text-primary font-condensed font-semibold text-[32px] md:text-[40px] leading-none shrink-0">02</span>
+            <span className="flex-1 min-w-0 text-white/90 text-[13px] sm:text-[14px] md:text-[17px] leading-snug text-left line-clamp-2">
+              La persona elige 1 plan.
+            </span>
           </div>
 
-          <ArrowRight size={14} strokeWidth={1.5} className="shrink-0 text-white md:w-5 md:h-5" />
+          <span className="shrink-0 w-px h-8 md:h-10 bg-white/15" aria-hidden="true" />
 
-          <div className="shrink-0 flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
-            <CalendarCheck size={32} strokeWidth={2} className="text-white shrink-0 md:w-8 md:h-8" />
-            <p className="md:hidden w-[100px] text-white font-semibold text-[13px] leading-snug">
-              Acompañamos la reserva.
-            </p>
-            <p className="hidden md:block md:w-[170px] text-white font-semibold text-[19px] leading-snug">
-              Acompañamos la reserva.
-            </p>
+          <div className="flex-1 min-w-0 flex items-center justify-center gap-2 md:gap-3">
+            <span className="text-primary font-condensed font-semibold text-[32px] md:text-[40px] leading-none shrink-0">03</span>
+            <span className="flex-1 min-w-0 text-white/90 text-[13px] sm:text-[14px] md:text-[17px] leading-snug text-left line-clamp-2">
+              Facilitamos la reserva.
+            </span>
           </div>
 
         </div>
@@ -234,7 +215,7 @@ export default function WhatsIncluded() {
           </h2>
 
           <p className="text-ink/60 text-[15px] sm:text-[16px] md:text-[17px] max-w-[420px] mb-2 md:mb-3">
-            Caja de regalo con catálogo de experiencias, mensaje personal y código de activación.
+            Un regalo que siempre acierta.
           </p>
 
         </div>
@@ -246,11 +227,6 @@ export default function WhatsIncluded() {
           <div className="relative w-full max-w-[1440px] mx-auto pt-0 md:pt-1">
 
             <div className="relative w-full aspect-[10/13.5]">
-
-              {/* Lista para regalar. — to the left of the box, vertically centered on it. Left edge unchanged (no clipping risk); width trimmed so the right edge (where text-right anchors every line) sits at 10%, clear of the box's left edge (12%). No break-words: words stay whole and any word wider than the column simply extends into the open space to the left, never into the box. */}
-              <p className="absolute z-40 left-[4%] top-[16%] w-[6%] text-right font-hand text-ink/90 text-[20px] sm:text-[25px] md:text-[32px] leading-snug -rotate-2">
-                Lista para regalar.
-              </p>
 
               {/* BOX — hero, slight 3D perspective, never frontal-flat, centered at 50%/26% */}
 
@@ -460,15 +436,11 @@ export default function WhatsIncluded() {
               </h2>
 
               <p className="text-ink/50 text-[18px] leading-relaxed max-w-[340px]">
-                Caja de regalo con catálogo de experiencias, mensaje personal y código de activación.
+                Un regalo que siempre acierta.
               </p>
             </div>
 
             <div className="relative">
-
-              <p className="absolute -top-8 left-4 z-10 font-hand text-ink/70 text-[20px] leading-snug -rotate-2">
-                Lista para regalar.
-              </p>
 
               <div
                 className="relative w-full max-w-[440px] xl:max-w-[480px] mx-auto aspect-square"

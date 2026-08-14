@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import { caveatBrush, gloriaHallelujah } from "@/lib/fonts";
+import { archivoNarrow, caveatBrush, gloriaHallelujah } from "@/lib/fonts";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${jakarta.variable} ${caveatBrush.variable} ${gloriaHallelujah.variable}`}>
+    <html lang="es" className={`${jakarta.variable} ${caveatBrush.variable} ${gloriaHallelujah.variable} ${archivoNarrow.variable}`}>
       <body className="font-sans">
         {children}
       </body>
