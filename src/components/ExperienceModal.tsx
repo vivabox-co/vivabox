@@ -217,22 +217,22 @@ export default function ExperienceModal({ experience, onClose }: Props) {
         {/* content */}
         <div className="p-5 sm:p-6">
 
-          <h3 className="text-lg font-semibold mb-0.5">
+          <h3 className="text-xl sm:text-lg font-semibold mb-1">
             {experience.title}
           </h3>
 
           {/* PRACTICAL INFO — secondary, single line */}
           {(experience.city || duration) && (
-            <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+            <div className="flex items-center gap-3 text-sm text-gray-500 mb-3">
               {experience.city && (
                 <span className="flex items-center gap-1">
-                  <MapPin size={12} strokeWidth={1.5} />
+                  <MapPin size={14} strokeWidth={1.5} />
                   {experience.city}
                 </span>
               )}
               {duration && (
                 <span className="flex items-center gap-1">
-                  <Clock size={12} strokeWidth={1.5} />
+                  <Clock size={14} strokeWidth={1.5} />
                   {duration}
                 </span>
               )}
@@ -246,9 +246,9 @@ export default function ExperienceModal({ experience, onClose }: Props) {
               return (
                 <span
                   key={i}
-                  className="inline-flex min-w-0 items-center gap-1 rounded-full bg-surface px-2 py-1 text-[11px] font-medium text-ink whitespace-nowrap"
+                  className="inline-flex min-w-0 items-center gap-1 rounded-full bg-surface px-2 py-1 text-xs font-medium text-ink whitespace-nowrap"
                 >
-                  <Icon size={12} className="text-primary shrink-0" strokeWidth={1.5} />
+                  <Icon size={13} className="text-primary shrink-0" strokeWidth={1.5} />
                   {highlight.label}
                 </span>
               )
@@ -256,7 +256,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
           </div>
 
           {/* EMOTIONAL SENTENCE */}
-          <p className="text-sm text-gray-600 mb-3">
+          <p className="text-base sm:text-sm text-gray-600 mb-3">
             {description}
           </p>
 
@@ -268,10 +268,10 @@ export default function ExperienceModal({ experience, onClose }: Props) {
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-ink mb-0.5">
+              <p className="text-sm font-semibold text-ink mb-0.5">
                 Elegida por Vivabox
               </p>
-              <p className="text-xs text-muted leading-snug">
+              <p className="text-sm text-muted leading-snug">
                 {whyVivabox}
               </p>
             </div>
