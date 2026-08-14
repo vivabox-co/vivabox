@@ -99,7 +99,7 @@ function BridgeSteps() {
   const textRefs = useRef<(HTMLDivElement | null)[]>([])
   const line1Refs = useRef<(HTMLSpanElement | null)[]>([])
   const line2Refs = useRef<(HTMLSpanElement | null)[]>([])
-  const max = 17
+  const max = 16.5
   const [fontSize, setFontSize] = useState(max)
 
   useEffect(() => {
@@ -150,10 +150,10 @@ function BridgeSteps() {
   return (
     <div ref={rowRef} className="flex items-center gap-3 sm:gap-6 md:gap-8">
       {BRIDGE_STEPS.map((step, i) => (
-        <div key={step.number} className="flex-1 min-w-0 flex items-center justify-center gap-1.5 md:gap-3">
+        <div key={step.number} className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 md:gap-3 ${i === 1 ? "mr-7 md:mr-12" : ""} ${i === 2 ? "pr-2 sm:pr-3 md:pr-4" : ""}`}>
           <span
             ref={i === 0 ? numberRef : undefined}
-            className="text-primary font-condensed font-semibold text-[30px] md:text-[46px] leading-none shrink-0"
+            className="text-primary font-condensed font-semibold text-[32px] md:text-[49px] leading-none shrink-0"
           >
             {step.number}
           </span>
@@ -279,7 +279,7 @@ export default function WhatsIncluded() {
 
       {/* BRIDGE — connects the hero's promise to the explanation below */}
 
-      <div className="bg-ink py-4 md:py-5 px-4 md:px-8">
+      <div className="bg-ink py-5 md:py-6 px-4 md:px-8">
 
         <div className="max-w-[820px] mx-auto">
           <BridgeSteps />
