@@ -249,7 +249,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
                   key={i}
                   className="inline-flex min-w-0 items-center leading-none gap-1 rounded-full bg-card border border-black/10 px-2.5 py-1.5 text-xs font-medium text-ink whitespace-nowrap"
                 >
-                  <Icon size={13} className="text-primary shrink-0" strokeWidth={1.5} />
+                  <Icon size={13} className={`${categoryColor.icon} shrink-0`} strokeWidth={1.5} />
                   {highlight.label}
                 </span>
               )

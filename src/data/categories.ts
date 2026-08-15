@@ -22,15 +22,15 @@ import {
 } from "lucide-react"
 
 // Colors per docs/01_product.md — Experience Categories table
-export const CATEGORY_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  gastronomia: { bg: "bg-primary", text: "text-white", dot: "bg-primary" },
-  bienestar: { bg: "bg-accent-blue", text: "text-white", dot: "bg-accent-blue" },
-  aventura: { bg: "bg-accent-red", text: "text-white", dot: "bg-accent-red" },
-  cultura: { bg: "bg-violet-500", text: "text-white", dot: "bg-violet-500" },
-  estancias: { bg: "bg-accent-green", text: "text-white", dot: "bg-accent-green" },
+export const CATEGORY_COLORS: Record<string, { bg: string; text: string; dot: string; icon: string }> = {
+  gastronomia: { bg: "bg-primary", text: "text-white", dot: "bg-primary", icon: "text-primary" },
+  bienestar: { bg: "bg-accent-blue", text: "text-white", dot: "bg-accent-blue", icon: "text-accent-blue" },
+  aventura: { bg: "bg-accent-red", text: "text-white", dot: "bg-accent-red", icon: "text-accent-red" },
+  cultura: { bg: "bg-violet-500", text: "text-white", dot: "bg-violet-500", icon: "text-violet-500" },
+  estancias: { bg: "bg-accent-green", text: "text-white", dot: "bg-accent-green", icon: "text-accent-green" },
 }
 
-export const DEFAULT_CATEGORY_COLOR = { bg: "bg-gray-500", text: "text-white", dot: "bg-gray-300" }
+export const DEFAULT_CATEGORY_COLOR = { bg: "bg-gray-500", text: "text-white", dot: "bg-gray-300", icon: "text-gray-500" }
 
 // Emotional, feeling-first descriptions per category — answers "¿qué se siente vivir esta experiencia?"
 export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
