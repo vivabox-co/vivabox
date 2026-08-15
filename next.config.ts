@@ -13,6 +13,17 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // El paso "entrega" del checkout se fusionó dentro de CheckoutStep
+      // (commit 050e14c) — conserva cualquier enlace o marcador antiguo.
+      {
+        source: "/checkout/:slug/entrega",
+        destination: "/checkout/:slug",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

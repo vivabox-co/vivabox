@@ -20,6 +20,16 @@ import { boxes } from "@/data/boxes"
 // instead of being frozen into the statically cached HTML.
 export const dynamic = "force-dynamic"
 
+// Known slugs are allow-listed so Next.js's router rejects any other slug
+// at the routing layer (real HTTP 404) instead of inside this async
+// component — which streams under the root loading.tsx Suspense boundary
+// and would otherwise flush a 200 shell before notFound() below is reached.
+export async function generateStaticParams() {
+  return boxes.map((box) => ({ slug: box.slug }))
+}
+
+export const dynamicParams = false
+
 type PageProps = {
   params: Promise<{
     slug: string

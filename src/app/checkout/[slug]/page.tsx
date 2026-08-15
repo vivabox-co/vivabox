@@ -3,6 +3,16 @@ import { notFound } from "next/navigation"
 import CheckoutStep from "@/app/checkout/components/CheckoutStep"
 import CheckoutProgress from "../CheckoutProgress"
 
+// Known slugs are allow-listed so Next.js's router rejects any other slug
+// at the routing layer (real HTTP 404) instead of inside this async
+// component — which streams under the root loading.tsx Suspense boundary
+// and would otherwise flush a 200 shell before notFound() below is reached.
+export async function generateStaticParams() {
+  return boxes.map((box) => ({ slug: box.slug }))
+}
+
+export const dynamicParams = false
+
 export default async function CheckoutPage({
   params,
 }: {
@@ -13,7 +23,7 @@ export default async function CheckoutPage({
   const { slug } = await Promise.resolve(params)
 
   if (!slug) {
-    return <div>ERROR: slug undefined</div>
+    notFound()
   }
 
   const box = boxes.find((b) => b.slug === slug)

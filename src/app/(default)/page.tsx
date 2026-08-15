@@ -1,15 +1,15 @@
 import Image from "next/image";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import WhatsappButton from "@/components/WhatsappButton";
-import Hero from "../sections/hero/Hero";
+import Hero from "@/sections/hero/Hero";
 import HeroGuideArrow from "@/components/ui/HeroGuideArrow";
-import WhatsIncluded from "../sections/whats-included/WhatsIncluded";
-import ExperiencesPreview from "../sections/experiences-preview/ExperiencesPreview";
-import Occasions from "../sections/occasions/Occasions";
-// import Testimonials from "../sections/testimonials/Testimonials"; // désactivé tant qu'on n'a pas de vrais avis clients
-import FAQ from "../sections/faq/FAQ";
-import FinalCTA from "../sections/final-cta/FinalCTA";
+import WhatsIncluded from "@/sections/whats-included/WhatsIncluded";
+import ExperiencesPreview from "@/sections/experiences-preview/ExperiencesPreview";
+import Occasions from "@/sections/occasions/Occasions";
+// import Testimonials from "@/sections/testimonials/Testimonials"; // désactivé tant qu'on n'a pas de vrais avis clients
+import FAQ from "@/sections/faq/FAQ";
+import FinalCTA from "@/sections/final-cta/FinalCTA";
 
 import BrandRibbon from "@/components/ui/BrandRibbon";
 import { getFAQPageSchema } from "@/data/faqSchema";
