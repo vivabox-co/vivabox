@@ -45,7 +45,7 @@ export const boxes: Vivabox[] = [
     slug: "vivabox",
     name: "Vivabox Esencia",
 
-    signatureColor: "#fe842f",
+    signatureColor: "#ff8406",
 
     price: 195000,
     experiences: 20,
@@ -59,7 +59,7 @@ export const boxes: Vivabox[] = [
 
     ribbon: {
       text: "Super detalle",
-      color: "#fe842f"
+      color: "#ff8406"
     },
 
     examples: [

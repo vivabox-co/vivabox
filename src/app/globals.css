@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #FE842F;
-  --color-primary-hover: #E67629;
+  --color-primary: #FF8406;
+  --color-primary-hover: #E67705;
   --color-ink: #18140F;
   --color-foreground: #1C1C1C;
   --color-muted: #6B6B6B;
@@ -14,11 +14,11 @@
   --color-accent-green: #8DB92F;
   --color-accent-blue: #0294D2;
 
-  --color-cat-gastronomia: #F59E0B;
-  --color-cat-bienestar: #3B82F6;
-  --color-cat-aventura: #EF4444;
+  --color-cat-gastronomia: #FF8406;
+  --color-cat-bienestar: #0294D2;
+  --color-cat-aventura: #CB2033;
   --color-cat-cultura: #8B5CF6;
-  --color-cat-estancias: #22C55E;
+  --color-cat-estancias: #8DB92F;
 
   --font-sans: var(--font-jakarta), system-ui, sans-serif;
   --font-accent: var(--font-caveat-brush), cursive;

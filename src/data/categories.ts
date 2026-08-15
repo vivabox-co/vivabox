@@ -23,11 +23,11 @@ import {
 
 // Colors per docs/01_product.md — Experience Categories table
 export const CATEGORY_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  gastronomia: { bg: "bg-amber-500", text: "text-white", dot: "bg-amber-500" },
-  bienestar: { bg: "bg-blue-500", text: "text-white", dot: "bg-blue-500" },
-  aventura: { bg: "bg-red-500", text: "text-white", dot: "bg-red-500" },
+  gastronomia: { bg: "bg-primary", text: "text-white", dot: "bg-primary" },
+  bienestar: { bg: "bg-accent-blue", text: "text-white", dot: "bg-accent-blue" },
+  aventura: { bg: "bg-accent-red", text: "text-white", dot: "bg-accent-red" },
   cultura: { bg: "bg-violet-500", text: "text-white", dot: "bg-violet-500" },
-  estancias: { bg: "bg-green-500", text: "text-white", dot: "bg-green-500" },
+  estancias: { bg: "bg-accent-green", text: "text-white", dot: "bg-accent-green" },
 }
 
 export const DEFAULT_CATEGORY_COLOR = { bg: "bg-gray-500", text: "text-white", dot: "bg-gray-300" }
@@ -159,13 +159,30 @@ export function getExperienceHighlights(experience: {
   return highlights
 }
 
-// Formats the sheet's raw duration (minutes, as a string) into a compact label.
+// "duracion_min" is a Sheets cell formatted as Duration, so the published CSV
+// holds "H:MM" or "H:MM:SS" (e.g. "2:00", "0:45") instead of a plain number.
+// Still falls back to parsing a plain number for any row not yet converted.
+function parseDurationMinutes(duration: string): number {
+  const hhmm = duration.match(/^(\d+):([0-5]?\d)(?::([0-5]?\d))?$/)
+  if (!hhmm) return Number(duration)
+
+  const [, hours, minutes, seconds] = hhmm
+  return Math.round(Number(hours) * 60 + Number(minutes) + (seconds ? Number(seconds) / 60 : 0))
+}
+
+// Formats the sheet's raw duration into a compact label.
 export function formatDuration(duration?: string): string | null {
 
-  const minutes = Number(duration)
-  if (!duration || Number.isNaN(minutes) || minutes <= 0) return null
+  if (!duration) return null
+  const minutes = parseDurationMinutes(duration)
+  if (Number.isNaN(minutes) || minutes <= 0) return null
 
   if (minutes < 60) return `${minutes} min`
+
+  if (minutes % 1440 === 0) {
+    const nights = minutes / 1440
+    return `${nights} noche${nights > 1 ? "s" : ""}`
+  }
 
   const hours = minutes / 60
   const label = Number.isInteger(hours) ? `${hours}` : hours.toFixed(1)
