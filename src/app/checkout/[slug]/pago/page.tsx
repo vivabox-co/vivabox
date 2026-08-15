@@ -5,6 +5,8 @@ import { useState, useEffect } from "react"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { formatPrice } from "@/utils/formatPrice"
 import CheckoutProgress from "../../CheckoutProgress"
+import VivaboxLoader from "@/components/ui/VivaboxLoader"
+import { useMinDisplayTime } from "@/components/ui/useMinDisplayTime"
 import { Lock, Loader2 } from "lucide-react"
 
 export default function PagoPage() {
@@ -35,8 +37,17 @@ export default function PagoPage() {
     }
   }, [hasHydrated, box, ventaId, router])
 
-  if (!hasHydrated || !box || !ventaId) {
-    return <div className="min-h-screen vb-surface-base flex items-center justify-center text-[#6B6B6B]">Cargando...</div>
+  // Guarantees the loader stays mounted at least one full fill lap (~950ms)
+  // even if the store hydrates almost instantly — otherwise it gets swapped
+  // out after only the first color or two has appeared.
+  const minVisible = useMinDisplayTime(hasHydrated && !!box && !!ventaId, 1130)
+
+  if (!hasHydrated || !box || !ventaId || !minVisible) {
+    return (
+      <div className="min-h-screen vb-surface-base flex items-center justify-center">
+        <VivaboxLoader size={72} />
+      </div>
+    )
   }
 
   // 🔥 TS SAFE
