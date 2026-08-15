@@ -1,7 +1,13 @@
 import Papa from "papaparse"
 
 const SHEET_URL =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vR4Jf6eOcGsbnRYIPVP60JVWDp1KkqZMGdcj3t8ABR9hdaFY9t3bLcvqgVjTVWVtz9GFUDtWADB_iLx/pub?output=csv"
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vS0wvZlSud-v8_n6IWeI6_qfWgmuViBjkp1-yHP-RJ90VlxhistJE2MuV0k_jc88cUeyOngtBI3ZdWM/pub?gid=1700161859&single=true&output=csv"
+
+// Rows count as live once they're finalized ("listo para publicar") or fully
+// live ("publicado") -- everything else (borrador, en validación...) stays
+// hidden. The sheet also has a large block of fully blank rows (pre-formatted
+// for future entries), which codigo_interno being empty catches too.
+const PUBLISHED_STATES = new Set(["publicado", "listo para publicar"])
 
 // The published sheet's real column headers are in Spanish. This map is the only
 // place that needs to know that -- everything downstream (services/experiences.ts,
@@ -44,10 +50,9 @@ export async function getSheetData() {
     skipEmptyLines: true
   })
 
-  // TODO: gate on a real "published" column once the pipeline sheet actually
-  // fills one in -- pipeline_status/decision/experience_status are all blank
-  // for every row right now, so filtering on any of them (or the old "estado"
-  // column, which doesn't exist in the sheet) hides every experience site-wide.
   return (data as Record<string, string>[])
     .map(translateRow)
+    .filter((row) =>
+      row.codigo_interno && PUBLISHED_STATES.has((row.estado || "").trim().toLowerCase())
+    )
 }

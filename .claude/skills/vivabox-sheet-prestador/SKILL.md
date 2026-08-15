@@ -24,8 +24,8 @@ lista para copiar/pegar; el usuario la pega él mismo en Google Sheets.
 | 2 | nombre_experiencia | **Sí** | Texto libre | Nombre público genérico — nunca el nombre del proveedor |
 | 3 | categoria | **Sí** | gastro · bienestar · aventura · cultura · estancias | |
 | 4 | tipo_actividad | No | slug técnico (golf, bbq, brunch...) | No se muestra al comprador |
-| 5 | ciudad | **Sí** | Bogotá · Cundi Norte · Cundi Sur · Cundi Oriente · Cundi Occidente | |
-| 6 | zona | No | Texto libre | |
+| 5 | ciudad | **Sí** | `Bogotá` si es en Bogotá; si no, el nombre real del municipio (ej: Choachí, Suesca, La Calera, Tocancipá, Pacho) | Visible para el comprador/beneficiario — nunca usar las abreviaturas internas "Cundi Norte/Sur/Oriente/Occidente" aquí (esas quedan solo en el prefijo de `codigo_interno`) |
+| 6 | zona | No | Si `ciudad` = Bogotá: nombre real del barrio (ej: Chapinero, Usaquén, La Candelaria). Si `ciudad` es un municipio fuera de Bogotá: el departamento (ej: Cundinamarca) | Visible para el comprador/beneficiario — nunca inventar un barrio ni escribir "no sé" en la celda |
 | 7 | ubicacion_lat | No | Número decimal | Uso futuro (mapa) |
 | 8 | ubicacion_lng | No | Número decimal | Uso futuro (mapa) |
 | 9 | distancia | No | Cercana · Lejana | |
@@ -34,7 +34,7 @@ lista para copiar/pegar; el usuario la pega él mismo en Google Sheets.
 | 12 | proveedor_telefono | No | Texto libre | |
 | 13 | proveedor_email | No | Texto libre | |
 | 14 | proveedor_instagram | No | Texto libre | |
-| 15 | duracion_min | No | Número | Solo el número, ej: 90 |
+| 15 | duracion_min | No | Columna formateada como Duración en Sheets (`Formato > Número > Duración`), escrita `h:mm` (ej: `2:00`, `0:45`, `24:00`) | `formatDuration()` en `src/data/categories.ts` parsea `h:mm`/`h:mm:ss` y también acepta un número plano de minutos (compatibilidad hacia atrás) |
 | 16 | formato | No | solo · duo | |
 | 17 | descripcion_corta | **Sí** | Texto libre | Una sensación, no una ficha de servicios |
 | 18 | nota_vivabox | **Sí** | Texto libre | Por qué la elegimos — razón editorial |

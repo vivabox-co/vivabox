@@ -17,6 +17,7 @@ import {
 type Experience = {
   title: string
   city?: string
+  zone?: string
   category: string
   image?: string
   gallery?: string[]
@@ -227,7 +228,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
               {experience.city && (
                 <span className="flex items-center gap-1">
                   <MapPin size={14} strokeWidth={1.5} />
-                  {experience.city}
+                  {experience.zone ? `${experience.city} - ${experience.zone}` : experience.city}
                 </span>
               )}
               {duration && (
