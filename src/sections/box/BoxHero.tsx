@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import Image from "next/image"
 import { formatPrice } from "@/utils/formatPrice"
-import { Check, Minus, Plus } from "lucide-react"
+import { Check, Lock, Minus, Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 
@@ -43,7 +43,7 @@ export default function BoxHero({
   }
 
   return (
-    <section id="box-hero" className="relative overflow-hidden pt-20 md:pt-24 pb-6 md:pb-8">
+    <section id="box-hero" className="relative overflow-hidden pt-24 md:pt-28 pb-6 md:pb-8">
 
       {/* BACKGROUND IMAGE */}
       <div className="absolute inset-0 -z-10">
@@ -67,38 +67,48 @@ export default function BoxHero({
             Tu regalo ya casi está listo.
           </h1>
 
+          <div className="h-[3px] w-12 rounded-full bg-primary my-4" />
+
           <p className="text-[22px] sm:text-[26px] font-semibold mb-6">
             ${formatPrice(price)} COP
           </p>
 
           {/* BOX + CHECKLIST */}
-          <div className="flex items-center gap-6 sm:gap-10 mb-8">
+          <div className="flex items-center gap-0 sm:gap-2 mb-6">
 
-            <div className="shrink-0 w-[190px] sm:w-[260px] md:w-[320px]">
+            <div className="shrink-0 w-[190px] sm:w-[280px] md:w-[340px] -ml-6 sm:ml-0">
               <Image
                 src={image}
                 alt={name}
                 width={320}
                 height={320}
-                className="w-full h-auto object-contain drop-shadow-[0_40px_50px_rgba(0,0,0,0.5)] scale-125"
+                className="w-full h-auto object-contain drop-shadow-[0_40px_50px_rgba(0,0,0,0.5)]"
               />
             </div>
 
-            <div className="space-y-2.5 text-[14px] sm:text-[15px] text-white/80">
-              <div className="flex items-center gap-2">
-                <Check size={18} strokeWidth={1.5} className="text-primary-hover shrink-0" />
-                Más de {experiences} experiencias
+            <div className="min-w-0 flex-1 text-[13px] sm:text-[15px] text-white/80">
+              <div className="flex items-center gap-2 py-2 border-b border-white/10 whitespace-nowrap">
+                <span className="flex items-center justify-center w-5 h-5 rounded-md border-2 border-primary/80 shrink-0">
+                  <Check size={11} strokeWidth={3} className="text-primary" />
+                </span>
+                +{experiences} experiencias
               </div>
-              <div className="flex items-center gap-2">
-                <Check size={18} strokeWidth={1.5} className="text-primary-hover shrink-0" />
-                La persona elige la experiencia
+              <div className="flex items-center gap-2 py-2 border-b border-white/10 whitespace-nowrap">
+                <span className="flex items-center justify-center w-5 h-5 rounded-md border-2 border-primary/80 shrink-0">
+                  <Check size={11} strokeWidth={3} className="text-primary" />
+                </span>
+                Quien recibe, elige 1 experiencia
               </div>
-              <div className="flex items-center gap-2">
-                <Check size={18} strokeWidth={1.5} className="text-primary-hover shrink-0" />
-                Vigencia 6 meses
+              <div className="flex items-center gap-2 py-2 border-b border-white/10 whitespace-nowrap">
+                <span className="flex items-center justify-center w-5 h-5 rounded-md border-2 border-primary/80 shrink-0">
+                  <Check size={11} strokeWidth={3} className="text-primary" />
+                </span>
+                6 meses para usarla
               </div>
-              <div className="flex items-center gap-2">
-                <Check size={18} strokeWidth={1.5} className="text-primary-hover shrink-0" />
+              <div className="flex items-center gap-2 py-2 whitespace-nowrap">
+                <span className="flex items-center justify-center w-5 h-5 rounded-md border-2 border-primary/80 shrink-0">
+                  <Check size={11} strokeWidth={3} className="text-primary" />
+                </span>
                 Caja física incluida
               </div>
             </div>
@@ -110,7 +120,7 @@ export default function BoxHero({
             ¿Cuántas Vivabox quieres regalar?
           </p>
 
-          <div className="vb-dark vb-card flex items-center gap-4 px-5 py-3.5 mb-6">
+          <div className="vb-dark vb-card flex items-center gap-4 px-4 py-3 mb-4">
 
             <div className="flex items-center gap-3">
               <button
@@ -152,7 +162,8 @@ export default function BoxHero({
             Comprar ahora
           </button>
 
-          <p className="text-center sm:text-left mt-4 text-[13px] text-white/60">
+          <p className="flex items-center justify-center sm:justify-start gap-1.5 mt-3 text-[13px] text-white/60">
+            <Lock size={12} strokeWidth={2} />
             Pago 100% seguro
           </p>
 

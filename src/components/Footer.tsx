@@ -22,6 +22,48 @@ export default function Footer() {
               <br />
               Deja que elija la experiencia.
             </p>
+
+            <div className="flex items-center gap-4 mt-6">
+              <a
+                href="https://www.instagram.com/vivaboxcolombia/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Vivabox en Instagram"
+                className="text-gray-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-sm"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  aria-hidden="true"
+                >
+                  <rect x="2" y="2" width="20" height="20" rx="5" />
+                  <circle cx="12" cy="12" r="4.2" />
+                  <circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none" />
+                </svg>
+              </a>
+
+              <a
+                href="https://www.linkedin.com/company/vivabox-colombia"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Vivabox en LinkedIn"
+                className="text-gray-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-sm"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.83v1.64h.05c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.6c0-1.34-.02-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.96V21h-4V9Z" />
+                </svg>
+              </a>
+            </div>
           </div>
 
           {/* COLUMN 2 — EXPLORA */}
