@@ -1,13 +1,15 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import BrandRibbon from "@/components/ui/BrandRibbon"
+import FitLine from "@/components/ui/FitLine"
+import { writeSubtitleFontSize } from "@/utils/subtitleFontSize"
 import { boxes } from "@/data/boxes"
 
 const DESKTOP_SRC = "/videos/hero/hero.mp4"
 const MOBILE_SRC = "/videos/hero/hero-mobile.mp4"
-const DESKTOP_POSTER = "/images/hero/hero-poster.jpg"
-const MOBILE_POSTER = "/images/hero/hero-poster-mobile.jpg"
+const DESKTOP_POSTER = "/images/hero/hero-poster.webp"
+const MOBILE_POSTER = "/images/hero/hero-poster-mobile.webp"
 
 const vivabox = boxes[0]
 
@@ -23,6 +25,25 @@ export default function Hero() {
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 767px)")
     setSrc(mql.matches ? MOBILE_SRC : DESKTOP_SRC)
+  }, [])
+
+  // Subtitle must always read as a single line (never wrap), so its size is
+  // fit live to the available width instead of using a fixed responsive
+  // class. The result is broadcast via a CSS var so the bridge steps below
+  // (a separate component/file) can match it. 16/18 are the previous fixed
+  // sizes, kept as the ceiling this can shrink from.
+  const [subtitleMax, setSubtitleMax] = useState(16)
+
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 768px)")
+    const update = () => setSubtitleMax(mql.matches ? 18 : 16)
+    update()
+    mql.addEventListener("change", update)
+    return () => mql.removeEventListener("change", update)
+  }, [])
+
+  const handleSubtitleFontSize = useCallback((size: number) => {
+    writeSubtitleFontSize(size)
   }, [])
 
   useEffect(() => {
@@ -112,21 +133,21 @@ export default function Hero() {
           ellos eligen.
         </h1>
 
-        {/* SUBTITLE */}
+        {/* SUBTITLE — always a single line, sized to fit rather than wrapping */}
 
-        <p
+        <div
           className="
             relative z-10
             mt-2
             max-w-[480px]
             text-white/90
-            text-[16px]
-            md:text-[18px]
             [text-shadow:0_2px_16px_rgba(0,0,0,.35)]
           "
         >
-          Vivabox es una caja de regalo de experiencias.
-        </p>
+          <FitLine min={12} max={subtitleMax} onFontSize={handleSubtitleFontSize}>
+            Vivabox es una caja de regalo de experiencias.
+          </FitLine>
+        </div>
 
         {/* CTA */}
 

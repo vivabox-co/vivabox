@@ -4,76 +4,11 @@ import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 import BrandRibbon from "@/components/ui/BrandRibbon"
 import BenefitsBar from "@/components/BenefitsBar"
+import FitLine from "@/components/ui/FitLine"
+import { readSubtitleFontSize, SUBTITLE_FONT_SIZE_EVENT } from "@/utils/subtitleFontSize"
 import { boxes } from "@/data/boxes"
 
 const vivabox = boxes[0]
-
-// Scales its content to the exact font-size that fills the container width
-// on a single line — measured live, so it always fits regardless of glyph
-// metrics (colored per-letter spans break normal kerning estimates).
-function FitLine({
-  children,
-  min,
-  max,
-  className = "",
-}: {
-  children: React.ReactNode
-  min: number
-  max: number
-  className?: string
-}) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const textRef = useRef<HTMLSpanElement>(null)
-  const [fontSize, setFontSize] = useState(max)
-
-  useEffect(() => {
-    const container = containerRef.current
-    const text = textRef.current
-    if (!container || !text) return
-
-    const measureAt = (size: number) => {
-      text.style.fontSize = `${size}px`
-      return text.scrollWidth
-    }
-
-    const fit = () => {
-      const containerWidth = container.clientWidth
-      if (containerWidth === 0) return
-
-      const naturalWidth = measureAt(max)
-      if (naturalWidth === 0) return
-      let size = Math.min(max, Math.max(min, max * (containerWidth / naturalWidth)))
-
-      // Re-measure at the computed size and correct any residual mismatch
-      // (font metrics can shift slightly between sizes, especially right
-      // after a web font swaps in), so the line never overflows its box.
-      const measuredWidth = measureAt(size)
-      if (measuredWidth > 0) {
-        size = Math.min(max, Math.max(min, size * (containerWidth / measuredWidth)))
-      }
-
-      setFontSize(size)
-    }
-
-    fit()
-    document.fonts?.ready.then(fit)
-    const ro = new ResizeObserver(fit)
-    ro.observe(container)
-    return () => ro.disconnect()
-  }, [min, max])
-
-  return (
-    <div ref={containerRef} className="w-full">
-      <span
-        ref={textRef}
-        className={`inline-block whitespace-nowrap ${className}`}
-        style={{ fontSize }}
-      >
-        {children}
-      </span>
-    </div>
-  )
-}
 
 // Two fixed lines (chosen break point, never re-wrapped by the browser) —
 // scaled up together as large as possible while neither line overflows the
@@ -93,71 +28,115 @@ const BRIDGE_STEPS = [
 // longer copy (e.g. "la experiencia") shrinks more than a step with short
 // copy (e.g. "Vivabox"), and the three labels end up visibly different
 // sizes even though they're meant to read as one balanced set.
+//
+// The target size is read from --vb-subtitle-font-size (written by the hero
+// subtitle's own fit-to-one-line logic in Hero.tsx) so the labels track the
+// subtitle's actual size -- shrinking further only when a column is too
+// narrow to fit at that size, since the number stays to the LEFT of a fixed
+// two-line label (never a 3rd line, never above the number).
 function BridgeSteps() {
   const rowRef = useRef<HTMLDivElement>(null)
-  const numberRef = useRef<HTMLSpanElement>(null)
-  const textRefs = useRef<(HTMLDivElement | null)[]>([])
+  const outerRefs = useRef<(HTMLDivElement | null)[]>([])
+  const numberRefs = useRef<(HTMLSpanElement | null)[]>([])
   const line1Refs = useRef<(HTMLSpanElement | null)[]>([])
   const line2Refs = useRef<(HTMLSpanElement | null)[]>([])
-  const max = 16
-  const [fontSize, setFontSize] = useState(max)
+  const [fontSize, setFontSize] = useState(16)
 
   useEffect(() => {
     const fit = () => {
-      const capHeight = numberRef.current?.getBoundingClientRect().height
-      let size = max
+      const target = readSubtitleFontSize(16)
+      let size = target
 
       // No lower floor here on purpose: the label must never be wider than
       // its column, even on very narrow phones, so every column's true
       // required size is allowed to win outright instead of being propped
       // up to an arbitrary minimum (that's what previously pushed text past
       // its column and into the next step on small screens).
+      //
+      // containerWidth is derived analytically (column width minus the
+      // number's own width minus the gap) rather than read off the text
+      // div's rendered size -- the text div is centered, not flex-grown, so
+      // whenever a column has room to spare its own box just reflects
+      // whatever it last rendered at (a circular measurement) instead of the
+      // true space available.
       for (let i = 0; i < BRIDGE_STEPS.length; i++) {
-        const container = textRefs.current[i]
+        const outer = outerRefs.current[i]
+        const numberEl = numberRefs.current[i]
         const line1 = line1Refs.current[i]
         const line2 = line2Refs.current[i]
-        if (!container || !line1 || !line2) continue
+        if (!outer || !numberEl || !line1 || !line2) continue
 
-        const containerWidth = container.clientWidth
-        if (containerWidth === 0) continue
+        const gapPx = parseFloat(getComputedStyle(outer).columnGap) || 0
+        const containerWidth = outer.clientWidth - numberEl.getBoundingClientRect().width - gapPx
+        if (containerWidth <= 0) continue
 
-        line1.style.fontSize = `${max}px`
-        line2.style.fontSize = `${max}px`
+        line1.style.fontSize = `${target}px`
+        line2.style.fontSize = `${target}px`
         const naturalWidth = Math.max(line1.scrollWidth, line2.scrollWidth)
         if (naturalWidth === 0) continue
 
-        size = Math.min(size, max * (containerWidth / naturalWidth))
+        size = Math.min(size, target * (containerWidth / naturalWidth))
       }
 
-      if (capHeight) {
-        const lineHeight = size * 1.15
-        const totalHeight = lineHeight * 2
-        if (totalHeight > capHeight) {
-          size = size * (capHeight / totalHeight)
-        }
+      // Measuring above leaves every line's inline style at `target`px as a
+      // side effect. Reset it to the actual result now instead of trusting
+      // the React re-render to do it -- when two calls in a row land on the
+      // same computed size (very likely once things settle), React bails
+      // out of re-rendering since the state didn't change, which would
+      // otherwise leave the DOM stuck showing the mid-measurement `target`
+      // value instead of the real one.
+      for (let i = 0; i < BRIDGE_STEPS.length; i++) {
+        const line1 = line1Refs.current[i]
+        const line2 = line2Refs.current[i]
+        if (!line1 || !line2) continue
+        line1.style.fontSize = `${size}px`
+        line2.style.fontSize = `${size}px`
       }
 
       setFontSize(size)
     }
 
     fit()
+    // A column can still report its pre-stylesheet (unconstrained) width on
+    // this very first synchronous call, which reads as "plenty of room" and
+    // skips the shrink entirely -- with nothing dimensional left to change
+    // once the real flex layout kicks in, the ResizeObserver below never
+    // fires to correct it. One more measurement next frame, after layout has
+    // definitely settled, catches that.
+    const raf = requestAnimationFrame(fit)
     document.fonts?.ready.then(fit)
     const ro = new ResizeObserver(fit)
     if (rowRef.current) ro.observe(rowRef.current)
-    return () => ro.disconnect()
+    // The subtitle broadcasts its size the moment it (re)computes, since the
+    // hero can settle on its final value slightly after this component's own
+    // mount (e.g. its responsive breakpoint effect firing a tick later) --
+    // without this, that later correction would go unnoticed until the next
+    // resize.
+    window.addEventListener(SUBTITLE_FONT_SIZE_EVENT, fit)
+    window.addEventListener("resize", fit)
+    return () => {
+      cancelAnimationFrame(raf)
+      ro.disconnect()
+      window.removeEventListener(SUBTITLE_FONT_SIZE_EVENT, fit)
+      window.removeEventListener("resize", fit)
+    }
   }, [])
 
   return (
-    <div ref={rowRef} className="flex items-center gap-3 sm:gap-6 md:gap-8">
+    <div ref={rowRef} className="flex items-center gap-1 sm:gap-6 md:gap-8">
       {BRIDGE_STEPS.map((step, i) => (
-        <div key={step.number} className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 md:gap-3 ${i === 1 ? "mr-7 md:mr-12" : ""} ${i === 2 ? "pr-2 sm:pr-3 md:pr-4" : ""}`}>
+        <div
+          ref={(el) => { outerRefs.current[i] = el }}
+          key={step.number}
+          className={`min-w-0 flex items-center justify-center gap-1 md:gap-3 ${i === 0 ? "flex-1" : i === 1 ? "flex-[0.93] sm:flex-1" : "flex-[1.07] sm:flex-1"}`}
+        >
           <span
-            ref={i === 0 ? numberRef : undefined}
+            ref={(el) => { numberRefs.current[i] = el }}
             className="text-primary font-condensed font-semibold text-[32px] md:text-[49px] leading-none shrink-0"
           >
             {step.number}
           </span>
-          <div ref={(el) => { textRefs.current[i] = el }} className="min-w-0">
+          <div className="min-w-0">
             <span
               ref={(el) => { line1Refs.current[i] = el }}
               className="block whitespace-nowrap text-white/90 leading-none text-left"
@@ -221,21 +200,21 @@ const CONTENTS = [
     title: "Catálogo",
     subtitle: "De experiencias.",
     desc: "Una selección para descubrir todo lo que podría vivir.",
-    src: "/images/box-includes/vivabox-catalogo-experiencias.png",
+    src: "/images/box-includes/vivabox-catalogo-experiencias.webp",
     alt: "Catálogo de experiencias Vivabox",
   },
   {
     title: "Mensaje",
     subtitle: "Personal.",
     desc: "Unas palabras tuyas para hacer el regalo aún más personal.",
-    src: "/images/box-includes/vivabox-dedicatoria-personal.png",
+    src: "/images/box-includes/vivabox-dedicatoria-personal.webp",
     alt: "Dedicatoria personalizada Vivabox",
   },
   {
     title: "Activación",
     subtitle: "Código único.",
     desc: "Le da acceso a su catálogo completo de experiencias en línea.",
-    src: "/images/box-includes/vivabox-codigo-activacion.png",
+    src: "/images/box-includes/vivabox-codigo-activacion.webp",
     alt: "Código de activación Vivabox",
   },
 ] as const
@@ -279,7 +258,7 @@ export default function WhatsIncluded() {
 
       {/* BRIDGE — connects the hero's promise to the explanation below */}
 
-      <div className="bg-ink py-5 md:py-6 px-4 md:px-8">
+      <div className="bg-ink py-5 md:py-6 px-0.5 md:px-8">
 
         <div className="max-w-[820px] mx-auto">
           <BridgeSteps />
@@ -337,7 +316,7 @@ export default function WhatsIncluded() {
                 style={{ transform: "perspective(1400px) rotateX(7deg) rotateY(-9deg) rotate(-3deg)" }}
               >
                 <Image
-                  src="/images/box-includes/vivabox-caja-regalo.png"
+                  src="/images/box-includes/vivabox-caja-regalo.webp"
                   alt="Caja de regalo Vivabox con catálogo de experiencias"
                   fill
                   sizes="76vw"
@@ -393,10 +372,10 @@ export default function WhatsIncluded() {
 
               {/* CONNECTOR ARROWS — hand-drawn curves, pulled outward past the box's edges so they clear it, pointing down to introduce "Dentro encontrará" */}
               <div className="absolute z-30 left-[9%] top-[44%] w-[14%] aspect-[184/177] -rotate-[24deg] pointer-events-none">
-                <Image src="/images/box-includes/arrow-curv-left.png" alt="" fill sizes="14vw" className="object-contain" aria-hidden="true" />
+                <Image src="/images/box-includes/arrow-curv-left.webp" alt="" fill sizes="14vw" className="object-contain" aria-hidden="true" />
               </div>
               <div className="absolute z-30 left-[79%] top-[44%] w-[14%] aspect-[184/177] rotate-[24deg] pointer-events-none">
-                <Image src="/images/box-includes/arrow-curv-right.png" alt="" fill sizes="14vw" className="object-contain" aria-hidden="true" />
+                <Image src="/images/box-includes/arrow-curv-right.webp" alt="" fill sizes="14vw" className="object-contain" aria-hidden="true" />
               </div>
 
               {/* Dentro encontrarás — small section lead-in, centered between the box and the three cards */}
@@ -554,7 +533,7 @@ export default function WhatsIncluded() {
                 style={{ transform: "perspective(1400px) rotateX(6deg) rotateY(-8deg) rotate(-2deg)" }}
               >
                 <Image
-                  src="/images/box-includes/vivabox-caja-regalo.png"
+                  src="/images/box-includes/vivabox-caja-regalo.webp"
                   alt="Caja de regalo Vivabox con catálogo de experiencias"
                   fill
                   sizes="(min-width: 1280px) 480px, 440px"
@@ -702,7 +681,7 @@ export default function WhatsIncluded() {
 
           <div className="relative w-full h-full overflow-hidden" aria-label="App Vivabox para descubrir, elegir y reservar experiencias">
             <Image
-              src="/images/app-phone/vivabox-app-experiencias.png"
+              src="/images/app-phone/vivabox-app-experiencias.webp"
               alt="App Vivabox mostrando experiencias disponibles en Bogotá y Cundinamarca"
               fill
               sizes="(min-width: 1200px) 600px, 50vw"
