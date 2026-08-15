@@ -5,7 +5,7 @@ import Reveal from "@/components/ui/Reveal";
 const FOUNDERS = [
   {
     name: "Gotie",
-    photo: "/images/founders/Gotie.png",
+    photo: "/images/founders/Gotie.webp",
     ring: "var(--color-accent-green)",
     paragraphs: [
       "Para mí, el mejor regalo siempre ha sido una buena historia que contar.",
@@ -17,7 +17,7 @@ const FOUNDERS = [
   },
   {
     name: "Franko",
-    photo: "/images/founders/Franko.png",
+    photo: "/images/founders/Franko.webp",
     ring: "var(--color-primary)",
     paragraphs: [
       "Me gusta pensar en cada Vivabox como una excusa para vivir algo nuevo.",

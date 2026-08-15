@@ -17,7 +17,7 @@ const targets = [
   { dir: "public/images/boxes", maxWidth: 700 },
 ];
 
-const exts = new Set([".jpg", ".jpeg", ".png"]);
+const exts = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
 async function processFile(filePath, maxWidth) {
   const inputBuffer = fs.readFileSync(filePath);
@@ -33,9 +33,11 @@ async function processFile(filePath, maxWidth) {
   const pipeline = image.resize({ width: maxWidth, withoutEnlargement: true });
 
   const buffer =
-    ext === ".png"
-      ? await pipeline.png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer()
-      : await pipeline.jpeg({ quality: 78, mozjpeg: true }).toBuffer();
+    ext === ".webp"
+      ? await pipeline.webp({ quality: 85 }).toBuffer()
+      : ext === ".png"
+        ? await pipeline.png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer()
+        : await pipeline.jpeg({ quality: 78, mozjpeg: true }).toBuffer();
 
   fs.writeFileSync(filePath, buffer);
   const after = buffer.length;

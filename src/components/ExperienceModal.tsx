@@ -67,7 +67,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
 
   const images = experience.gallery?.length
     ? experience.gallery
-    : [experience.image || "/images/box-includes/vivabox-caja-regalo.png"]
+    : [experience.image || "/images/box-includes/vivabox-caja-regalo.webp"]
 
   const showNav = images.length > 1
 
@@ -249,7 +249,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
                   key={i}
                   className="inline-flex min-w-0 items-center leading-none gap-1 rounded-full bg-card border border-black/10 px-2.5 py-1.5 text-xs font-medium text-ink whitespace-nowrap"
                 >
-                  <Icon size={13} className="text-primary shrink-0" strokeWidth={1.5} />
+                  <Icon size={13} className={`${categoryColor.icon} shrink-0`} strokeWidth={1.5} />
                   {highlight.label}
                 </span>
               )
@@ -266,7 +266,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
 
             <div className="flex items-center gap-2 mb-1.5">
 
-              <Image src="/icons/logo.png" alt="" width={28} height={28} className="shrink-0 -translate-y-1" />
+              <Image src="/icons/logo.webp" alt="" width={28} height={28} className="shrink-0 -translate-y-1" />
 
               <p className="text-sm font-semibold text-ink">
                 Elegida por Vivabox

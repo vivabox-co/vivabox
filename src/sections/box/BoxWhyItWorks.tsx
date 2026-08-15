@@ -3,17 +3,17 @@ import BrandDots from "@/components/ui/BrandDots"
 
 const items = [
   {
-    image: "/images/hero/hero2.jpg",
+    image: "/images/hero/hero2.webp",
     title: "Siempre aciertas.",
     text: "No tienes que adivinar: la persona elige lo que más le emociona.",
   },
   {
-    image: "/images/final-cta/persona-regalando-vivabox.png",
+    image: "/images/final-cta/persona-regalando-vivabox.webp",
     title: "El regalo se vive dos veces.",
     text: "Primero al recibir la caja. Después al disfrutar la experiencia.",
   },
   {
-    image: "/images/box-includes/vivabox-catalogo-experiencias.png",
+    image: "/images/box-includes/vivabox-catalogo-experiencias.webp",
     title: "La persona elige.",
     text: "No importa si prefiere la gastronomía, el bienestar o la aventura. Ella decide.",
   },

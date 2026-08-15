@@ -29,8 +29,7 @@ function isCacheableImage(url) {
 
 function localFileNameFor(url) {
   const hash = crypto.createHash("sha1").update(url).digest("hex").slice(0, 16);
-  const ext = path.extname(new URL(url).pathname) || ".jpg";
-  return `${hash}${ext}`;
+  return `${hash}.webp`;
 }
 
 function downscaledUrl(url) {
@@ -77,12 +76,14 @@ async function main() {
       const rawBuffer = Buffer.from(await imgRes.arrayBuffer());
 
       // Safety net in case the source ignored the resize params and
-      // returned a full-resolution original anyway.
+      // returned a full-resolution original anyway. Always re-encode as
+      // WebP regardless, since that's the format the site links to.
       const metadata = await sharp(rawBuffer).metadata();
-      const buffer =
+      const pipeline =
         metadata.width && metadata.width > MAX_WIDTH
-          ? await sharp(rawBuffer).resize({ width: MAX_WIDTH, withoutEnlargement: true }).toBuffer()
-          : rawBuffer;
+          ? sharp(rawBuffer).resize({ width: MAX_WIDTH, withoutEnlargement: true })
+          : sharp(rawBuffer);
+      const buffer = await pipeline.webp({ quality: 85 }).toBuffer();
 
       fs.writeFileSync(filePath, buffer);
       downloaded++;

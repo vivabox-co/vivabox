@@ -47,7 +47,7 @@ export default function Home() {
 
         {/* Section avis clients désactivée en attendant les premières vraies ventes — Testimonials.tsx conservé pour réactivation future */}
         <section className="bg-surface py-16 md:py-20 flex items-center justify-center">
-          <Image src="/icons/logo.png" alt="Vivabox" width={56} height={56} />
+          <Image src="/icons/logo.webp" alt="Vivabox" width={56} height={56} />
         </section>
 
         <section id="faq" className="scroll-mt-24">

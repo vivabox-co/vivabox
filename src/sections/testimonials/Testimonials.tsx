@@ -151,7 +151,7 @@ export default function Testimonials() {
                     <div className="flex items-center gap-1 text-primary">
 
                       <Image
-                        src="/icons/logo.png"
+                        src="/icons/logo.webp"
                         alt="Vivabox"
                         width={14}
                         height={14}

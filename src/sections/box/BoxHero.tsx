@@ -48,7 +48,7 @@ export default function BoxHero({
       {/* BACKGROUND IMAGE */}
       <div className="absolute inset-0 -z-10">
         <Image
-          src="/images/hero/hero.png"
+          src="/images/hero/hero.webp"
           alt="Experiencias Vivabox"
           fill
           priority

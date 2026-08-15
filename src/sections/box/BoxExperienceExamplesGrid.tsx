@@ -39,7 +39,7 @@ export default function BoxExperienceExamplesGrid({
               <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px]">
 
                 <Image
-                  src={exp.image || "/images/box-includes/vivabox-caja-regalo.png"}
+                  src={exp.image || "/images/box-includes/vivabox-caja-regalo.webp"}
                   alt={exp.title}
                   fill
                   sizes={CARD_IMAGE_SIZES}
@@ -79,7 +79,7 @@ export default function BoxExperienceExamplesGrid({
           <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px] bg-gradient-to-br from-[#fff4ec] to-[#f7f7f7] flex items-center justify-center">
 
             <Image
-              src="/icons/logo.png"
+              src="/icons/logo.webp"
               alt="Vivabox"
               width={82}
               height={82}

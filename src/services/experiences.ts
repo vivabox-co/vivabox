@@ -12,7 +12,7 @@ const categoryMap: Record<string,string> = {
   estancias: "estancias"
 }
 
-const PLACEHOLDER_IMAGE = "/images/box-includes/vivabox-caja-regalo.png"
+const PLACEHOLDER_IMAGE = "/images/box-includes/vivabox-caja-regalo.webp"
 const LOCAL_CACHE_DIR = path.join(process.cwd(), "public", "images", "experiences")
 
 // Minimum photos per gallery so the modal always shows a real carousel.
@@ -46,10 +46,9 @@ function resolveExperienceImage(url?: string): string {
   if (!isRemoteExperienceImage(url)) return PLACEHOLDER_IMAGE
 
   const hash = crypto.createHash("sha1").update(url).digest("hex").slice(0, 16)
-  const ext = path.extname(new URL(url).pathname) || ".jpg"
-  const localPath = path.join(LOCAL_CACHE_DIR, `${hash}${ext}`)
+  const localPath = path.join(LOCAL_CACHE_DIR, `${hash}.webp`)
 
-  return fs.existsSync(localPath) ? `/images/experiences/${hash}${ext}` : url
+  return fs.existsSync(localPath) ? `/images/experiences/${hash}.webp` : url
 }
 
 function shuffle<T>(array:T[]):T[] {

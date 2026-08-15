@@ -13,37 +13,37 @@ export default function Occasions() {
     {
       name: "Cumpleaños",
       subtitle: "Sorpréndelo con algo que recordará.",
-      image: "/images/occasions/cumpleanos.jpg",
+      image: "/images/occasions/cumpleanos.webp",
       ariaLabel: "Regalo de cumpleaños",
     },
     {
       name: "Aniversario",
       subtitle: "Un momento para compartir juntos.",
-      image: "/images/occasions/aniversario.jpg",
+      image: "/images/occasions/aniversario.webp",
       ariaLabel: "Regalo de aniversario",
     },
     {
       name: "Agradecimiento",
       subtitle: "La mejor forma de decir gracias.",
-      image: "/images/occasions/agradecimiento.jpg",
+      image: "/images/occasions/agradecimiento.webp",
       ariaLabel: "Regalo de agradecimiento",
     },
     {
       name: "Matrimonio",
       subtitle: "Un regalo para disfrutar en pareja.",
-      image: "/images/occasions/boda.jpg",
+      image: "/images/occasions/boda.webp",
       ariaLabel: "Regalo de matrimonio",
     },
     {
       name: "Para dos",
       subtitle: "Tiempo de calidad para compartir.",
-      image: "/images/occasions/pareja.jpg",
+      image: "/images/occasions/pareja.webp",
       ariaLabel: "Regalo para parejas",
     },
     {
       name: "Empresas",
       subtitle: "Cada persona elige su experiencia.",
-      image: "/images/occasions/empresarial.jpg",
+      image: "/images/occasions/empresarial.webp",
       ariaLabel: "Regalos empresariales",
     },
   ];

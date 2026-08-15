@@ -35,7 +35,7 @@ export default function StoryValues() {
           <Reveal duration={400} delay={100} className="order-1 md:order-2">
             <div className="vb-card relative w-full aspect-[4/5] overflow-hidden">
               <Image
-                src="/images/occasions/pareja.jpg"
+                src="/images/occasions/pareja.webp"
                 alt="Momento compartido gracias a una experiencia Vivabox"
                 fill
                 sizes="(max-width: 768px) 100vw, 480px"

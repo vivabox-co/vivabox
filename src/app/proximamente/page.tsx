@@ -27,7 +27,7 @@ export default async function ProximamentePage({
       {/* BACKGROUND PHOTO */}
       <div className="absolute inset-0">
         <Image
-          src="/images/hero/hero2.jpg"
+          src="/images/hero/hero2.webp"
           alt=""
           fill
           priority
@@ -45,7 +45,7 @@ export default async function ProximamentePage({
         {/* LOGO */}
         <Link href="/" className="inline-flex flex-col items-center group">
           <Image
-            src="/icons/logo.png"
+            src="/icons/logo.webp"
             alt="Vivabox"
             width={78}
             height={78}
@@ -53,7 +53,7 @@ export default async function ProximamentePage({
             className="transition group-hover:scale-105"
           />
           <Image
-            src="/icons/vivabox.png"
+            src="/icons/vivabox.webp"
             alt="Vivabox"
             width={190}
             height={43}

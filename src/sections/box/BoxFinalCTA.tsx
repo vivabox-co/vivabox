@@ -12,7 +12,7 @@ export default function BoxFinalCTA({ price, slug }: Props) {
 
       <div className="relative w-full h-[380px] md:h-[480px]">
         <Image
-          src="/images/final-cta/persona-regalando-vivabox.png"
+          src="/images/final-cta/persona-regalando-vivabox.webp"
           alt="Persona recibiendo una Vivabox"
           fill
           sizes="100vw"

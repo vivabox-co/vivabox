@@ -12,7 +12,7 @@ export default function StoryCTA() {
           <Reveal duration={400}>
             <div className="vb-card relative w-full aspect-[4/5] overflow-hidden">
               <Image
-                src="/images/final-cta/persona-regalando-vivabox.png"
+                src="/images/final-cta/persona-regalando-vivabox.webp"
                 alt="Alguien recibiendo una Vivabox de regalo"
                 fill
                 sizes="(max-width: 768px) 100vw, 480px"

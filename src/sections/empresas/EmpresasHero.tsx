@@ -53,7 +53,7 @@ export default function EmpresasHero() {
             this goes live. Swap for approved/fictional logos otherwise.
           */}
           <Image
-            src="/images/empresas/boxes-corporate-grid.png"
+            src="/images/empresas/boxes-corporate-grid.webp"
             alt="Vivabox personalizada con el logo de distintas empresas"
             fill
             priority

@@ -79,7 +79,7 @@ export const boxes: Vivabox[] = [
     description:
       "Un regalo que deja elegir entre más de 20 experiencias en Bogotá y Cundinamarca.",
 
-    image: "/images/box-includes/vivabox-caja-regalo.png",
+    image: "/images/box-includes/vivabox-caja-regalo.webp",
   },
 
 ]

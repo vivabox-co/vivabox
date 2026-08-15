@@ -13,7 +13,7 @@ export default function FinalCTA() {
 
         <div className="relative w-full h-full">
           <Image
-            src="/images/final-cta/persona-regalando-vivabox.png"
+            src="/images/final-cta/persona-regalando-vivabox.webp"
             alt="Persona regalando una caja de regalo Vivabox"
             fill
             sizes="(min-width: 1200px) 600px, 50vw"
@@ -34,7 +34,7 @@ export default function FinalCTA() {
           </h2>
 
           <Image
-            src="/icons/vivabox.png"
+            src="/icons/vivabox.webp"
             alt="Vivabox, caja de regalo de experiencias"
             width={170}
             height={43}

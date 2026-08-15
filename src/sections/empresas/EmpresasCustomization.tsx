@@ -58,7 +58,7 @@ export default function EmpresasCustomization() {
           <div className="relative w-full max-w-[360px] mx-auto aspect-square">
 
             <Image
-              src="/images/box-includes/vivabox-caja-regalo.png"
+              src="/images/box-includes/vivabox-caja-regalo.webp"
               alt="Vivabox personalizable para empresas"
               fill
               sizes="(min-width: 360px) 360px, 80vw"

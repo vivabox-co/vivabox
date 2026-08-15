@@ -98,7 +98,7 @@ export default function Navbar() {
             >
 
               <Image
-                src={solid ? "/icons/logo.png" : "/icons/logo-white.png"}
+                src={solid ? "/icons/logo.webp" : "/icons/logo-white.webp"}
                 alt="Vivabox"
                 width={42}
                 height={42}
@@ -107,7 +107,7 @@ export default function Navbar() {
               />
 
               <Image
-                src={solid ? "/icons/vivabox.png" : "/icons/vivabox-white.png"}
+                src={solid ? "/icons/vivabox.webp" : "/icons/vivabox-white.webp"}
                 alt="Vivabox"
                 width={110}
                 height={28}
