@@ -14,6 +14,11 @@ import FinalCTA from "../sections/final-cta/FinalCTA";
 import BrandRibbon from "@/components/ui/BrandRibbon";
 import { getFAQPageSchema } from "@/data/faqSchema";
 
+// Force per-request rendering so the "Ejemplos de experiencias" shuffle
+// (Math.random() in src/services/experiences.ts) re-runs on every reload
+// instead of being frozen into the statically cached HTML.
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <>
