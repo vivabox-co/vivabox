@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ExperienceModal from "@/components/ExperienceModal";
 import type { Experience } from "@/types/experience";
-import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR } from "@/data/categories";
+import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR, formatCity } from "@/data/categories";
 
 const CARD_IMAGE_SIZES = "(min-width: 1024px) 260px, 260px";
 const SCROLL_STEP = 584; // ~2 cards (260px card + 16px gap) x2
@@ -127,9 +127,9 @@ export default function ExperiencesGrid({
                   {exp.title}
                 </h3>
 
-                {exp.city && (
+                {formatCity(exp.city) && (
                   <p className="text-sm text-muted">
-                    {exp.city}
+                    {formatCity(exp.city)}
                   </p>
                 )}
 

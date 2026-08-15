@@ -18,6 +18,7 @@ const HEADER_MAP: Record<string, string> = {
   ciudad: "city",
   zona: "zone",
   duracion_min: "duration",
+  formato: "format",
   imagen: "image",
   descripcion_corta: "shortDescription",
   ideal_para: "idealFor",
@@ -27,6 +28,7 @@ const HEADER_MAP: Record<string, string> = {
   ritmo: "engagement",
   nota_vivabox: "vivanote",
   imagenes_adicionales: "imagenesAdicionales",
+  badges_visibles: "visibleBadges",
 }
 
 function translateRow(row: Record<string, string>) {

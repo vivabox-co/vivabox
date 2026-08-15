@@ -35,7 +35,7 @@ lista para copiar/pegar; el usuario la pega él mismo en Google Sheets.
 | 13 | proveedor_email | No | Texto libre | |
 | 14 | proveedor_instagram | No | Texto libre | |
 | 15 | duracion_min | No | Columna formateada como Duración en Sheets (`Formato > Número > Duración`), escrita `h:mm` (ej: `2:00`, `0:45`, `24:00`) | `formatDuration()` en `src/data/categories.ts` parsea `h:mm`/`h:mm:ss` y también acepta un número plano de minutos (compatibilidad hacia atrás) |
-| 16 | formato | No | solo · duo | |
+| 16 | formato | No | solo · duo | Alimenta el número de personas mostrado en la ficha/popup (`formatPeopleCount()` en `src/data/categories.ts`: solo → "1 persona", duo → "2 personas") |
 | 17 | descripcion_corta | **Sí** | Texto libre | Una sensación, no una ficha de servicios |
 | 18 | nota_vivabox | **Sí** | Texto libre | Por qué la elegimos — razón editorial |
 | 19 | incluye | No | Texto libre | |
@@ -75,6 +75,7 @@ lista para copiar/pegar; el usuario la pega él mismo en Google Sheets.
 | 53 | documento_anexo_url | No | URL (Drive u otro) | |
 | 54 | fecha_firma | No | AAAA-MM-DD | |
 | 55 | estado | **Sí** | borrador · en validación · contrato firmado · listo para publicar · publicado · pausado · vencido | Default `borrador`. Solo "publicado" se muestra en el sitio |
+| 56 | badges_visibles | No | Hasta 3 keys separadas por `\|`, en el orden en que deben mostrarse (ej: `nivel_basico\|guia_incluido\|equipo_incluido`) | Badges editoriales que se muestran en la ficha/popup, debajo de ciudad · duración · personas. Cada key debe existir en `BADGE_REGISTRY` (`src/data/badges.ts`) — ahí se centraliza label + icono. Sistema totalmente separado de `ambiente_animo`/`entorno`/`ritmo` (cols 26-28), que siguen existiendo solo como metadata interna de filtros para la web app beneficiaria. No repetir en los badges lo que ya muestra ciudad/duración/personas, y no rellenar hasta 3 si la experiencia no tiene 3 badges pertinentes |
 
 ## Cálculo de codigo_interno
 

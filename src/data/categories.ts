@@ -1,26 +1,3 @@
-import type { LucideIcon } from "lucide-react"
-import {
-  Utensils,
-  Heart,
-  Sun,
-  Clock,
-  Leaf,
-  Sparkles,
-  Smile,
-  Mountain,
-  Wind,
-  Footprints,
-  Palette,
-  BookOpen,
-  Users,
-  Bed,
-  Coffee,
-  Moon,
-  Zap,
-  Home,
-  Flame,
-} from "lucide-react"
-
 // Colors per docs/01_product.md — Experience Categories table
 export const CATEGORY_COLORS: Record<string, { bg: string; text: string; dot: string; icon: string }> = {
   gastronomia: { bg: "bg-primary", text: "text-white", dot: "bg-primary", icon: "text-primary" },
@@ -44,49 +21,6 @@ export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 export const DEFAULT_CATEGORY_DESCRIPTION =
   "Un momento pensado para disfrutar y crear un recuerdo distinto."
 
-// Scannable feature row per category — icon + short label, understood in under 3 seconds
-export type CategoryFeature = { icon: LucideIcon; label: string }
-
-export const CATEGORY_FEATURES: Record<string, CategoryFeature[]> = {
-  gastronomia: [
-    { icon: Utensils, label: "Sabores" },
-    { icon: Heart, label: "Compartir" },
-    { icon: Sun, label: "Ambiente relajado" },
-    { icon: Clock, label: "2–3 horas" },
-  ],
-  bienestar: [
-    { icon: Leaf, label: "Bienestar" },
-    { icon: Sparkles, label: "Cuidado personal" },
-    { icon: Smile, label: "Desconexión" },
-    { icon: Clock, label: "60–90 min" },
-  ],
-  aventura: [
-    { icon: Mountain, label: "Adrenalina" },
-    { icon: Wind, label: "Aire libre" },
-    { icon: Footprints, label: "Movimiento" },
-    { icon: Clock, label: "2–4 horas" },
-  ],
-  cultura: [
-    { icon: Palette, label: "Arte" },
-    { icon: BookOpen, label: "Historia" },
-    { icon: Users, label: "Comunidad" },
-    { icon: Clock, label: "2–3 horas" },
-  ],
-  estancias: [
-    { icon: Leaf, label: "Naturaleza" },
-    { icon: Bed, label: "Descanso" },
-    { icon: Coffee, label: "Desconexión" },
-    { icon: Moon, label: "1–2 noches" },
-  ],
-}
-
-export const DEFAULT_CATEGORY_FEATURES: CategoryFeature[] = [
-  { icon: Heart, label: "Único" },
-  { icon: Sun, label: "Ambiente" },
-  { icon: Smile, label: "Disfrute" },
-  { icon: Clock, label: "Duración variable" },
-]
-
 // Curated, human explanation of why this category represents the Vivabox philosophy
 export const CATEGORY_WHY_VIVABOX: Record<string, string> = {
   gastronomia: "Porque reúne buena comida y tiempo de calidad alrededor de la mesa.",
@@ -98,66 +32,6 @@ export const CATEGORY_WHY_VIVABOX: Record<string, string> = {
 
 export const DEFAULT_WHY_VIVABOX =
   "Porque invita a regalar un momento que vale la pena recordar."
-
-// Per-experience highlight badges, derived from the sheet's real ambiance /
-// environment / engagement fields instead of a fixed set per category — two
-// experiences in the same category can (and usually do) get different badges.
-const AMBIANCE_HIGHLIGHT: Record<string, CategoryFeature> = {
-  "relax": { icon: Leaf, label: "Relax" },
-  "adrenalina": { icon: Zap, label: "Adrenalina" },
-  "social": { icon: Users, label: "Para compartir" },
-  "romántico": { icon: Heart, label: "Ambiente íntimo" },
-  "cultural": { icon: Palette, label: "Cultural" },
-}
-
-const ENVIRONMENT_HIGHLIGHT: Record<string, CategoryFeature> = {
-  "indoor": { icon: Home, label: "Bajo techo" },
-  "outdoor": { icon: Wind, label: "Aire libre" },
-}
-
-const ENGAGEMENT_HIGHLIGHT: Record<string, CategoryFeature> = {
-  "relajado": { icon: Moon, label: "Ritmo tranquilo" },
-  "activo": { icon: Footprints, label: "Ritmo activo" },
-  "sacudido": { icon: Flame, label: "Alta energía" },
-}
-
-function firstToken(value?: string): string {
-  return (value || "").split(",")[0].trim().toLowerCase()
-}
-
-// Builds up to 3 unique, experience-specific highlights. Falls back to the
-// category defaults when the sheet doesn't have enough real data to work with.
-export function getExperienceHighlights(experience: {
-  category?: string
-  ambiance?: string
-  environment?: string
-  engagement?: string
-}): CategoryFeature[] {
-
-  const highlights: CategoryFeature[] = []
-
-  const ambiance = AMBIANCE_HIGHLIGHT[firstToken(experience.ambiance)]
-  const environment = ENVIRONMENT_HIGHLIGHT[firstToken(experience.environment)]
-  const engagement = ENGAGEMENT_HIGHLIGHT[firstToken(experience.engagement)]
-
-  if (ambiance) highlights.push(ambiance)
-  if (environment) highlights.push(environment)
-  if (engagement) highlights.push(engagement)
-
-  if (highlights.length >= 3) return highlights
-
-  const categoryKey = experience.category?.toLowerCase() || ""
-  const fallback = CATEGORY_FEATURES[categoryKey] || DEFAULT_CATEGORY_FEATURES
-
-  for (const feature of fallback) {
-    if (highlights.length >= 3) break
-    if (!highlights.some((h) => h.label === feature.label)) {
-      highlights.push(feature)
-    }
-  }
-
-  return highlights
-}
 
 // "duracion_min" is a Sheets cell formatted as Duration, so the published CSV
 // holds "H:MM" or "H:MM:SS" (e.g. "2:00", "0:45") instead of a plain number.
@@ -188,4 +62,19 @@ export function formatDuration(duration?: string): string | null {
   const label = Number.isInteger(hours) ? `${hours}` : hours.toFixed(1)
 
   return `${label} h`
+}
+
+// Sheet's "formato" column: solo | duo -- every experience today is for 1 or 2 people.
+export function formatPeopleCount(format?: string): string | null {
+  const key = (format || "").trim().toLowerCase()
+
+  if (key === "solo") return "1 persona"
+  if (key === "duo") return "2 personas"
+
+  return null
+}
+
+// Sheet's "ciudad" column stores Bogotá as "Bogotá D.C." -- drop the suffix for display.
+export function formatCity(city?: string): string | undefined {
+  return city?.replace(/\s+D\.?\s*C\.?$/i, "").trim() || undefined
 }

@@ -2,6 +2,7 @@ import fs from "node:fs"
 import path from "node:path"
 import crypto from "node:crypto"
 import { getSheetData } from "./sheet"
+import { parseVisibleBadgeKeys } from "@/data/badges"
 import type { Experience } from "@/types/experience"
 
 const categoryMap: Record<string,string> = {
@@ -106,6 +107,7 @@ export async function getExperiencesPreview():Promise<Experience[]> {
 
       duration: row.duration,
       zone: row.zone,
+      format: row.format,
       shortDescription: row.shortDescription,
 
       idealFor: row.idealFor,
@@ -113,7 +115,9 @@ export async function getExperiencesPreview():Promise<Experience[]> {
       ambiance: row.ambiance,
       environment: row.environment,
       engagement: row.engagement,
-      vivanote: row.vivanote
+      vivanote: row.vivanote,
+
+      visibleBadges: parseVisibleBadgeKeys(row.visibleBadges)
 
     }))
   }
@@ -163,6 +167,7 @@ export async function getExperienceExamples():Promise<Experience[]> {
 
       duration: row.duration,
       zone: row.zone,
+      format: row.format,
       shortDescription: row.shortDescription,
 
       idealFor: row.idealFor,
@@ -170,7 +175,9 @@ export async function getExperienceExamples():Promise<Experience[]> {
       ambiance: row.ambiance,
       environment: row.environment,
       engagement: row.engagement,
-      vivanote: row.vivanote
+      vivanote: row.vivanote,
+
+      visibleBadges: parseVisibleBadgeKeys(row.visibleBadges)
     }))
   }
 

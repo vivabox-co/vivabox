@@ -4,7 +4,7 @@ import Image from "next/image"
 import { useState } from "react"
 import ExperienceModal from "@/components/ExperienceModal"
 import type { Experience } from "@/types/experience"
-import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR } from "@/data/categories"
+import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR, formatCity } from "@/data/categories"
 
 const CARD_IMAGE_SIZES = "(min-width: 1280px) 220px, (min-width: 1024px) 280px, 260px"
 
@@ -60,9 +60,9 @@ export default function BoxExperienceExamplesGrid({
                   {exp.title}
                 </h3>
 
-                {exp.city && (
+                {formatCity(exp.city) && (
                   <p className="text-sm text-muted">
-                    {exp.city}
+                    {formatCity(exp.city)}
                   </p>
                 )}
 

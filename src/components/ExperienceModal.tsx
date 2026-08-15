@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { X, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, MapPin, Clock, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import {
   CATEGORY_COLORS,
@@ -10,9 +10,11 @@ import {
   DEFAULT_CATEGORY_DESCRIPTION,
   CATEGORY_WHY_VIVABOX,
   DEFAULT_WHY_VIVABOX,
-  getExperienceHighlights,
   formatDuration,
+  formatPeopleCount,
+  formatCity,
 } from "@/data/categories";
+import { resolveVisibleBadges } from "@/data/badges";
 
 type Experience = {
   title: string
@@ -23,10 +25,9 @@ type Experience = {
   gallery?: string[]
   shortDescription?: string
   duration?: string
-  ambiance?: string
-  environment?: string
-  engagement?: string
+  format?: string
   vivanote?: string
+  visibleBadges?: string[]
 }
 
 type Props = {
@@ -61,9 +62,11 @@ export default function ExperienceModal({ experience, onClose }: Props) {
   const badgeColor = `${categoryColor.bg} ${categoryColor.text}`
 
   const description = CATEGORY_DESCRIPTIONS[categoryKey] || DEFAULT_CATEGORY_DESCRIPTION
-  const highlights = getExperienceHighlights(experience)
+  const badges = resolveVisibleBadges(experience.visibleBadges)
   const whyVivabox = experience.vivanote?.trim() || CATEGORY_WHY_VIVABOX[categoryKey] || DEFAULT_WHY_VIVABOX
   const duration = formatDuration(experience.duration)
+  const people = formatPeopleCount(experience.format)
+  const city = formatCity(experience.city)
 
   const images = experience.gallery?.length
     ? experience.gallery
@@ -223,12 +226,15 @@ export default function ExperienceModal({ experience, onClose }: Props) {
           </h3>
 
           {/* PRACTICAL INFO — secondary, single line */}
-          {(experience.city || duration) && (
+          {(city || duration || people) && (
             <div className="flex items-center gap-3 text-sm text-gray-500 mb-3">
-              {experience.city && (
+              {city && (
                 <span className="flex items-center gap-1">
                   <MapPin size={14} strokeWidth={1.5} />
-                  {experience.zone ? `${experience.city} - ${experience.zone}` : experience.city}
+                  {/* Zone is a Bogotá neighborhood (useful) but a department name outside
+                      Bogotá (boilerplate "Cundinamarca" on every non-Bogotá row) -- only
+                      show it for Bogotá, so this line stays short and never wraps. */}
+                  {experience.zone && city === "Bogotá" ? `${city} - ${experience.zone}` : city}
                 </span>
               )}
               {duration && (
@@ -237,24 +243,32 @@ export default function ExperienceModal({ experience, onClose }: Props) {
                   {duration}
                 </span>
               )}
+              {people && (
+                <span className="flex items-center gap-1">
+                  <Users size={14} strokeWidth={1.5} />
+                  {people}
+                </span>
+              )}
             </div>
           )}
 
-          {/* HIGHLIGHTS — unique to this experience, scannable at a glance */}
-          <div className="flex flex-nowrap gap-1.5 mb-3">
-            {highlights.map((highlight, i) => {
-              const Icon = highlight.icon
-              return (
-                <span
-                  key={i}
-                  className="inline-flex min-w-0 items-center leading-none gap-1 rounded-full bg-card border border-black/10 px-2.5 py-1.5 text-xs font-medium text-ink whitespace-nowrap"
-                >
-                  <Icon size={13} className={`${categoryColor.icon} shrink-0`} strokeWidth={1.5} />
-                  {highlight.label}
-                </span>
-              )
-            })}
-          </div>
+          {/* BADGES — curated, editorial selection specific to this experience (max 3) */}
+          {badges.length > 0 && (
+            <div className="flex flex-nowrap gap-1.5 mb-3">
+              {badges.map((badge) => {
+                const Icon = badge.icon
+                return (
+                  <span
+                    key={badge.key}
+                    className="inline-flex min-w-0 items-center leading-none gap-1 rounded-full bg-card border border-black/10 px-2.5 py-1.5 text-xs font-medium text-ink whitespace-nowrap"
+                  >
+                    <Icon size={13} className={`${categoryColor.icon} shrink-0`} strokeWidth={1.5} />
+                    {badge.label}
+                  </span>
+                )
+              })}
+            </div>
+          )}
 
           {/* EMOTIONAL SENTENCE */}
           <p className="text-base sm:text-sm text-gray-600 mb-3">
