@@ -36,8 +36,8 @@ lista para copiar/pegar; el usuario la pega él mismo en Google Sheets.
 | 14 | proveedor_instagram | No | Texto libre | |
 | 15 | duracion_min | No | Columna formateada como Duración en Sheets (`Formato > Número > Duración`), escrita `h:mm` (ej: `2:00`, `0:45`, `24:00`) | `formatDuration()` en `src/data/categories.ts` parsea `h:mm`/`h:mm:ss` y también acepta un número plano de minutos (compatibilidad hacia atrás) |
 | 16 | formato | No | solo · duo | Alimenta el número de personas mostrado en la ficha/popup (`formatPeopleCount()` en `src/data/categories.ts`: solo → "1 persona", duo → "2 personas") |
-| 17 | descripcion_corta | **Sí** | Texto libre | Una sensación, no una ficha de servicios |
-| 18 | nota_vivabox | **Sí** | Texto libre | Por qué la elegimos — razón editorial |
+| 17 | descripcion_corta | **Sí** | Texto libre, ~30-45 palabras | Una sensación, no una ficha de servicios. Reglas completas (longitud, estructura, clichés a evitar) en `docs/editorial/experiencias.md` |
+| 18 | nota_vivabox | **Sí** | Texto libre, ~20-35 palabras | Por qué la elegimos — razón editorial, nunca inventar una visita de primera mano. Reglas completas en `docs/editorial/experiencias.md` |
 | 19 | incluye | No | Texto libre | |
 | 20 | requisitos | No | Texto libre | Ej: edad mínima, acompañamiento |
 | 21 | ideal_para | No | Texto libre | Ej: Parejas, Amigos, En familia |

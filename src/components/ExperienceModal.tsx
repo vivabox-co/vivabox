@@ -61,7 +61,10 @@ export default function ExperienceModal({ experience, onClose }: Props) {
   const barColor = categoryColor.dot
   const badgeColor = `${categoryColor.bg} ${categoryColor.text}`
 
-  const description = CATEGORY_DESCRIPTIONS[categoryKey] || DEFAULT_CATEGORY_DESCRIPTION
+  // Per-experience copy (sheet's "descripcion_corta") is the primary source --
+  // the category-generic sentence is only a safety net for rows without one.
+  // Editorial rules for this text: docs/editorial/experiencias.md
+  const description = experience.shortDescription?.trim() || CATEGORY_DESCRIPTIONS[categoryKey] || DEFAULT_CATEGORY_DESCRIPTION
   const badges = resolveVisibleBadges(experience.visibleBadges)
   const whyVivabox = experience.vivanote?.trim() || CATEGORY_WHY_VIVABOX[categoryKey] || DEFAULT_WHY_VIVABOX
   const duration = formatDuration(experience.duration)
@@ -283,7 +286,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
               <Image src="/icons/logo.webp" alt="" width={28} height={28} className="shrink-0 -translate-y-1" />
 
               <p className="text-sm font-semibold text-ink">
-                Elegida por Vivabox
+                La elegimos
               </p>
 
             </div>
