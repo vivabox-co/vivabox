@@ -76,7 +76,8 @@ export default function ExperiencesGrid({
 
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto pb-6 scroll-pl-4 no-scrollbar snap-x snap-mandatory scroll-smooth"
+          className="flex gap-4 overflow-x-auto pb-6 no-scrollbar scroll-smooth"
+          style={{ paddingLeft: 16, paddingRight: 16 }}
         >
 
         {experiencesPreview.map((exp, index) => {
