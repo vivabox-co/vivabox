@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, MapPin, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Users, Smartphone } from "lucide-react";
 import ExperienceModal from "@/components/ExperienceModal";
 import type { Experience } from "@/types/experience";
 import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR, formatCity, formatPeopleCount } from "@/data/categories";
@@ -166,17 +166,6 @@ export default function ExperiencesGrid({
               className="object-cover"
             />
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent" />
-
-            <div className="absolute bottom-0 left-0 right-0 pl-4 pr-3 pb-2.5">
-              <span className="block text-[10px] font-semibold uppercase tracking-wide text-white/85">
-                En la app Vivabox
-              </span>
-              <span className="block text-xs font-medium text-white leading-snug">
-                Descubre todo lo que tienes para elegir.
-              </span>
-            </div>
-
             <div className="absolute left-0 top-0 bottom-0 w-[6px] flex flex-col z-10">
               {Object.values(CATEGORY_COLORS).map((c) => (
                 <div key={c.dot} className={`flex-1 ${c.dot}`}></div>
@@ -185,14 +174,19 @@ export default function ExperiencesGrid({
 
           </div>
 
-          <div className="p-4 text-center">
+          <div className="p-4">
 
-            <h3 className="font-semibold mb-1">
+            <span className="inline-flex items-center gap-1 leading-none text-xs font-medium px-2.5 py-1.5 rounded-full mb-2 bg-card border border-black/10 text-ink">
+              <Smartphone size={13} strokeWidth={1.5} />
+              En la app Vivabox
+            </span>
+
+            <h3 className="font-semibold leading-6 min-h-[48px] mb-[2px]">
               Y muchas más por descubrir
             </h3>
 
             <p className="text-sm text-muted">
-              Siempre incorporamos nuevas experiencias.
+              Quien la reciba explora el catálogo completo en la app, y seguimos sumando experiencias nuevas.
             </p>
 
           </div>
