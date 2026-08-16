@@ -9,7 +9,7 @@ export default function Footer() {
 
       <div className="max-w-6xl mx-auto px-6">
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-8 gap-y-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-14">
 
           {/* COLUMN 1 — BRAND */}
           <div className="lg:col-span-1">
@@ -147,6 +147,31 @@ export default function Footer() {
                 >
                   Contáctanos
                 </a>
+              </li>
+            </ul>
+          </nav>
+
+          {/* COLUMN 6 — LEGAL */}
+          <nav aria-label="Legal">
+            <h4 className="text-white font-semibold text-[15px] mb-5">
+              Legal
+            </h4>
+
+            <ul className="space-y-4 text-sm">
+              <li>
+                <Link href="/terminos-y-condiciones" className={linkClasses}>
+                  Términos y condiciones
+                </Link>
+              </li>
+              <li>
+                <Link href="/politica-de-datos" className={linkClasses}>
+                  Política de tratamiento de datos
+                </Link>
+              </li>
+              <li>
+                <Link href="/cambios-y-devoluciones" className={linkClasses}>
+                  Cambios y devoluciones
+                </Link>
               </li>
             </ul>
           </nav>

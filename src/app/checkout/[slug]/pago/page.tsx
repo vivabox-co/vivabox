@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { useState, useEffect } from "react"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { formatPrice } from "@/utils/formatPrice"
@@ -251,6 +252,18 @@ async function handleFakePayment() {
 
             <p className="text-xs text-[#6B6B6B] text-center">
               Pago seguro · sin complicaciones
+            </p>
+
+            <p className="text-[11px] text-[#6B6B6B] text-center leading-relaxed">
+              Al pagar aceptas los{" "}
+              <Link href="/terminos-y-condiciones" target="_blank" className="underline underline-offset-2 hover:text-ink">
+                Términos y condiciones
+              </Link>{" "}
+              y reconoces nuestra{" "}
+              <Link href="/politica-de-datos" target="_blank" className="underline underline-offset-2 hover:text-ink">
+                Política de tratamiento de datos
+              </Link>
+              .
             </p>
 
           </div>

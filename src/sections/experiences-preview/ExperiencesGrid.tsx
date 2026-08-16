@@ -172,21 +172,21 @@ export default function ExperiencesGrid({
               ))}
             </div>
 
-          </div>
-
-          <div className="p-4">
-
-            <span className="inline-flex items-center gap-1 leading-none text-xs font-medium px-2.5 py-1.5 rounded-full mb-2 bg-card border border-black/10 text-ink">
+            <span className="absolute top-3 left-4 z-10 inline-flex items-center gap-1 leading-none text-xs font-medium px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-sm shadow-sm text-ink">
               <Smartphone size={13} strokeWidth={1.5} />
               En la app Vivabox
             </span>
 
-            <h3 className="font-semibold leading-6 min-h-[48px] mb-[2px]">
+          </div>
+
+          <div className="p-4">
+
+            <h3 className="font-semibold leading-6 mb-[2px]">
               Y muchas más por descubrir
             </h3>
 
             <p className="text-sm text-muted">
-              Quien la reciba explora el catálogo completo en la app, y seguimos sumando experiencias nuevas.
+              Quien la reciba ve todo el catálogo, que seguimos ampliando.
             </p>
 
           </div>
