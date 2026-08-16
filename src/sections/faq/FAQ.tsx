@@ -8,7 +8,7 @@ import {
   CalendarCheck,
   RefreshCw,
   Clock,
-  MapPin,
+  Smartphone,
   Repeat,
   ChevronDown
 } from "lucide-react";
@@ -26,7 +26,7 @@ export default function FAQ() {
       icon: HelpCircle,
       question: "¿Cómo funciona Vivabox?",
       answer:
-        "Tú compras la Vivabox y la regalas. La persona que la recibe activa el código, descubre todas las experiencias disponibles, elige su favorita y reserva con el acompañamiento del equipo Vivabox.",
+        "Compras una Vivabox física con un código único y la regalas. La persona que la recibe activa su código, entra a la app Vivabox, explora las experiencias disponibles, elige la que más le guste e inicia su reserva con el acompañamiento del equipo Vivabox.",
     },
     {
       icon: Heart,
@@ -53,10 +53,10 @@ export default function FAQ() {
         "Cada Vivabox tiene una vigencia de seis meses desde la fecha de compra.",
     },
     {
-      icon: MapPin,
-      question: "¿Dónde se pueden usar las experiencias?",
+      icon: Smartphone,
+      question: "¿Qué es la app Vivabox y quién la usa?",
       answer:
-        "Actualmente las experiencias están disponibles en Bogotá y Cundinamarca. La selección continúa creciendo constantemente.",
+        "La app Vivabox es el espacio donde la persona que recibe el regalo descubre y elige su experiencia. El acceso es para el beneficiario, no para quien compra la Vivabox. Allí verá únicamente las experiencias disponibles para su Vivabox y podrá iniciar su reserva con el acompañamiento del equipo Vivabox.",
     },
     {
       icon: Repeat,

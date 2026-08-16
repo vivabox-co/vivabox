@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Users } from "lucide-react";
 import ExperienceModal from "@/components/ExperienceModal";
 import type { Experience } from "@/types/experience";
-import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR, formatCity } from "@/data/categories";
+import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR, formatCity, formatPeopleCount } from "@/data/categories";
 
 const CARD_IMAGE_SIZES = "(min-width: 1024px) 260px, 260px";
 const SCROLL_STEP = 584; // ~2 cards (260px card + 16px gap) x2
@@ -88,6 +88,8 @@ export default function ExperiencesGrid({
 
           const badgeColor = `${categoryColor.bg} ${categoryColor.text}`;
           const barColor = categoryColor.dot;
+          const city = formatCity(exp.city);
+          const people = formatPeopleCount(exp.format);
 
           return (
 
@@ -123,14 +125,25 @@ export default function ExperiencesGrid({
                   {exp.category}
                 </span>
 
-                <h3 className="font-semibold mb-[2px]">
+                <h3 className="font-semibold leading-6 min-h-[48px] line-clamp-2 mb-[2px]">
                   {exp.title}
                 </h3>
 
-                {formatCity(exp.city) && (
-                  <p className="text-sm text-muted">
-                    {formatCity(exp.city)}
-                  </p>
+                {(city || people) && (
+                  <div className="flex items-center gap-3 text-sm text-muted">
+                    {city && (
+                      <span className="flex items-center gap-1">
+                        <MapPin size={14} strokeWidth={2.5} />
+                        {city}
+                      </span>
+                    )}
+                    {people && (
+                      <span className="flex items-center gap-1">
+                        <Users size={14} strokeWidth={2.5} />
+                        {people}
+                      </span>
+                    )}
+                  </div>
                 )}
 
               </div>
@@ -143,15 +156,26 @@ export default function ExperiencesGrid({
         {/* LAST CARD */}
         <div className="vb-card group snap-start min-w-[260px] hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden">
 
-          <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px] bg-gradient-to-br from-[#fff4ec] to-[#f7f7f7] flex items-center justify-center">
+          <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px]">
 
             <Image
-              src="/icons/logo.webp"
-              alt="Vivabox"
-              width={82}
-              height={82}
-              className="opacity-100"
+              src="/images/experiences-preview/vivabox-mapa-experiencias.webp"
+              alt="Mapa de experiencias Vivabox"
+              fill
+              sizes={CARD_IMAGE_SIZES}
+              className="object-cover"
             />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent" />
+
+            <div className="absolute bottom-0 left-0 right-0 pl-4 pr-3 pb-2.5">
+              <span className="block text-[10px] font-semibold uppercase tracking-wide text-white/85">
+                En la app Vivabox
+              </span>
+              <span className="block text-xs font-medium text-white leading-snug">
+                Descubre todo lo que tienes para elegir.
+              </span>
+            </div>
 
             <div className="absolute left-0 top-0 bottom-0 w-[6px] flex flex-col z-10">
               {Object.values(CATEGORY_COLORS).map((c) => (
@@ -168,7 +192,7 @@ export default function ExperiencesGrid({
             </h3>
 
             <p className="text-sm text-muted">
-              Siempre estamos incorporando nuevas experiencias.
+              Siempre incorporamos nuevas experiencias.
             </p>
 
           </div>

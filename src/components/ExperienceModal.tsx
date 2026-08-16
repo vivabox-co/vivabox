@@ -233,7 +233,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
             <div className="flex items-center gap-3 text-sm text-gray-500 mb-3">
               {city && (
                 <span className="flex items-center gap-1">
-                  <MapPin size={14} strokeWidth={1.5} />
+                  <MapPin size={14} strokeWidth={2.5} />
                   {/* Zone is a Bogotá neighborhood (useful) but a department name outside
                       Bogotá (boilerplate "Cundinamarca" on every non-Bogotá row) -- only
                       show it for Bogotá, so this line stays short and never wraps. */}
@@ -242,13 +242,13 @@ export default function ExperienceModal({ experience, onClose }: Props) {
               )}
               {duration && (
                 <span className="flex items-center gap-1">
-                  <Clock size={14} strokeWidth={1.5} />
+                  <Clock size={14} strokeWidth={2.5} />
                   {duration}
                 </span>
               )}
               {people && (
                 <span className="flex items-center gap-1">
-                  <Users size={14} strokeWidth={1.5} />
+                  <Users size={14} strokeWidth={2.5} />
                   {people}
                 </span>
               )}
