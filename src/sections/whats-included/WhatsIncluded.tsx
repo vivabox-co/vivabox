@@ -463,7 +463,7 @@ export default function WhatsIncluded() {
                     aria-hidden={activeCategory !== cat.label}
                   >
                     <div className={`absolute bottom-full -mb-1 ${TIP_ARROW_ALIGN_CLASS[cat.tipAlign]} w-2 h-2 bg-ink rotate-45`} />
-                    <div className="bg-ink text-white text-[11px] font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap first-letter:uppercase">
+                    <div className="bg-ink text-white text-[11px] font-medium px-2.5 py-1 rounded-xl shadow-lg whitespace-nowrap first-letter:uppercase">
                       {cat.examples.join(", ")}…
                     </div>
                   </div>
@@ -634,7 +634,7 @@ export default function WhatsIncluded() {
                     aria-hidden={activeCategory !== cat.label}
                   >
                     <div className={`absolute bottom-full -mb-1 ${TIP_ARROW_ALIGN_CLASS[cat.tipAlign]} w-2.5 h-2.5 bg-ink rotate-45`} />
-                    <div className="bg-ink text-white text-[13px] font-medium px-3.5 py-2 rounded-lg shadow-lg whitespace-nowrap first-letter:uppercase">
+                    <div className="bg-ink text-white text-[13px] font-medium px-3 py-1.5 rounded-xl shadow-lg whitespace-nowrap first-letter:uppercase">
                       {cat.examples.join(", ")}…
                     </div>
                   </div>
