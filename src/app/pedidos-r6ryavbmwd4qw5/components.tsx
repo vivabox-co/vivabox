@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Package, Truck, History } from "lucide-react"
+import { Package, Truck, History, CalendarCheck } from "lucide-react"
 import { PAGE_PATH, Order, formatDate } from "./types"
 
 export function ActionButton({ label }: { label: string }) {
@@ -50,11 +50,12 @@ export function OrderCard({ order, action, actionLabel }: { order: Order; action
   )
 }
 
-type Counts = { toPrepare: number; toShip: number }
+type Counts = { toPrepare: number; toShip: number; pendingBookings: number }
 
 const TABS = [
   { href: `${PAGE_PATH}/por-preparar`, label: "Por preparar", icon: Package, countKey: "toPrepare" as const },
   { href: `${PAGE_PATH}/preparadas`, label: "Preparadas", icon: Truck, countKey: "toShip" as const },
+  { href: `${PAGE_PATH}/reservas`, label: "Reservas", icon: CalendarCheck, countKey: "pendingBookings" as const },
   { href: `${PAGE_PATH}/historial`, label: "Historial", icon: History, countKey: null },
 ]
 
@@ -65,7 +66,9 @@ export function BottomNav({ counts }: { counts: Counts }) {
     <nav className="vb-sticky-bar fixed bottom-0 left-0 right-0 flex z-10">
       <div className="flex w-full max-w-[860px] mx-auto">
         {TABS.map(({ href, label, icon: Icon, countKey }) => {
-          const active = pathname === href
+          // startsWith (pas ===) : "Reservas" a des sous-pages
+          // (/reservas/solicitadas, etc.) qui doivent aussi la garder active.
+          const active = pathname === href || pathname.startsWith(`${href}/`)
           const count = countKey ? counts[countKey] : null
 
           return (

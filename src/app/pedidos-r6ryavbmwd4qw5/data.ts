@@ -1,5 +1,6 @@
 import { getSupabase } from "@/services/supabase"
 import { Order, HISTORY_LIMIT } from "./types"
+import { getReservasCounts } from "./reservas/data"
 
 async function attachCodes<T extends { id: string }>(ventas: T[]): Promise<(T & { code: string | null })[]> {
   if (!ventas.length) return []
@@ -68,15 +69,20 @@ export async function getHistory(): Promise<Order[]> {
 export async function getCounts() {
   const supabase = getSupabase()
 
-  const [toPrepare, toShip] = await Promise.all([
+  const [toPrepare, toShip, reservas] = await Promise.all([
     supabase.from("ventas").select("id", { count: "exact", head: true })
       .eq("status", "completed").is("prepared_at", null).is("shipped_at", null),
     supabase.from("ventas").select("id", { count: "exact", head: true })
       .eq("status", "completed").not("prepared_at", "is", null).is("shipped_at", null),
+    getReservasCounts(),
   ])
 
   return {
     toPrepare: toPrepare.count ?? 0,
     toShip: toShip.count ?? 0,
+    // Badge de l'onglet Reservas : seules les demandes "requested" exigent
+    // une action de l'équipe (confirmer/annuler) — les "confirmed" sont déjà
+    // traitées et n'ont pas besoin d'attirer l'œil.
+    pendingBookings: reservas.requested,
   }
 }

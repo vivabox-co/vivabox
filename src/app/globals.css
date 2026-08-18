@@ -597,9 +597,47 @@ body {
     inset -2px -2px 5px var(--nm-light);
 }
 
+/* Danger tier — cancel/destructive actions in staff back-office tools
+   (e.g. /pedidos-r6ryavbmwd4qw5/reservas). Same shape/shadow grammar as
+   vb-btn-soft (18px radius, neumorphic shadow) — the tier is read from
+   --color-accent-red instead of orange, never from breaking the shape
+   family, per the site's CTA-tier convention above. */
+.vb-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(203, 32, 51, 0.35);
+  background: #FDF2F3;
+  color: var(--color-accent-red);
+  font-weight: 600;
+  box-shadow:
+    4px 4px 10px var(--nm-dark),
+    -4px -4px 10px var(--nm-light);
+  transition: box-shadow 0.15s ease, transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.vb-btn-danger:hover:not(:disabled) {
+  border-color: rgba(203, 32, 51, 0.6);
+  background: #FCE7E9;
+}
+
+.vb-btn-danger:active:not(:disabled) {
+  transform: scale(0.98);
+  box-shadow:
+    inset 3px 3px 7px var(--nm-dark-strong),
+    inset -3px -3px 7px var(--nm-light);
+}
+
+.vb-btn-danger:disabled {
+  opacity: 0.5;
+}
+
 .vb-btn-primary:focus-visible,
 .vb-btn-secondary:focus-visible,
-.vb-btn-soft:focus-visible {
+.vb-btn-soft:focus-visible,
+.vb-btn-danger:focus-visible {
   outline: 2.5px solid var(--color-primary);
   outline-offset: 2px;
 }
