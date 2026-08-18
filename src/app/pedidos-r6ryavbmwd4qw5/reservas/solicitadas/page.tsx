@@ -1,5 +1,5 @@
 import { getRequested } from "../data"
-import { confirmBooking, cancelBooking } from "../actions"
+import { confirmBooking, cancelBooking, proposeAlternative } from "../actions"
 import { BookingCard } from "../components"
 
 export default async function SolicitadasPage() {
@@ -19,6 +19,7 @@ export default async function SolicitadasPage() {
             primaryAction={confirmBooking}
             primaryLabel="Confirmar"
             cancelAction={cancelBooking}
+            proposeAlternativeAction={proposeAlternative}
           />
         ))}
       </div>

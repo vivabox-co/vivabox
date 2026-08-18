@@ -1,7 +1,17 @@
 // Types purs — voir la note équivalente dans ../types.ts (seul fichier
 // importable depuis un Client Component de ce sous-dossier).
 
-export type BookingStatus = "requested" | "confirmed" | "completed" | "cancelled"
+export type BookingStatus = "requested" | "alternative_proposed" | "confirmed" | "completed" | "cancelled"
+
+// Clés alignées sur MOMENT_LABEL côté vivabox-appben (lib/utils/moment.ts) —
+// mêmes valeurs stockées en base des deux côtés du schéma partagé.
+export type Moment = "morning" | "afternoon" | "night"
+
+export const MOMENT_LABEL: Record<Moment, string> = {
+  morning: "Mañana",
+  afternoon: "Tarde",
+  night: "Noche",
+}
 
 export type Booking = {
   id: string
@@ -9,6 +19,10 @@ export type Booking = {
   requested_date: string | null
   message: string | null
   status: BookingStatus
+
+  proposed_date: string | null
+  proposed_moment: string | null
+  proposed_hour: string | null
 
   experience_code: string
   experience_title: string | null

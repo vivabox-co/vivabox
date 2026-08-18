@@ -8,7 +8,7 @@ import { HISTORY_LIMIT } from "../types"
 // deux embeds comme des objets (pas des tableaux) car la FK part bien de la
 // table "many" vers la table "one" à chaque étape.
 const BOOKING_FIELDS =
-  "id, created_at, requested_date, message, status, experience_code, " +
+  "id, created_at, requested_date, message, status, experience_code, proposed_date, proposed_moment, proposed_hour, " +
   "activation_codes(code, beneficiary_name, beneficiary_email, ventas(box_slug, buyer_name, buyer_email))"
 
 type RawBooking = {
@@ -17,6 +17,9 @@ type RawBooking = {
   requested_date: string | null
   message: string | null
   status: BookingStatus
+  proposed_date: string | null
+  proposed_moment: string | null
+  proposed_hour: string | null
   experience_code: string
   activation_codes: {
     code: string | null
@@ -46,6 +49,9 @@ async function enrich(rows: RawBooking[]): Promise<Booking[]> {
       requested_date: r.requested_date,
       message: r.message,
       status: r.status,
+      proposed_date: r.proposed_date,
+      proposed_moment: r.proposed_moment,
+      proposed_hour: r.proposed_hour,
       experience_code: r.experience_code,
       experience_title: experience?.title ?? null,
       experience_city: experience?.city ?? null,
@@ -59,13 +65,17 @@ async function enrich(rows: RawBooking[]): Promise<Booking[]> {
   })
 }
 
+// Regroupe "requested" et "alternative_proposed" : tant que le bénéficiaire
+// n'a pas répondu (ou que l'équipe n'a pas confirmé/annulé à sa place),
+// la réservation reste une affaire en cours pour Reservas — la séparer dans
+// un onglet à part aurait cassé la nav à 3 tabs pour un état transitoire.
 export async function getRequested(): Promise<Booking[]> {
   const supabase = getSupabase()
 
   const { data, error } = await supabase
     .from("bookings")
     .select(BOOKING_FIELDS)
-    .eq("status", "requested")
+    .in("status", ["requested", "alternative_proposed"])
     .order("created_at", { ascending: true })
 
   if (error) throw error
@@ -104,7 +114,7 @@ export async function getReservasCounts() {
   const supabase = getSupabase()
 
   const [requested, confirmed] = await Promise.all([
-    supabase.from("bookings").select("id", { count: "exact", head: true }).eq("status", "requested"),
+    supabase.from("bookings").select("id", { count: "exact", head: true }).in("status", ["requested", "alternative_proposed"]),
     supabase.from("bookings").select("id", { count: "exact", head: true }).eq("status", "confirmed"),
   ])
 
