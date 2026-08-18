@@ -1,5 +1,5 @@
 import { getHistory } from "../data"
-import { HISTORY_LIMIT } from "../types"
+import { HISTORY_LIMIT } from "../../types"
 import { OrderCard } from "../components"
 
 export default async function HistorialPage() {

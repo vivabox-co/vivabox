@@ -23,9 +23,7 @@ export type Booking = {
   buyer_email: string | null
 }
 
-export function formatDate(iso: string) {
-  return new Date(iso).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })
-}
+export { formatDate } from "../types"
 
 export function formatRequestedDate(isoDate: string | null) {
   if (!isoDate) return null

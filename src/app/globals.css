@@ -490,6 +490,42 @@ body {
   transform: none;
 }
 
+/* Tier 1, zone Reservas — même grammaire que vb-btn-primary (radius,
+   poids, timing) mais teinté noir espresso au lieu d'orange, pour que
+   Pedidos et Reservas restent visuellement deux zones distinctes du même
+   back-office plutôt que deux CTA de poids différent. */
+.vb-btn-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #18140F 0%, #2E2820 100%);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 5px 14px rgba(24, 20, 15, 0.32);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.vb-btn-dark:hover:not(:disabled) {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px rgba(24, 20, 15, 0.38);
+}
+
+.vb-btn-dark:active:not(:disabled) {
+  transform: translateY(1px) scale(0.97);
+  filter: brightness(0.9);
+  box-shadow: 0 2px 6px rgba(24, 20, 15, 0.28);
+}
+
+.vb-btn-dark:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+  transform: none;
+}
+
 /* Tier 2 — secondary CTAs (get a benefit, receive a code, apply it).
    Solid, flat brand orange — genuinely visible even sitting inside an
    already-tinted accent-tint well — but no gradient/glow, so it stays
@@ -637,7 +673,8 @@ body {
 .vb-btn-primary:focus-visible,
 .vb-btn-secondary:focus-visible,
 .vb-btn-soft:focus-visible,
-.vb-btn-danger:focus-visible {
+.vb-btn-danger:focus-visible,
+.vb-btn-dark:focus-visible {
   outline: 2.5px solid var(--color-primary);
   outline-offset: 2px;
 }

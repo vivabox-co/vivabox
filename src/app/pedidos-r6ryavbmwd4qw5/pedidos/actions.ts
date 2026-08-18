@@ -2,7 +2,7 @@
 
 import { getSupabase } from "@/services/supabase"
 import { revalidatePath } from "next/cache"
-import { PAGE_PATH } from "./types"
+import { PAGE_PATH } from "../types"
 
 export async function markPrepared(formData: FormData) {
   const ventaId = formData.get("ventaId")

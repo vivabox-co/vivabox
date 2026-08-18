@@ -1,9 +1,9 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { Inbox, CalendarCheck2, History } from "lucide-react"
 import { Booking, formatDate, formatRequestedDate } from "./types"
 import { PAGE_PATH } from "../types"
+import { StageNav, StageTab } from "../components"
 
 const STATUS_LABEL: Record<Booking["status"], string> = {
   requested: "Solicitada",
@@ -12,9 +12,11 @@ const STATUS_LABEL: Record<Booking["status"], string> = {
   cancelled: "Cancelada",
 }
 
+// Teintes de la zone Reservas : noir espresso (#18140F) au lieu de l'orange
+// utilisé côté Pedidos — voir la note du ZoneSwitcher dans ../components.tsx.
 const STATUS_CLASS: Record<Booking["status"], string> = {
-  requested: "bg-accent-tint text-primary",
-  confirmed: "bg-primary text-white",
+  requested: "bg-black/5 text-[#18140F]",
+  confirmed: "bg-[#18140F] text-white",
   completed: "bg-accent-green text-white",
   cancelled: "bg-accent-red text-white",
 }
@@ -78,7 +80,7 @@ export function BookingCard({
           {primaryAction && primaryLabel && (
             <form action={primaryAction}>
               <input type="hidden" name="bookingId" value={booking.id} />
-              <button type="submit" className="vb-btn-primary h-11 px-5 text-sm">
+              <button type="submit" className="vb-btn-dark h-11 px-5 text-sm">
                 {primaryLabel}
               </button>
             </form>
@@ -106,42 +108,12 @@ export function BookingCard({
 
 type Counts = { requested: number; confirmed: number }
 
-const TABS = [
-  { href: `${PAGE_PATH}/reservas/solicitadas`, label: "Solicitadas", countKey: "requested" as const },
-  { href: `${PAGE_PATH}/reservas/confirmadas`, label: "Confirmadas", countKey: "confirmed" as const },
-  { href: `${PAGE_PATH}/reservas/historial`, label: "Historial", countKey: null },
+const TABS: StageTab[] = [
+  { href: `${PAGE_PATH}/reservas/solicitadas`, label: "Solicitadas", icon: Inbox, countKey: "requested" },
+  { href: `${PAGE_PATH}/reservas/confirmadas`, label: "Confirmadas", icon: CalendarCheck2, countKey: "confirmed" },
+  { href: `${PAGE_PATH}/reservas/historial`, label: "Historial", icon: History, countKey: null },
 ]
 
-export function ReservasSubNav({ counts }: { counts: Counts }) {
-  const pathname = usePathname()
-
-  return (
-    <div className="flex gap-2 mb-5">
-      {TABS.map(({ href, label, countKey }) => {
-        const active = pathname === href
-        const count = countKey ? counts[countKey] : null
-
-        return (
-          <Link
-            key={href}
-            href={href}
-            className={`inline-flex items-center gap-1.5 rounded-[13px] px-3.5 py-2 text-sm font-semibold transition-colors ${
-              active ? "bg-primary text-white" : "vb-card text-muted"
-            }`}
-          >
-            {label}
-            {!!count && (
-              <span
-                className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold ${
-                  active ? "bg-white/25 text-white" : "bg-primary text-white"
-                }`}
-              >
-                {count}
-              </span>
-            )}
-          </Link>
-        )
-      })}
-    </div>
-  )
+export function ReservasBottomNav({ counts }: { counts: Counts }) {
+  return <StageNav tabs={TABS} counts={counts} activeTextClass="text-[#18140F]" badgeClass="bg-[#18140F]" />
 }
