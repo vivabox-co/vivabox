@@ -3,7 +3,7 @@
 import { Inbox, CalendarCheck2, History } from "lucide-react"
 import { Booking, formatDate, formatRequestedDate } from "./types"
 import { PAGE_PATH } from "../types"
-import { StageNav, StageTab } from "../components"
+import { StageNav, StageTab, ConfirmSubmitButton } from "../components"
 
 const STATUS_LABEL: Record<Booking["status"], string> = {
   requested: "Solicitada",
@@ -80,24 +80,20 @@ export function BookingCard({
           {primaryAction && primaryLabel && (
             <form action={primaryAction}>
               <input type="hidden" name="bookingId" value={booking.id} />
-              <button type="submit" className="vb-btn-dark h-11 px-5 text-sm">
+              <ConfirmSubmitButton confirmMessage={`¿${primaryLabel}?`} className="vb-btn-dark h-11 px-5 text-sm">
                 {primaryLabel}
-              </button>
+              </ConfirmSubmitButton>
             </form>
           )}
           {cancelAction && (
-            <form
-              action={cancelAction}
-              onSubmit={(e) => {
-                if (!window.confirm("¿Cancelar esta reserva? El beneficiario podrá solicitar otra experiencia después.")) {
-                  e.preventDefault()
-                }
-              }}
-            >
+            <form action={cancelAction}>
               <input type="hidden" name="bookingId" value={booking.id} />
-              <button type="submit" className="vb-btn-danger h-11 px-5 text-sm">
+              <ConfirmSubmitButton
+                confirmMessage="¿Cancelar esta reserva? El beneficiario podrá solicitar otra experiencia después."
+                className="vb-btn-danger h-11 px-5 text-sm"
+              >
                 Cancelar
-              </button>
+              </ConfirmSubmitButton>
             </form>
           )}
         </div>

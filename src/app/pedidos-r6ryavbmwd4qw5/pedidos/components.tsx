@@ -3,15 +3,7 @@
 import { Package, Truck, History } from "lucide-react"
 import { Order } from "./types"
 import { formatDate, PAGE_PATH } from "../types"
-import { StageNav, StageTab } from "../components"
-
-export function ActionButton({ label }: { label: string }) {
-  return (
-    <button type="submit" className="vb-btn-primary h-11 px-5 text-sm">
-      {label}
-    </button>
-  )
-}
+import { StageNav, StageTab, ConfirmSubmitButton } from "../components"
 
 export function OrderCard({ order, action, actionLabel }: { order: Order; action?: (formData: FormData) => void; actionLabel?: string }) {
   const destinatario = order.recipient_name || order.buyer_name
@@ -43,7 +35,9 @@ export function OrderCard({ order, action, actionLabel }: { order: Order; action
       {action && actionLabel && (
         <form action={action} className="mt-3.5">
           <input type="hidden" name="ventaId" value={order.id} />
-          <ActionButton label={actionLabel} />
+          <ConfirmSubmitButton confirmMessage={`¿${actionLabel}?`} className="vb-btn-primary h-11 px-5 text-sm">
+            {actionLabel}
+          </ConfirmSubmitButton>
         </form>
       )}
     </div>

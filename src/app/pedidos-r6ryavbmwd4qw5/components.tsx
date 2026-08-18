@@ -7,6 +7,39 @@ import { PAGE_PATH } from "./types"
 
 export type StageTab = { href: string; label: string; icon: LucideIcon; countKey: string | null }
 
+// Double vérification avant d'envoyer un server action form — utilisée par
+// tous les boutons d'action des deux zones (pas seulement "Cancelar") pour
+// éviter qu'un mauvais clic sur mobile ne fasse avancer/annuler une
+// commande ou une réservation sans le vouloir.
+//
+// Le blocage se fait sur le clic du bouton, pas sur l'onSubmit du <form> :
+// avec un action={fonction} (Server Action), React intercepte l'événement
+// submit nativement pour déclencher l'action, et un preventDefault() posé
+// depuis un onSubmit React arrive trop tard pour le bloquer de façon
+// fiable. Annuler le clic empêche le submit de se déclencher du tout —
+// aucun risque de course avec le mécanisme interne de React.
+export function ConfirmSubmitButton({
+  confirmMessage,
+  className,
+  children,
+}: {
+  confirmMessage: string
+  className: string
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="submit"
+      className={className}
+      onClick={(e) => {
+        if (!window.confirm(confirmMessage)) e.preventDefault()
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
 // Barre de navigation basse générique à 3 onglets — partagée par les deux
 // zones (Pedidos/Reservas), qui ne diffèrent que par leurs tabs et leur
 // couleur d'accent (orange vs noir espresso).
