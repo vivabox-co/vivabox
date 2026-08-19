@@ -243,15 +243,25 @@ create table bookings (
   message text,
 
   status text not null default 'requested'
-    check (status in ('requested', 'confirmed', 'completed', 'cancelled'))
+    check (status in ('requested', 'alternative_proposed', 'confirmed', 'completed', 'cancelled')),
+
+  -- Date/moment/heure proposés par l'équipe quand la date demandée n'est pas
+  -- disponible (status "alternative_proposed") — voir proposeAlternative()
+  -- dans pedidos-.../reservas/actions.ts et respond-alternative côté
+  -- vivabox-appben.
+  proposed_date date,
+  proposed_moment text,
+  proposed_hour text
 );
 
 -- Un seul code ne peut avoir qu'une réservation active à la fois — garanti
 -- par la base (pas seulement par une vérification côté application, qui
 -- serait sujette à une race condition sur double-clic/double appel).
+-- "alternative_proposed" compte comme active au même titre que "requested" :
+-- tant que le bénéficiaire n'a pas répondu, la demande reste en cours.
 create unique index bookings_one_active_per_code
   on bookings (activation_code_id)
-  where status in ('requested', 'confirmed');
+  where status in ('requested', 'alternative_proposed', 'confirmed');
 
 alter table bookings enable row level security;
 -- Accès exclusif via service_role côté serveur.

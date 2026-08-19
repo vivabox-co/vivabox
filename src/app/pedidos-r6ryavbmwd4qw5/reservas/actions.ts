@@ -32,7 +32,8 @@ export async function confirmBooking(formData: FormData) {
       ? { status: "confirmed" as const, requested_date: current.proposed_date, proposed_date: null, proposed_moment: null, proposed_hour: null }
       : { status: "confirmed" as const }
 
-  await supabase.from("bookings").update(update).eq("id", bookingId).eq("status", current.status)
+  const { error } = await supabase.from("bookings").update(update).eq("id", bookingId).eq("status", current.status)
+  if (error) console.error("CONFIRM BOOKING ERROR:", error)
 
   revalidatePath(PAGE_PATH, "layout")
 }
@@ -55,7 +56,7 @@ export async function proposeAlternative(formData: FormData) {
 
   const supabase = getSupabase()
 
-  await supabase
+  const { error } = await supabase
     .from("bookings")
     .update({
       status: "alternative_proposed",
@@ -65,6 +66,7 @@ export async function proposeAlternative(formData: FormData) {
     })
     .eq("id", bookingId)
     .in("status", ["requested", "alternative_proposed"])
+  if (error) console.error("PROPOSE ALTERNATIVE ERROR:", error)
 
   revalidatePath(PAGE_PATH, "layout")
 }
@@ -75,11 +77,12 @@ export async function completeBooking(formData: FormData) {
 
   const supabase = getSupabase()
 
-  await supabase
+  const { error } = await supabase
     .from("bookings")
     .update({ status: "completed" })
     .eq("id", bookingId)
     .eq("status", "confirmed")
+  if (error) console.error("COMPLETE BOOKING ERROR:", error)
 
   revalidatePath(PAGE_PATH, "layout")
 }
@@ -94,11 +97,12 @@ export async function cancelBooking(formData: FormData) {
   // seulement — une réservation déjà "completed" ne se décommande plus.
   // Libère aussi l'index unique bookings_one_active_per_code : le
   // bénéficiaire peut redemander une autre expérience juste après.
-  await supabase
+  const { error } = await supabase
     .from("bookings")
     .update({ status: "cancelled", proposed_date: null, proposed_moment: null, proposed_hour: null })
     .eq("id", bookingId)
     .in("status", ["requested", "alternative_proposed", "confirmed"])
+  if (error) console.error("CANCEL BOOKING ERROR:", error)
 
   revalidatePath(PAGE_PATH, "layout")
 }
