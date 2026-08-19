@@ -47,6 +47,11 @@ export function BookingCard({
 }) {
   const requestedDate = formatRequestedDate(booking.requested_date)
   const proposedDate = formatRequestedDate(booking.proposed_date)
+  // Réservations créées avant l'ajout de requested_dates : on retombe sur la
+  // seule requested_date déjà affichée par le bloc "Fecha solicitada" plus bas.
+  const requestedDatesList = (booking.requested_dates ?? [])
+    .map(formatRequestedDate)
+    .filter((d): d is string => !!d)
   const [showProposeForm, setShowProposeForm] = useState(false)
 
   return (
@@ -64,7 +69,11 @@ export function BookingCard({
       <p className="my-1 text-[15px]">
         <strong>Beneficiario:</strong> {booking.beneficiary_name || "—"} {booking.beneficiary_email ? `(${booking.beneficiary_email})` : ""}
       </p>
-      {requestedDate && (
+      {requestedDatesList.length > 1 ? (
+        <p className="my-1 text-[15px]">
+          <strong>Fechas propuestas por el beneficiario:</strong> {requestedDatesList.join(" · ")}
+        </p>
+      ) : requestedDate && (
         <p className="my-1 text-[15px]"><strong>Fecha solicitada:</strong> {requestedDate}</p>
       )}
       {booking.status === "alternative_proposed" && proposedDate && (

@@ -17,6 +17,7 @@ export type Booking = {
   id: string
   created_at: string
   requested_date: string | null
+  requested_dates: string[] | null
   message: string | null
   status: BookingStatus
 

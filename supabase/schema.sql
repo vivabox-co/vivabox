@@ -240,6 +240,12 @@ create table bookings (
   experience_code text not null,
 
   requested_date date,
+  -- Jusqu'à 3 options proposées par le bénéficiaire (côté vivabox-appben,
+  -- voir app/reservar/fechas/page.tsx). requested_date reste la date
+  -- active/effective (1re option, ou date alternative promue à la
+  -- confirmation) et continue seule à piloter confirm/reschedule/cron ;
+  -- requested_dates n'est là que pour affichage côté /pedidos.
+  requested_dates date[],
   message text,
 
   status text not null default 'requested'

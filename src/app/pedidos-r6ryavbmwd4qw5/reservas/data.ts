@@ -8,13 +8,14 @@ import { HISTORY_LIMIT } from "../types"
 // deux embeds comme des objets (pas des tableaux) car la FK part bien de la
 // table "many" vers la table "one" à chaque étape.
 const BOOKING_FIELDS =
-  "id, created_at, requested_date, message, status, experience_code, proposed_date, proposed_moment, proposed_hour, " +
+  "id, created_at, requested_date, requested_dates, message, status, experience_code, proposed_date, proposed_moment, proposed_hour, " +
   "activation_codes(code, beneficiary_name, beneficiary_email, ventas(box_slug, buyer_name, buyer_email))"
 
 type RawBooking = {
   id: string
   created_at: string
   requested_date: string | null
+  requested_dates: string[] | null
   message: string | null
   status: BookingStatus
   proposed_date: string | null
@@ -47,6 +48,7 @@ async function enrich(rows: RawBooking[]): Promise<Booking[]> {
       id: r.id,
       created_at: r.created_at,
       requested_date: r.requested_date,
+      requested_dates: r.requested_dates,
       message: r.message,
       status: r.status,
       proposed_date: r.proposed_date,
