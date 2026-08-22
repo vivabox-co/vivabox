@@ -32,6 +32,16 @@ function StatusBadge({ status }: { status: Booking["status"] }) {
   )
 }
 
+const ORDINAL_LABEL = ["1ª opción", "2ª opción", "3ª opción"]
+
+// Ordre de priorité strict P1 → P2 → P3 : le bénéficiaire a déjà classé ses
+// options, l'opérateur ne fait que confirmer la première qui est disponible
+// (jamais redemander une nouvelle confirmation au bénéficiaire pour ça).
+function getPreferences(booking: Booking) {
+  if (booking.requested_dates && booking.requested_dates.length > 0) return booking.requested_dates
+  return booking.requested_date ? [booking.requested_date] : []
+}
+
 export function BookingCard({
   booking,
   primaryAction,
@@ -45,14 +55,15 @@ export function BookingCard({
   cancelAction?: (formData: FormData) => void
   proposeAlternativeAction?: (formData: FormData) => void
 }) {
-  const requestedDate = formatRequestedDate(booking.requested_date)
   const proposedDate = formatRequestedDate(booking.proposed_date)
-  // Réservations créées avant l'ajout de requested_dates : on retombe sur la
-  // seule requested_date déjà affichée par le bloc "Fecha solicitada" plus bas.
-  const requestedDatesList = (booking.requested_dates ?? [])
-    .map(formatRequestedDate)
-    .filter((d): d is string => !!d)
+  const preferences = getPreferences(booking)
   const [showProposeForm, setShowProposeForm] = useState(false)
+
+  // La section "Preferencias" + son action "Confirmar" par option ne fait
+  // sens que tant que la reserva n'a pas déjà une fecha effective (confirmed/
+  // completed/cancelled) — dans ces cas-là on retombe sur l'affichage simple
+  // fecha + action générique passée par la page (Confirmadas/Historial).
+  const isResolving = primaryAction && (booking.status === "requested" || booking.status === "alternative_proposed")
 
   return (
     <div className="vb-card p-5">
@@ -63,34 +74,68 @@ export function BookingCard({
         <StatusBadge status={booking.status} />
       </div>
 
-      {booking.experience_city && (
-        <p className="my-1 text-[15px]"><strong>Ciudad:</strong> {booking.experience_city}</p>
-      )}
       <p className="my-1 text-[15px]">
         <strong>Beneficiario:</strong> {booking.beneficiary_name || "—"} {booking.beneficiary_email ? `(${booking.beneficiary_email})` : ""}
       </p>
-      {requestedDatesList.length > 1 ? (
+      {booking.experience_city && (
+        <p className="my-1 text-[15px]"><strong>Ciudad:</strong> {booking.experience_city}</p>
+      )}
+
+      {isResolving && preferences.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-black/5">
+          <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">Preferencias del beneficiario</p>
+          <div className="flex flex-col gap-2">
+            {preferences.map((date, i) => (
+              <div key={date} className="flex flex-wrap items-center justify-between gap-2.5 rounded-[13px] bg-black/[0.03] px-3.5 py-2.5">
+                <span className="text-sm">
+                  <span className="font-semibold text-foreground">{ORDINAL_LABEL[i] ?? `Opción ${i + 1}`}</span>
+                  <span className="text-muted"> · {formatRequestedDate(date)}</span>
+                </span>
+                {booking.status === "requested" ? (
+                  <form action={primaryAction}>
+                    <input type="hidden" name="bookingId" value={booking.id} />
+                    <input type="hidden" name="confirmedDate" value={date} />
+                    <ConfirmSubmitButton
+                      confirmMessage={`¿Confirmar la reserva para el ${formatRequestedDate(date)}?`}
+                      className={i === 0 ? "vb-btn-dark h-9 px-4 text-xs" : "vb-btn-soft h-9 px-4 text-xs"}
+                    >
+                      Confirmar
+                    </ConfirmSubmitButton>
+                  </form>
+                ) : (
+                  // alternative_proposed : aucune de ces options n'a fonctionné, c'est
+                  // pour ça qu'une alternative a été proposée plus bas.
+                  <span className="text-xs font-medium text-muted">No disponible</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isResolving && booking.status === "alternative_proposed" && (
+        <div className="mt-3 rounded-[16px] bg-[#FFF3E0] px-3.5 py-3">
+          <p className="text-sm font-semibold text-[#8A5300]">Propuesta enviada</p>
+          <p className="text-sm text-[#8A5300]">
+            {proposedDate}
+            {booking.proposed_moment && ` · ${MOMENT_LABEL[booking.proposed_moment as keyof typeof MOMENT_LABEL] ?? booking.proposed_moment}`}
+            {booking.proposed_hour && ` (~${booking.proposed_hour})`}
+          </p>
+          <p className="text-xs text-[#8A5300]/80 mt-0.5">Esperando respuesta del beneficiario</p>
+        </div>
+      )}
+
+      {!isResolving && booking.requested_date && (
         <p className="my-1 text-[15px]">
-          <strong>Fechas propuestas por el beneficiario:</strong> {requestedDatesList.join(" · ")}
-        </p>
-      ) : requestedDate && (
-        <p className="my-1 text-[15px]"><strong>Fecha solicitada:</strong> {requestedDate}</p>
-      )}
-      {booking.status === "alternative_proposed" && proposedDate && (
-        <p className="my-1 text-[15px] text-[#8A5300]">
-          <strong>Fecha propuesta:</strong> {proposedDate}
-          {booking.proposed_moment && ` · ${MOMENT_LABEL[booking.proposed_moment as keyof typeof MOMENT_LABEL] ?? booking.proposed_moment}`}
-          {booking.proposed_hour && ` (~${booking.proposed_hour})`}
-          {" · esperando respuesta del beneficiario"}
+          <strong>{booking.status === "cancelled" ? "Fecha" : "Fecha confirmada"}:</strong> {formatRequestedDate(booking.requested_date)}
         </p>
       )}
+
       {booking.message && (
-        <p className="my-1 text-[15px]"><strong>Mensaje:</strong> {booking.message}</p>
+        <p className="my-1 text-[15px] mt-2.5"><strong>Mensaje:</strong> {booking.message}</p>
       )}
       {booking.box_slug && (
-        <p className="my-1 text-[15px] text-muted">
-          <strong>Caja:</strong> {booking.box_slug} · {booking.activation_code ?? "sin código"}
-        </p>
+        <p className="my-1 text-[15px] text-muted"><strong>Caja:</strong> {booking.box_slug} · {booking.activation_code ?? "sin código"}</p>
       )}
       {booking.buyer_name && (
         <p className="my-1 text-[15px] text-muted"><strong>Comprador:</strong> {booking.buyer_name}</p>
@@ -99,40 +144,77 @@ export function BookingCard({
         Solicitada el {formatDate(booking.created_at)} · Booking ID: {booking.id}
       </p>
 
-      {(primaryAction || cancelAction || proposeAlternativeAction) && (
-        <div className="mt-3.5 flex flex-wrap gap-2.5">
-          {primaryAction && primaryLabel && (
-            <form action={primaryAction}>
-              <input type="hidden" name="bookingId" value={booking.id} />
-              <ConfirmSubmitButton
-                confirmMessage={booking.status === "alternative_proposed" ? "¿Confirmar la reserva con la fecha propuesta?" : `¿${primaryLabel}?`}
-                className="vb-btn-dark h-11 px-5 text-sm"
+      {isResolving ? (
+        <>
+          <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
+            {booking.status === "alternative_proposed" && primaryAction && (
+              <form action={primaryAction}>
+                <input type="hidden" name="bookingId" value={booking.id} />
+                <ConfirmSubmitButton
+                  confirmMessage="¿Confirmar la reserva con la fecha propuesta?"
+                  className="vb-btn-dark h-11 px-5 text-sm"
+                >
+                  Confirmar con fecha propuesta
+                </ConfirmSubmitButton>
+              </form>
+            )}
+            {/* Filet de sécurité pour une reserva sans aucune préférence enregistrée
+                (donnée historique/incomplète) : la section Preferencias ne s'affiche
+                pas, il faut donc quand même une action de confirmation générique. */}
+            {booking.status === "requested" && preferences.length === 0 && primaryAction && primaryLabel && (
+              <form action={primaryAction}>
+                <input type="hidden" name="bookingId" value={booking.id} />
+                <ConfirmSubmitButton confirmMessage={`¿${primaryLabel}?`} className="vb-btn-dark h-11 px-5 text-sm">
+                  {primaryLabel}
+                </ConfirmSubmitButton>
+              </form>
+            )}
+            {proposeAlternativeAction && (
+              <button
+                type="button"
+                onClick={() => setShowProposeForm((v) => !v)}
+                className="vb-btn-soft h-11 px-5 text-sm"
               >
-                {booking.status === "alternative_proposed" ? "Confirmar con fecha propuesta" : primaryLabel}
-              </ConfirmSubmitButton>
-            </form>
-          )}
-          {proposeAlternativeAction && (
-            <button
-              type="button"
-              onClick={() => setShowProposeForm((v) => !v)}
-              className="vb-btn-secondary h-11 px-5 text-sm"
-            >
-              {booking.status === "alternative_proposed" ? "Cambiar fecha propuesta" : "Proponer otra fecha"}
-            </button>
-          )}
-          {cancelAction && (
-            <form action={cancelAction}>
-              <input type="hidden" name="bookingId" value={booking.id} />
-              <ConfirmSubmitButton
-                confirmMessage="¿Cancelar esta reserva? El beneficiario podrá solicitar otra experiencia después."
-                className="vb-btn-danger h-11 px-5 text-sm"
-              >
-                Cancelar
-              </ConfirmSubmitButton>
-            </form>
-          )}
-        </div>
+                {booking.status === "alternative_proposed" ? "Cambiar fecha propuesta" : "Proponer otra fecha"}
+              </button>
+            )}
+            {cancelAction && (
+              <form action={cancelAction} className="ml-auto">
+                <input type="hidden" name="bookingId" value={booking.id} />
+                <ConfirmSubmitButton
+                  confirmMessage="¿Cancelar esta reserva? El beneficiario podrá solicitar otra experiencia después."
+                  className="vb-btn-danger h-9 px-3.5 text-xs"
+                >
+                  Cancelar reserva
+                </ConfirmSubmitButton>
+              </form>
+            )}
+          </div>
+        </>
+      ) : (
+        (primaryAction || cancelAction) && (
+          <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
+            {primaryAction && primaryLabel && (
+              <form action={primaryAction}>
+                <input type="hidden" name="bookingId" value={booking.id} />
+                <ConfirmSubmitButton confirmMessage={`¿${primaryLabel}?`} className="vb-btn-dark h-11 px-5 text-sm">
+                  {primaryLabel}
+                </ConfirmSubmitButton>
+              </form>
+            )}
+            {cancelAction && (
+              <form action={cancelAction} className="ml-auto">
+                <input type="hidden" name="bookingId" value={booking.id} />
+                <ConfirmSubmitButton
+                  confirmMessage="¿Cancelar esta reserva? El beneficiario podrá solicitar otra experiencia después."
+                  className="vb-btn-danger h-9 px-3.5 text-xs"
+                >
+                  Cancelar reserva
+                </ConfirmSubmitButton>
+              </form>
+            )}
+          </div>
+        )
       )}
 
       {proposeAlternativeAction && showProposeForm && (
@@ -171,7 +253,7 @@ export function BookingCard({
 type Counts = { requested: number; confirmed: number }
 
 const TABS: StageTab[] = [
-  { href: `${PAGE_PATH}/reservas/solicitadas`, label: "Solicitadas", icon: Inbox, countKey: "requested" },
+  { href: `${PAGE_PATH}/reservas/solicitadas`, label: "Por resolver", icon: Inbox, countKey: "requested" },
   { href: `${PAGE_PATH}/reservas/confirmadas`, label: "Confirmadas", icon: CalendarCheck2, countKey: "confirmed" },
   { href: `${PAGE_PATH}/reservas/historial`, label: "Historial", icon: History, countKey: null },
 ]

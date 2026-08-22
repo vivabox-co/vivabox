@@ -13,6 +13,12 @@ export async function confirmBooking(formData: FormData) {
   const bookingId = getBookingId(formData)
   if (!bookingId) return
 
+  // Présent quand l'opérateur confirme une préférence précise du
+  // bénéficiaire (P1/P2/P3) depuis la section "Preferencias del
+  // beneficiario" — la reserva garde le même Booking ID, seule
+  // requested_date change pour refléter l'option retenue.
+  const confirmedDate = formData.get("confirmedDate")
+
   const supabase = getSupabase()
 
   // Si une date alternative avait été proposée et que le bénéficiaire a
@@ -30,7 +36,10 @@ export async function confirmBooking(formData: FormData) {
   const update =
     current.status === "alternative_proposed"
       ? { status: "confirmed" as const, requested_date: current.proposed_date, proposed_date: null, proposed_moment: null, proposed_hour: null }
-      : { status: "confirmed" as const }
+      : {
+          status: "confirmed" as const,
+          ...(typeof confirmedDate === "string" && confirmedDate ? { requested_date: confirmedDate } : {}),
+        }
 
   const { error } = await supabase.from("bookings").update(update).eq("id", bookingId).eq("status", current.status)
   if (error) console.error("CONFIRM BOOKING ERROR:", error)

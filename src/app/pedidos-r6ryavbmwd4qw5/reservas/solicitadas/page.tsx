@@ -7,9 +7,11 @@ export default async function SolicitadasPage() {
 
   return (
     <section>
-      <h1 className="text-[22px] font-semibold mb-1">Solicitadas</h1>
+      <h1 className="text-[22px] font-semibold mb-1">Por resolver</h1>
       <p className="text-muted mb-5">
-        {bookings.length === 0 ? "Nada pendiente 🎉" : `${bookings.length} reserva(s) por confirmar`}
+        {bookings.length === 0
+          ? "Nada pendiente 🎉"
+          : `${bookings.length} reserva${bookings.length === 1 ? "" : "s"} ${bookings.length === 1 ? "requiere" : "requieren"} acción`}
       </p>
       <div className="flex flex-col gap-4">
         {bookings.map((b) => (
