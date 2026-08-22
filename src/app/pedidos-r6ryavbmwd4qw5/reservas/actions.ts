@@ -33,9 +33,19 @@ export async function confirmBooking(formData: FormData) {
 
   if (!current || !["requested", "alternative_proposed"].includes(current.status)) return
 
+  // Depuis "alternative_proposed", confirmedDate désigne l'alternative
+  // choisie (bouton "Confirmar" par ligne, voir getAlternatives() côté
+  // components.tsx) — proposed_date reste le repli si jamais absent.
   const update =
     current.status === "alternative_proposed"
-      ? { status: "confirmed" as const, requested_date: current.proposed_date, proposed_date: null, proposed_moment: null, proposed_hour: null }
+      ? {
+          status: "confirmed" as const,
+          requested_date: typeof confirmedDate === "string" && confirmedDate ? confirmedDate : current.proposed_date,
+          proposed_date: null,
+          proposed_moment: null,
+          proposed_hour: null,
+          proposed_alternatives: null,
+        }
       : {
           status: "confirmed" as const,
           ...(typeof confirmedDate === "string" && confirmedDate ? { requested_date: confirmedDate } : {}),
@@ -47,31 +57,60 @@ export async function confirmBooking(formData: FormData) {
   revalidatePath(PAGE_PATH, "layout")
 }
 
+// Intervalles de 15 min uniquement — même contrainte que le <select> côté
+// components.tsx, revalidée ici pour ne jamais faire confiance au FormData
+// brut d'un client (devtools, requête manuelle...).
+const QUARTER_HOUR = /^([01]\d|2[0-3]):(00|15|30|45)$/
+
+function readAlternative(formData: FormData, index: number) {
+  const date = formData.get(`altDate${index}`)
+  const moment = formData.get(`altMoment${index}`)
+  const hour = formData.get(`altHour${index}`)
+
+  if (typeof date !== "string" || !date || typeof moment !== "string" || !moment) return null
+  if (typeof hour === "string" && hour && !QUARTER_HOUR.test(hour)) return null
+
+  return { date, moment, hour: typeof hour === "string" && hour ? hour : null }
+}
+
 // Saisie par l'équipe après avoir appelé le prestataire et constaté que la
 // date demandée ne convient pas : bascule la réservation en
-// "alternative_proposed" pour que le bénéficiaire puisse l'accepter ou
-// choisir une autre expérience depuis /reservar/seguimiento. Autorisé aussi
-// depuis "alternative_proposed" pour permettre de corriger une date déjà
-// proposée avant que le bénéficiaire n'ait répondu.
+// "alternative_proposed" avec jusqu'à 3 alternatives (A1 → A2 → A3, ordre de
+// présentation au bénéficiaire) pour qu'il en choisisse une, ou choisisse une
+// autre expérience, depuis /reservar/seguimiento. Autorisé aussi depuis
+// "alternative_proposed" pour corriger des alternatives déjà proposées avant
+// que le bénéficiaire n'ait répondu.
 export async function proposeAlternative(formData: FormData) {
   const bookingId = getBookingId(formData)
   if (!bookingId) return
 
-  const date = formData.get("proposedDate")
-  const moment = formData.get("proposedMoment")
-  const hour = formData.get("proposedHour")
+  const alternatives = [1, 2, 3]
+    .map((i) => readAlternative(formData, i))
+    .filter((a): a is NonNullable<typeof a> => a !== null)
 
-  if (typeof date !== "string" || !date || typeof moment !== "string" || !moment) return
+  if (alternatives.length === 0) return
 
+  const seen = new Set<string>()
+  for (const alt of alternatives) {
+    const key = `${alt.date}|${alt.hour ?? ""}`
+    if (seen.has(key)) return
+    seen.add(key)
+  }
+
+  // proposed_date/moment/hour reflètent toujours la 1re alternative : c'est
+  // ce que lit encore vivabox-appben aujourd'hui (respond-alternative), qui
+  // ne connaît qu'une seule proposition à la fois.
+  const [first] = alternatives
   const supabase = getSupabase()
 
   const { error } = await supabase
     .from("bookings")
     .update({
       status: "alternative_proposed",
-      proposed_date: date,
-      proposed_moment: moment,
-      proposed_hour: typeof hour === "string" && hour ? hour : null,
+      proposed_date: first.date,
+      proposed_moment: first.moment,
+      proposed_hour: first.hour,
+      proposed_alternatives: alternatives,
     })
     .eq("id", bookingId)
     .in("status", ["requested", "alternative_proposed"])

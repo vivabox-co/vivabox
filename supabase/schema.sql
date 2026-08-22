@@ -254,10 +254,18 @@ create table bookings (
   -- Date/moment/heure proposés par l'équipe quand la date demandée n'est pas
   -- disponible (status "alternative_proposed") — voir proposeAlternative()
   -- dans pedidos-.../reservas/actions.ts et respond-alternative côté
-  -- vivabox-appben.
+  -- vivabox-appben. Reflètent toujours la 1re alternative de
+  -- proposed_alternatives : conservés tels quels pour ne pas casser
+  -- vivabox-appben, qui ne connaît encore qu'une seule proposition.
   proposed_date date,
   proposed_moment text,
-  proposed_hour text
+  proposed_hour text,
+  -- Jusqu'à 3 alternatives préparées par l'équipe (même forme que
+  -- requested_dates côté bénéficiaire), dans l'ordre de présentation
+  -- A1 → A2 → A3. Chaque élément : {"date": "YYYY-MM-DD", "moment":
+  -- "morning"|"afternoon"|"night", "hour": "HH:MM"|null}. NULL tant
+  -- qu'aucune alternative n'a été proposée.
+  proposed_alternatives jsonb
 );
 
 -- Un seul code ne peut avoir qu'une réservation active à la fois — garanti

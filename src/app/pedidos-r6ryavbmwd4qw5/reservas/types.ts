@@ -13,6 +13,15 @@ export const MOMENT_LABEL: Record<Moment, string> = {
   night: "Noche",
 }
 
+// Une des jusqu'à 3 alternatives préparées par Vivabox quand aucune des
+// préférences du bénéficiaire (P1/P2/P3) n'est disponible — distinctes de
+// ces préférences, voir getAlternatives() dans ./components.tsx.
+export type ProposedAlternative = {
+  date: string
+  moment: string
+  hour: string | null
+}
+
 export type Booking = {
   id: string
   created_at: string
@@ -24,6 +33,7 @@ export type Booking = {
   proposed_date: string | null
   proposed_moment: string | null
   proposed_hour: string | null
+  proposed_alternatives: ProposedAlternative[] | null
 
   experience_code: string
   experience_title: string | null

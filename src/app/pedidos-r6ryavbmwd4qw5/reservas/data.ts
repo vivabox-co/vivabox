@@ -1,6 +1,6 @@
 import { getSupabase } from "@/services/supabase"
 import { getSheetData } from "@/services/sheet"
-import { Booking, BookingStatus } from "./types"
+import { Booking, BookingStatus, ProposedAlternative } from "./types"
 import { HISTORY_LIMIT } from "../types"
 
 // bookings -> activation_codes (to-one, FK sur bookings.activation_code_id)
@@ -8,7 +8,7 @@ import { HISTORY_LIMIT } from "../types"
 // deux embeds comme des objets (pas des tableaux) car la FK part bien de la
 // table "many" vers la table "one" à chaque étape.
 const BOOKING_FIELDS =
-  "id, created_at, requested_date, requested_dates, message, status, experience_code, proposed_date, proposed_moment, proposed_hour, " +
+  "id, created_at, requested_date, requested_dates, message, status, experience_code, proposed_date, proposed_moment, proposed_hour, proposed_alternatives, " +
   "activation_codes(code, beneficiary_name, beneficiary_email, ventas(box_slug, buyer_name, buyer_email))"
 
 type RawBooking = {
@@ -21,6 +21,7 @@ type RawBooking = {
   proposed_date: string | null
   proposed_moment: string | null
   proposed_hour: string | null
+  proposed_alternatives: ProposedAlternative[] | null
   experience_code: string
   activation_codes: {
     code: string | null
@@ -54,6 +55,7 @@ async function enrich(rows: RawBooking[]): Promise<Booking[]> {
       proposed_date: r.proposed_date,
       proposed_moment: r.proposed_moment,
       proposed_hour: r.proposed_hour,
+      proposed_alternatives: r.proposed_alternatives,
       experience_code: r.experience_code,
       experience_title: experience?.title ?? null,
       experience_city: experience?.city ?? null,
