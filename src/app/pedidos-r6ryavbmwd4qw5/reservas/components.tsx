@@ -52,29 +52,49 @@ function getAlternatives(booking: Booking): ProposedAlternative[] {
   return []
 }
 
-// Un <select> plutôt qu'un <input type="time"> : le support du pas de 15 min
-// sur l'input natif varie trop d'un navigateur à l'autre (Firefox l'ignore à
-// la saisie clavier) pour garantir qu'aucune minute arbitraire ne passe.
-const QUARTER_HOURS = Array.from({ length: 24 * 4 }, (_, i) => {
-  const hh = String(Math.floor(i / 4)).padStart(2, "0")
-  const mm = String((i % 4) * 15).padStart(2, "0")
-  return `${hh}:${mm}`
-})
+// Deux <select> (heure / minutes) plutôt qu'un <input type="time"> : le
+// support du pas de 15 min sur l'input natif varie trop d'un navigateur à
+// l'autre (Firefox l'ignore à la saisie clavier) pour garantir qu'aucune
+// minute arbitraire ne passe. Le hidden input recompose "HH:MM" pour rester
+// compatible avec readAlternative() côté actions.ts, sans rien y changer.
+const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"))
+const MINUTES = ["00", "15", "30", "45"]
 
 function HourSelect({ name, value, onChange }: { name: string; value: string; onChange: (value: string) => void }) {
+  const [hh, mm] = value ? value.split(":") : ["", ""]
+
   return (
-    <select
-      name={name}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="vb-input h-11 text-sm"
-      style={{ width: 110 }}
-    >
-      <option value="">Sin definir</option>
-      {QUARTER_HOURS.map((t) => (
-        <option key={t} value={t}>{t}</option>
-      ))}
-    </select>
+    <div className="flex items-center gap-1.5">
+      <select
+        aria-label="Hora"
+        value={hh}
+        onChange={(e) => {
+          const newHh = e.target.value
+          onChange(newHh ? `${newHh}:${mm || "00"}` : "")
+        }}
+        className="vb-input h-11 text-sm"
+        style={{ width: 68 }}
+      >
+        <option value="">--</option>
+        {HOURS.map((h) => (
+          <option key={h} value={h}>{h}</option>
+        ))}
+      </select>
+      <span className="text-muted">:</span>
+      <select
+        aria-label="Minutos"
+        value={mm || "00"}
+        disabled={!hh}
+        onChange={(e) => onChange(hh ? `${hh}:${e.target.value}` : "")}
+        className="vb-input h-11 text-sm"
+        style={{ width: 68 }}
+      >
+        {MINUTES.map((m) => (
+          <option key={m} value={m}>{m}</option>
+        ))}
+      </select>
+      <input type="hidden" name={name} value={value} />
+    </div>
   )
 }
 
