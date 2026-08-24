@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import Navbar from "@/components/Navbar"
@@ -36,8 +37,69 @@ type PageProps = {
   }>
 }
 
-export default async function BoxPage({ params }: PageProps) {
+// SEO metadata for each Vivabox product page.
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { slug } = await params
 
+  const box = boxes.find((b) => b.slug === slug)
+
+  if (!box) {
+    return {
+      title: "Vivabox Colombia | Página no encontrada",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    }
+  }
+
+  const title = `${box.name} | Regalo de experiencias en Colombia`
+
+  const description =
+    `Descubre ${box.name}: un regalo que deja elegir entre ${box.experiences} experiencias en Bogotá y Cundinamarca. Una forma diferente de regalar.`
+
+  return {
+    title,
+    description,
+
+    alternates: {
+      canonical: `https://www.vivabox.com.co/cajas/${box.slug}`,
+    },
+
+    openGraph: {
+      title,
+      description,
+      url: `https://www.vivabox.com.co/cajas/${box.slug}`,
+      siteName: "Vivabox Colombia",
+      locale: "es_CO",
+      type: "website",
+      images: [
+        {
+          url: box.image,
+          width: 1200,
+          height: 630,
+          alt: `${box.name} - Vivabox Colombia`,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [box.image],
+    },
+
+    robots: {
+      index: true,
+      follow: true,
+    },
+  }
+}
+
+export default async function BoxPage({ params }: PageProps) {
   const { slug } = await params
 
   const box = boxes.find((b) => b.slug === slug)
