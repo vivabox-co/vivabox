@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -19,6 +20,15 @@ import { getFAQPageSchema } from "@/data/faqSchema";
 // instead of being frozen into the statically cached HTML.
 export const dynamic = "force-dynamic";
 
+export const metadata: Metadata = {
+  title: "Vivabox Colombia | El regalo que deja elegir",
+  description:
+    "Regala una Vivabox y deja que esa persona elija entre experiencias en Bogotá y Cundinamarca. Un regalo diferente, fácil de acertar.",
+  alternates: {
+    canonical: "https://www.vivabox.com.co",
+  },
+};
+
 export default function Home() {
   return (
     <>
@@ -30,7 +40,6 @@ export default function Home() {
       <Navbar />
 
       <main>
-
         <div className="relative">
           <Hero />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 max-w-[1200px] mx-auto">
@@ -62,7 +71,6 @@ export default function Home() {
         <BrandRibbon />
 
         <FinalCTA />
-
       </main>
 
       <Footer />
