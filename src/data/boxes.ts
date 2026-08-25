@@ -43,7 +43,7 @@ export const boxes: Vivabox[] = [
 
   {
     slug: "vivabox",
-    name: "Vivabox Esencia",
+    name: "Vivabox",
 
     signatureColor: "#ff8406",
 

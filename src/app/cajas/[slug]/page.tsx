@@ -55,10 +55,10 @@ export async function generateMetadata({
     }
   }
 
-  const title = `${box.name} | Regalo de experiencias en Colombia`
+  const title = "Vivabox Colombia | Caja de regalo de experiencias"
 
   const description =
-    `Descubre ${box.name}: un regalo que deja elegir entre ${box.experiences} experiencias en Bogotá y Cundinamarca. Una forma diferente de regalar.`
+    `Descubre Vivabox, una caja de regalo que deja elegir entre ${box.experiences} experiencias en Bogotá y Cundinamarca. Una forma diferente de regalar.`
 
   return {
     title,
