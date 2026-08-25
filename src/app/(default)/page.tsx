@@ -14,6 +14,7 @@ import FinalCTA from "@/sections/final-cta/FinalCTA";
 
 import BrandRibbon from "@/components/ui/BrandRibbon";
 import { getFAQPageSchema } from "@/data/faqSchema";
+import { getOrganizationSchema } from "@/data/organizationSchema";
 
 // Force per-request rendering so the "Ejemplos de experiencias" shuffle
 // (Math.random() in src/services/experiences.ts) re-runs on every reload
@@ -34,7 +35,16 @@ export default function Home() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(getFAQPageSchema()) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getFAQPageSchema()),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getOrganizationSchema()),
+        }}
       />
 
       <Navbar />
