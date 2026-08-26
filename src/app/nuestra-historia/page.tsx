@@ -39,7 +39,7 @@ export default function StoryPage() {
         <StoryPhotoBand
           src="/images/hero/experiencia-vivabox-aire-libre.webp"
           alt="Una experiencia Vivabox vivida al aire libre"
-          objectPosition="center 30%"
+          objectPosition="center 50%"
         />
 
         <StoryProblem />
