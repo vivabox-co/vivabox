@@ -5,15 +5,15 @@ const linkClasses =
 
 export default function Footer() {
   return (
-    <footer className="vb-dark bg-ink text-white py-20 md:py-24">
+    <footer className="vb-dark bg-ink text-white py-12 md:py-14">
 
       <div className="max-w-6xl mx-auto px-6">
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-8">
 
           {/* COLUMN 1 — BRAND */}
           <div className="lg:col-span-1">
-            <h3 className="text-white font-semibold text-[17px] mb-5">
+            <h3 className="text-white font-semibold text-[17px] mb-3">
               Vivabox Colombia
             </h3>
 
@@ -23,7 +23,7 @@ export default function Footer() {
               Deja que elija la experiencia.
             </p>
 
-            <div className="flex items-center gap-4 mt-6">
+            <div className="flex items-center gap-4 mt-4">
               <a
                 href="https://www.instagram.com/vivaboxcolombia/"
                 target="_blank"
@@ -68,11 +68,11 @@ export default function Footer() {
 
           {/* COLUMN 2 — EXPLORA */}
           <nav aria-label="Explora Vivabox">
-            <h4 className="text-white font-semibold text-[15px] mb-5">
+            <h4 className="text-white font-semibold text-[15px] mb-3">
               Explora
             </h4>
 
-            <ul className="space-y-4 text-sm">
+            <ul className="space-y-2.5 text-sm">
               <li>
                 <Link href="/#incluye" className={linkClasses}>
                   Cómo funciona
@@ -93,11 +93,11 @@ export default function Footer() {
 
           {/* COLUMN 3 — EMPRESAS */}
           <nav aria-label="Empresas Vivabox">
-            <h4 className="text-white font-semibold text-[15px] mb-5">
+            <h4 className="text-white font-semibold text-[15px] mb-3">
               Empresas
             </h4>
 
-            <ul className="space-y-4 text-sm">
+            <ul className="space-y-2.5 text-sm">
               <li>
                 <Link href="/empresas" className={linkClasses}>
                   Regalos corporativos
@@ -108,11 +108,11 @@ export default function Footer() {
 
           {/* COLUMN 4 — ALIADOS */}
           <nav aria-label="Aliados Vivabox">
-            <h4 className="text-white font-semibold text-[15px] mb-5">
+            <h4 className="text-white font-semibold text-[15px] mb-3">
               Aliados
             </h4>
 
-            <ul className="space-y-4 text-sm">
+            <ul className="space-y-2.5 text-sm">
               <li>
                 <Link href="/aliados" className={linkClasses}>
                   Ofrece una experiencia
@@ -123,11 +123,11 @@ export default function Footer() {
 
           {/* COLUMN 5 — AYUDA */}
           <nav aria-label="Ayuda Vivabox">
-            <h4 className="text-white font-semibold text-[15px] mb-5">
+            <h4 className="text-white font-semibold text-[15px] mb-3">
               Ayuda
             </h4>
 
-            <ul className="space-y-4 text-sm">
+            <ul className="space-y-2.5 text-sm">
               <li>
                 <a
                   href="https://app.vivabox.com.co/activar"
@@ -158,11 +158,11 @@ export default function Footer() {
 
           {/* COLUMN 6 — LEGAL */}
           <nav aria-label="Legal">
-            <h4 className="text-white font-semibold text-[15px] mb-5">
+            <h4 className="text-white font-semibold text-[15px] mb-3">
               Legal
             </h4>
 
-            <ul className="space-y-4 text-sm">
+            <ul className="space-y-2.5 text-sm">
               <li>
                 <Link href="/terminos-y-condiciones" className={linkClasses}>
                   Términos y condiciones
@@ -184,7 +184,7 @@ export default function Footer() {
         </div>
 
         {/* LEGAL / TRUST */}
-        <div className="border-t border-white/10 mt-16 pt-8">
+        <div className="border-t border-white/10 mt-8 pt-6">
           <p className="text-xs text-gray-500 mb-2">
             Empresa colombiana de regalos de experiencias.
           </p>
