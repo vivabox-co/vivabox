@@ -6,6 +6,7 @@ import BrandRibbon from "@/components/ui/BrandRibbon"
 import BenefitsBar from "@/components/BenefitsBar"
 import FitLine from "@/components/ui/FitLine"
 import { readSubtitleFontSize, SUBTITLE_FONT_SIZE_EVENT } from "@/utils/subtitleFontSize"
+import { formatPrice } from "@/utils/formatPrice"
 import { boxes } from "@/data/boxes"
 
 const vivabox = boxes[0]
@@ -480,11 +481,20 @@ export default function WhatsIncluded() {
           Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 20 experiencias en Bogotá y Cundinamarca.
         </p>
 
-        {/* CTA — editorial, no price shown here */}
+        {/* PRICE — editorial, the price itself is the focal point, no card */}
 
         <div className="mt-8 md:mt-10 flex flex-col items-center text-center">
 
           <div className="w-10 h-px bg-ink/10 mb-3 md:mb-4" />
+
+          <p className="text-muted text-[15px] md:text-[17px] mb-2">
+            Una experiencia a elegir.
+          </p>
+
+          <div className="text-[44px] sm:text-[52px] md:text-[64px] font-semibold text-ink leading-none tracking-tight mb-4 md:mb-5">
+            ${formatPrice(vivabox.price)}
+            <span className="text-[20px] sm:text-[24px] md:text-[30px] align-baseline"> COP</span>
+          </div>
 
           <a
             href={`/proximamente?next=/cajas/${vivabox.slug}`}
@@ -653,6 +663,15 @@ export default function WhatsIncluded() {
           <div className="mt-20 flex flex-col items-center text-center">
 
             <div className="w-10 h-px bg-ink/10 mb-5" />
+
+            <p className="text-muted text-[17px] mb-2">
+              Una experiencia a elegir.
+            </p>
+
+            <div className="text-[64px] font-semibold text-ink leading-none tracking-tight mb-5">
+              ${formatPrice(vivabox.price)}
+              <span className="text-[30px] align-baseline"> COP</span>
+            </div>
 
             <a
               href={`/proximamente?next=/cajas/${vivabox.slug}`}

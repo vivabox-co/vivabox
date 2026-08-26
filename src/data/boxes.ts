@@ -47,7 +47,7 @@ export const boxes: Vivabox[] = [
 
     signatureColor: "#ff8406",
 
-    price: 195000,
+    price: 199000,
     experiences: 20,
 
     validityMonths: 6,
