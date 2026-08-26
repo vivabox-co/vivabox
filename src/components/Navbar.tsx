@@ -206,7 +206,7 @@ export default function Navbar() {
 
   {/* PANEL */}
   <div
-    className={`absolute left-0 top-0 h-full w-[300px] bg-[var(--color-base)] shadow-[10px_0_30px_var(--nm-dark)] transform transition-transform duration-300 ${
+    className={`absolute left-0 top-0 h-full w-[300px] bg-white shadow-[10px_0_30px_var(--nm-dark)] transform transition-transform duration-300 ${
       menuOpen ? "translate-x-0" : "-translate-x-full"
     }`}
   >
