@@ -30,7 +30,7 @@ export default function RouteLoaderOverlay() {
   if (!visible) return null
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center vb-surface-base">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white">
       <VivaboxLoader size={72} />
     </div>
   )
