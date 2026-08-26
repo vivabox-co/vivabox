@@ -129,9 +129,14 @@ export default function Footer() {
 
             <ul className="space-y-4 text-sm">
               <li>
-                <Link href="/proximamente" className={linkClasses}>
+                <a
+                  href="https://app.vivabox.com.co/activar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClasses}
+                >
                   Activar mi Vivabox
-                </Link>
+                </a>
               </li>
               <li>
                 <Link href="/#faq" className={linkClasses}>

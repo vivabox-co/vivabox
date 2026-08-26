@@ -46,7 +46,7 @@ export default function FinalCTA() {
           </p>
 
           <a
-            href={`/proximamente?next=/cajas/${vivabox.slug}`}
+            href={`/cajas/${vivabox.slug}`}
             aria-label="Comprar Vivabox"
             className="vb-btn-primary px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 text-[15px] sm:text-[16px] md:text-[17px] leading-snug"
           >

@@ -158,7 +158,7 @@ export default function Hero() {
             {/* PRIMARY */}
 
             <a
-              href={`/proximamente?next=/cajas/${vivabox.slug}`}
+              href={`/cajas/${vivabox.slug}`}
               className="vb-btn-primary flex-[1.25] md:flex-none h-[54px] md:px-10 text-[17px]"
             >
               Comprar Vivabox

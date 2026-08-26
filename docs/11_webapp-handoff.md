@@ -16,13 +16,14 @@ Le site vitrine ne doit jamais essayer de reproduire cette expérience — il ve
 
 ## 2. ÉTAT ACTUEL DU LIEN "ACTIVAR" (IMPORTANT)
 
-⚠️ **Pas encore câblé.** Les CTA "Activar mi box" / "Activar mi Vivabox" (`src/components/Navbar.tsx`, `src/components/Footer.tsx`) pointent vers `/proximamente`, pas vers la web app.
+✅ **Câblé.** Les CTA "Activar mi box" / "Activar mi Vivabox" (`src/components/Navbar.tsx`, `src/components/Footer.tsx`) pointent vers `https://app.vivabox.com.co/activar`, en `target="_blank"`.
 
-Côté web app, `/activar` ne lit aucun code d'activation — c'est un écran statique.
+Côté web app, `/activar` ne lit encore aucun code d'activation — c'est un écran statique.
 
-**À trancher avant de connecter les deux pour de vrai :**
+**Reste à trancher :**
 - Comment le code d'activation unique (mentionné dans `01_product.md`) est transmis à la web app — query param dans l'URL, saisie manuelle sur l'écran `/activar`, ou deep link avec token signé ?
-- L'URL cible de la web app en prod (domaine séparé ? sous-domaine `app.vivabox.com.co` ?).
+
+Le checkout (`/checkout/*`) est de son côté volontairement regaté derrière `/proximamente` (redirection dans `src/middleware.ts`) tant que le paiement n'est pas prêt pour de vrais clients — indépendant du lien Activar.
 
 ---
 

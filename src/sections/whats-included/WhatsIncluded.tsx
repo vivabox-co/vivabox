@@ -493,7 +493,7 @@ export default function WhatsIncluded() {
           </div>
 
           <a
-            href={`/proximamente?next=/cajas/${vivabox.slug}`}
+            href={`/cajas/${vivabox.slug}`}
             className="vb-btn-primary h-[54px] px-10 text-[17px]"
           >
             Comprar Vivabox
@@ -666,7 +666,7 @@ export default function WhatsIncluded() {
             </div>
 
             <a
-              href={`/proximamente?next=/cajas/${vivabox.slug}`}
+              href={`/cajas/${vivabox.slug}`}
               className="h-[54px] px-10 rounded-xl bg-primary text-white text-[17px] font-semibold inline-flex items-center justify-center transition hover:bg-primary-hover shadow-[0_10px_35px_rgba(254,132,47,.35)]"
             >
               Comprar Vivabox

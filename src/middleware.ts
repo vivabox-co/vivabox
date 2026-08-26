@@ -13,6 +13,18 @@ function unauthorized() {
 }
 
 export function middleware(req: NextRequest) {
+  const { pathname, search } = req.nextUrl
+
+  // Checkout n'est pas encore prêt pour de vrais clients : on renvoie
+  // toute tentative d'y accéder (lien direct, bouton, deep link) vers
+  // /proximamente, en gardant le chemin d'origine pour y revenir plus tard.
+  if (pathname === "/checkout" || pathname.startsWith("/checkout/")) {
+    const url = req.nextUrl.clone()
+    url.pathname = "/proximamente"
+    url.search = `?next=${encodeURIComponent(pathname + search)}`
+    return NextResponse.redirect(url)
+  }
+
   const user = process.env.ORDERS_ADMIN_USER
   const pass = process.env.ORDERS_ADMIN_PASSWORD
 
@@ -40,5 +52,10 @@ export const config = {
   // "/:path*" seul ne matche PAS le chemin exact sans sous-segment — il faut
   // les deux entrées, sinon la page racine se charge sans passer par le
   // middleware (bug constaté : la page s'affichait sans mot de passe).
-  matcher: ["/pedidos-r6ryavbmwd4qw5", "/pedidos-r6ryavbmwd4qw5/:path*"],
+  matcher: [
+    "/pedidos-r6ryavbmwd4qw5",
+    "/pedidos-r6ryavbmwd4qw5/:path*",
+    "/checkout",
+    "/checkout/:path*",
+  ],
 }

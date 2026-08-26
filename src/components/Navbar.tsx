@@ -129,8 +129,8 @@ export default function Navbar() {
               <Link href="/#incluye">Cómo funciona</Link>
               <Link href="/#incluye">Cajas</Link>
               <Link href="/#experiencias">Experiencias</Link>
-              <Link href="/proximamente?next=/empresas">Empresas</Link>
-              <Link href="/proximamente?next=/nuestra-historia">Nuestra historia</Link>
+              <Link href="/empresas">Empresas</Link>
+              <Link href="/nuestra-historia">Nuestra historia</Link>
             </div>
           )}
 
@@ -140,7 +140,9 @@ export default function Navbar() {
 
               {/* CTA SECONDARY (activation) */}
               <Link
-                href="/proximamente"
+                href="https://app.vivabox.com.co/activar"
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`
                   inline-flex items-center gap-2
                   h-10 px-3.5 md:px-4
@@ -237,7 +239,9 @@ export default function Navbar() {
 {/* CTA SECONDARY */}
 {!isCheckout && (
   <Link
-    href="/proximamente"
+    href="https://app.vivabox.com.co/activar"
+    target="_blank"
+    rel="noopener noreferrer"
     onClick={() => setMenuOpen(false)}
     className="vb-btn-soft mb-10 h-12 font-medium"
   >
@@ -257,7 +261,7 @@ export default function Navbar() {
           Experiencias
         </Link>
 
-        <Link href="/proximamente?next=/empresas" onClick={() => setMenuOpen(false)}>
+        <Link href="/empresas" onClick={() => setMenuOpen(false)}>
           Empresas
         </Link>
 
@@ -269,7 +273,7 @@ export default function Navbar() {
       {/* SECONDARY */}
       <div className="flex flex-col gap-5 text-[15px] text-gray-500">
 
-        <Link href="/proximamente?next=/nuestra-historia" onClick={() => setMenuOpen(false)}>
+        <Link href="/nuestra-historia" onClick={() => setMenuOpen(false)}>
           Nuestra historia
         </Link>
 
