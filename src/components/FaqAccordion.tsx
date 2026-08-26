@@ -38,7 +38,7 @@ export default function FaqAccordion({ items }: Props) {
               className="flex w-full items-center gap-4 py-7 text-left"
             >
 
-              <span className="flex-1 text-[17px] font-medium leading-snug">
+              <span className="flex-1 text-[15px] font-medium leading-snug">
                 {item.question}
               </span>
 
