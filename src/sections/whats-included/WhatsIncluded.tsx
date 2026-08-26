@@ -187,11 +187,11 @@ function IncludedCard({
 // so every icon's longest edge hits the same cap and they read as the same
 // scale despite very different shapes (a wide plate vs. a tall thin pillar).
 const CATEGORIES = [
-  { label: "Bienestar", examples: ["masajes", "spa", "yoga"], src: "/images/box-includes/Bienestar.svg", size: "w-[50px] h-[40px] sm:w-[68px] sm:h-[54px] md:w-[92px] md:h-[73px]", dsize: "w-[70px] h-[56px]", offset: "translate-y-2 md:translate-y-3", tipAlign: "left" },
-  { label: "Aventura", examples: ["parapente", "rafting", "escalada"], src: "/images/box-includes/Aventura.svg", size: "w-[50px] h-[34px] sm:w-[68px] sm:h-[46px] md:w-[92px] md:h-[62px]", dsize: "w-[70px] h-[47px]", offset: "-translate-y-3 md:-translate-y-4", tipAlign: "center" },
-  { label: "Gastronomía", examples: ["brunch", "catas", "cocina"], src: "/images/box-includes/Gastronomía.svg", size: "w-[50px] h-[37px] sm:w-[68px] sm:h-[50px] md:w-[92px] md:h-[67px]", dsize: "w-[70px] h-[51px]", offset: "translate-y-2 md:translate-y-3", tipAlign: "center" },
-  { label: "Estancias", examples: ["glamping", "cabañas", "fincas"], src: "/images/box-includes/Estancias.svg", size: "w-[50px] h-[36px] sm:w-[68px] sm:h-[49px] md:w-[92px] md:h-[66px]", dsize: "w-[70px] h-[50px]", offset: "-translate-y-3 md:-translate-y-4", tipAlign: "center" },
-  { label: "Cultura", examples: ["tours", "talleres", "museos"], src: "/images/box-includes/Cultura.svg", size: "w-[38px] h-[50px] sm:w-[51px] sm:h-[68px] md:w-[70px] md:h-[92px]", dsize: "w-[53px] h-[70px]", offset: "translate-y-2 md:translate-y-3", tipAlign: "right" },
+  { label: "Bienestar", examples: ["masajes", "spa", "yoga"], src: "/images/box-includes/bienestar.svg", size: "w-[50px] h-[40px] sm:w-[68px] sm:h-[54px] md:w-[92px] md:h-[73px]", dsize: "w-[70px] h-[56px]", offset: "translate-y-2 md:translate-y-3", tipAlign: "left" },
+  { label: "Aventura", examples: ["parapente", "rafting", "escalada"], src: "/images/box-includes/aventura.svg", size: "w-[50px] h-[34px] sm:w-[68px] sm:h-[46px] md:w-[92px] md:h-[62px]", dsize: "w-[70px] h-[47px]", offset: "-translate-y-3 md:-translate-y-4", tipAlign: "center" },
+  { label: "Gastronomía", examples: ["brunch", "catas", "cocina"], src: "/images/box-includes/gastronomia.svg", size: "w-[50px] h-[37px] sm:w-[68px] sm:h-[50px] md:w-[92px] md:h-[67px]", dsize: "w-[70px] h-[51px]", offset: "translate-y-2 md:translate-y-3", tipAlign: "center" },
+  { label: "Estancias", examples: ["glamping", "cabañas", "fincas"], src: "/images/box-includes/estancias.svg", size: "w-[50px] h-[36px] sm:w-[68px] sm:h-[49px] md:w-[92px] md:h-[66px]", dsize: "w-[70px] h-[50px]", offset: "-translate-y-3 md:-translate-y-4", tipAlign: "center" },
+  { label: "Cultura", examples: ["tours", "talleres", "museos"], src: "/images/box-includes/cultura.svg", size: "w-[38px] h-[50px] sm:w-[51px] sm:h-[68px] md:w-[70px] md:h-[92px]", dsize: "w-[53px] h-[70px]", offset: "translate-y-2 md:translate-y-3", tipAlign: "right" },
 ] as const
 
 // The three guaranteed box contents — tapped from both the mobile illustration
@@ -483,9 +483,9 @@ export default function WhatsIncluded() {
 
         {/* PRICE — editorial, the price itself is the focal point, no card */}
 
-        <div className="mt-8 md:mt-10 flex flex-col items-center text-center">
+        <div className="mt-6 md:mt-7 flex flex-col items-center text-center">
 
-          <div className="w-10 h-px bg-ink/10 mb-8 md:mb-10" />
+          <div className="w-10 h-px bg-ink/10 mb-5 md:mb-6" />
 
           <div className="text-[44px] sm:text-[52px] md:text-[64px] font-semibold text-ink leading-none tracking-tight mb-4 md:mb-5">
             ${formatPrice(vivabox.price)}
@@ -656,9 +656,9 @@ export default function WhatsIncluded() {
 
           {/* STAGE 5 — the purchase action, only after the product has been understood */}
 
-          <div className="mt-20 flex flex-col items-center text-center">
+          <div className="mt-16 flex flex-col items-center text-center">
 
-            <div className="w-10 h-px bg-ink/10 mb-10" />
+            <div className="w-10 h-px bg-ink/10 mb-6" />
 
             <div className="text-[64px] font-semibold text-ink leading-none tracking-tight mb-5">
               ${formatPrice(vivabox.price)}
