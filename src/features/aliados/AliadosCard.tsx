@@ -45,23 +45,36 @@ export default function AliadosCard() {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
+  const whatsappTrim = form.whatsapp.trim()
+  const emailTrim = form.email.trim()
+  const whatsappFilled = whatsappTrim.length > 0
+  const emailFilled = emailTrim.length > 0
+  const whatsappFormatOk = !whatsappFilled || isValidWhatsapp(whatsappTrim)
+  const emailFormatOk = !emailFilled || isValidEmail(emailTrim)
+  const hasContact = whatsappFilled || emailFilled
+
   const step1Valid =
-    !!form.name.trim() && !!form.company.trim() && isValidWhatsapp(form.whatsapp) && isValidEmail(form.email)
+    !!form.name.trim() &&
+    !!form.company.trim() &&
+    !!form.location.trim() &&
+    hasContact &&
+    whatsappFormatOk &&
+    emailFormatOk
 
   const step1Errors = {
     name: step1Attempted && !form.name.trim() ? "Cuéntanos tu nombre." : undefined,
     company: step1Attempted && !form.company.trim() ? "Cuéntanos el nombre de tu empresa o marca." : undefined,
-    whatsapp: step1Attempted && !isValidWhatsapp(form.whatsapp) ? "Ingresa un WhatsApp válido." : undefined,
-    email: step1Attempted && !isValidEmail(form.email) ? "Ingresa un correo válido." : undefined,
+    location: step1Attempted && !form.location.trim() ? "Cuéntanos dónde se realiza." : undefined,
+    whatsapp: step1Attempted && whatsappFilled && !isValidWhatsapp(whatsappTrim) ? "Ingresa un WhatsApp válido." : undefined,
+    email: step1Attempted && emailFilled && !isValidEmail(emailTrim) ? "Ingresa un correo válido." : undefined,
+    contact: step1Attempted && !hasContact ? "Déjanos al menos un medio de contacto." : undefined,
   }
 
-  const step2Valid = !!form.category && !!form.experienceName.trim() && !!form.experienceDescription.trim()
+  const step2Valid = !!form.category && !!form.experienceName.trim()
 
   const step2Errors = {
     category: step2Attempted && !form.category ? "Elige una categoría." : undefined,
     experienceName: step2Attempted && !form.experienceName.trim() ? "Cuéntanos cómo se llama." : undefined,
-    experienceDescription:
-      step2Attempted && !form.experienceDescription.trim() ? "Cuéntanos qué vive quien la disfruta." : undefined,
   }
 
   function goToStep(next: Step, dir: Direction) {
@@ -103,8 +116,9 @@ export default function AliadosCard() {
         body: JSON.stringify({
           name: form.name.trim(),
           company: form.company.trim(),
-          whatsapp: form.whatsapp.trim(),
-          email: form.email.trim(),
+          location: form.location.trim(),
+          whatsapp: whatsappTrim,
+          email: emailTrim,
           category: form.category,
           experienceName: form.experienceName.trim(),
           experienceDescription: form.experienceDescription.trim(),

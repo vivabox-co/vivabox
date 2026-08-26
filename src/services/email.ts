@@ -97,11 +97,12 @@ type PartnerLeadEmailParams = {
   leadId: string
   name: string
   company: string
-  whatsapp: string
-  email: string
+  location: string
+  whatsapp?: string | null
+  email?: string | null
   category: string
   experienceName: string
-  experienceDescription: string
+  experienceDescription?: string | null
   websiteOrInstagram?: string | null
 }
 
@@ -110,19 +111,20 @@ type PartnerLeadEmailParams = {
 // caído, así que nunca debe bloquear la respuesta al formulario.
 export async function sendPartnerLeadEmail(params: PartnerLeadEmailParams) {
   const {
-    leadId, name, company, whatsapp, email, category,
+    leadId, name, company, location, whatsapp, email, category,
     experienceName, experienceDescription, websiteOrInstagram,
   } = params
 
   const html = `
     <h2>Nueva propuesta de experiencia</h2>
     <p style="font-size:18px"><strong>${escapeHtml(experienceName)}</strong> — ${escapeHtml(category)}</p>
-    <p style="white-space:pre-wrap">${escapeHtml(experienceDescription)}</p>
+    ${experienceDescription ? `<p style="white-space:pre-wrap">${escapeHtml(experienceDescription)}</p>` : ""}
     <ul>
       <li><strong>Nombre:</strong> ${escapeHtml(name)}</li>
       <li><strong>Empresa/marca:</strong> ${escapeHtml(company)}</li>
-      <li><strong>WhatsApp:</strong> ${escapeHtml(whatsapp)}</li>
-      <li><strong>Email:</strong> ${escapeHtml(email)}</li>
+      <li><strong>Ubicación:</strong> ${escapeHtml(location)}</li>
+      ${whatsapp ? `<li><strong>WhatsApp:</strong> ${escapeHtml(whatsapp)}</li>` : ""}
+      ${email ? `<li><strong>Email:</strong> ${escapeHtml(email)}</li>` : ""}
       ${websiteOrInstagram ? `<li><strong>Instagram/web:</strong> ${escapeHtml(websiteOrInstagram)}</li>` : ""}
     </ul>
     <p style="color:#888;font-size:12px">Lead ID: ${leadId}</p>

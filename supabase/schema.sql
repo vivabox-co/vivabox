@@ -337,14 +337,20 @@ $$;
 -- bajo, sin ciclo de vida complejo en V1 : el equipo revisa manualmente
 -- (email de notificación) y da seguimiento por WhatsApp/email, no hay
 -- dashboard ni cambio de estado en la app todavía.
+--
+-- whatsapp/email son individualmente opcionales (el formulario solo exige
+-- al menos uno de los dos) — de ahí el constraint partner_leads_contact_
+-- required en vez de "not null" en ambas columnas.
 create table partner_leads (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
 
   name text not null,
   company text not null,
-  whatsapp text not null,
-  email text not null,
+  location text not null,
+
+  whatsapp text,
+  email text,
 
   category text not null
     check (category in (
@@ -352,8 +358,11 @@ create table partner_leads (
       'Cultura & creatividad', 'Escapadas', 'Parejas', 'Otro'
     )),
   experience_name text not null,
-  experience_description text not null,
-  website_or_instagram text
+  experience_description text,
+  website_or_instagram text,
+
+  constraint partner_leads_contact_required
+    check (coalesce(whatsapp, '') <> '' or coalesce(email, '') <> '')
 );
 
 alter table partner_leads enable row level security;
@@ -364,6 +373,22 @@ alter table partner_leads enable row level security;
 -- tiene el resto del esquema (el bloque GRANTS de más abajo ya lo cubriría,
 -- pero solo si se vuelve a ejecutar completo).
 grant select, insert, update, delete on partner_leads to service_role;
+
+-- =============================================================
+-- MIGRATION — si partner_leads ya fue creada con la versión anterior
+-- (whatsapp/email/experience_description NOT NULL, sin location).
+-- Sin efecto en una base creada desde cero con la definición de arriba.
+-- =============================================================
+--
+-- alter table partner_leads
+--   add column if not exists location text not null default '',
+--   alter column whatsapp drop not null,
+--   alter column email drop not null,
+--   alter column experience_description drop not null;
+--
+-- alter table partner_leads
+--   add constraint partner_leads_contact_required
+--   check (coalesce(whatsapp, '') <> '' or coalesce(email, '') <> '');
 
 -- =============================================================
 -- GRANTS — nécessaire quand le projet est créé avec "Automatically

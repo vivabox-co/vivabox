@@ -12,13 +12,13 @@ export async function POST(req: Request) {
     const body = await req.json()
 
     const {
-      name, company, whatsapp, email, category,
+      name, company, location, whatsapp, email, category,
       experienceName, experienceDescription, websiteOrInstagram,
-      website, // honeypot — un humano ne le remplit jamais
+      website, // honeypot — a human never fills this in
     } = body
 
-    // Honeypot rempli : on répond "ok" comme pour un vrai envoi (ne pas
-    // révéler au bot qu'il a été détecté) mais sans toucher à Supabase/Resend.
+    // Honeypot filled: respond "ok" like a real submission (don't tip off
+    // the bot that it was caught) but skip Supabase/Resend entirely.
     if (typeof website === "string" && website.trim()) {
       return NextResponse.json({ ok: true })
     }
@@ -31,11 +31,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "MISSING_COMPANY" })
     }
 
-    if (typeof whatsapp !== "string" || !isValidWhatsapp(whatsapp)) {
+    if (typeof location !== "string" || !location.trim()) {
+      return NextResponse.json({ ok: false, error: "MISSING_LOCATION" })
+    }
+
+    const whatsappTrim = typeof whatsapp === "string" ? whatsapp.trim() : ""
+    const emailTrim = typeof email === "string" ? email.trim() : ""
+
+    if (!whatsappTrim && !emailTrim) {
+      return NextResponse.json({ ok: false, error: "MISSING_CONTACT" })
+    }
+
+    if (whatsappTrim && !isValidWhatsapp(whatsappTrim)) {
       return NextResponse.json({ ok: false, error: "INVALID_WHATSAPP" })
     }
 
-    if (typeof email !== "string" || !isValidEmail(email)) {
+    if (emailTrim && !isValidEmail(emailTrim)) {
       return NextResponse.json({ ok: false, error: "INVALID_EMAIL" })
     }
 
@@ -47,10 +58,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "MISSING_EXPERIENCE_NAME" })
     }
 
-    if (typeof experienceDescription !== "string" || !experienceDescription.trim()) {
-      return NextResponse.json({ ok: false, error: "MISSING_EXPERIENCE_DESCRIPTION" })
-    }
-
     const supabase = getSupabase()
 
     const ip = getClientIp(req)
@@ -60,18 +67,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "TOO_MANY_ATTEMPTS" })
     }
 
+    const descriptionTrim = typeof experienceDescription === "string" ? experienceDescription.trim() : ""
+    const websiteTrim = typeof websiteOrInstagram === "string" ? websiteOrInstagram.trim() : ""
+
     const { data, error } = await supabase
       .from("partner_leads")
       .insert({
         name: name.trim(),
         company: company.trim(),
-        whatsapp: whatsapp.trim(),
-        email: email.trim(),
+        location: location.trim(),
+        whatsapp: whatsappTrim || null,
+        email: emailTrim || null,
         category,
         experience_name: experienceName.trim(),
-        experience_description: experienceDescription.trim(),
-        website_or_instagram:
-          typeof websiteOrInstagram === "string" && websiteOrInstagram.trim() ? websiteOrInstagram.trim() : null,
+        experience_description: descriptionTrim || null,
+        website_or_instagram: websiteTrim || null,
       })
       .select("id")
       .single()
@@ -85,12 +95,13 @@ export async function POST(req: Request) {
       leadId: data.id,
       name: name.trim(),
       company: company.trim(),
-      whatsapp: whatsapp.trim(),
-      email: email.trim(),
+      location: location.trim(),
+      whatsapp: whatsappTrim || null,
+      email: emailTrim || null,
       category,
       experienceName: experienceName.trim(),
-      experienceDescription: experienceDescription.trim(),
-      websiteOrInstagram: typeof websiteOrInstagram === "string" ? websiteOrInstagram.trim() : null,
+      experienceDescription: descriptionTrim || null,
+      websiteOrInstagram: websiteTrim || null,
     })
 
     return NextResponse.json({ ok: true })

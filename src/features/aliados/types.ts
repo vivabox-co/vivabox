@@ -1,6 +1,7 @@
 export type AliadosFormData = {
   name: string
   company: string
+  location: string
   whatsapp: string
   email: string
   category: string
@@ -12,6 +13,7 @@ export type AliadosFormData = {
 export const EMPTY_ALIADOS_FORM: AliadosFormData = {
   name: "",
   company: "",
+  location: "",
   whatsapp: "",
   email: "",
   category: "",
