@@ -13,7 +13,7 @@ const items = [
     text: "Primero al recibir la caja. Después al disfrutar la experiencia.",
   },
   {
-    image: "/images/box-includes/vivabox-catalogo-experiencias.webp",
+    image: "/images/app-phone/vivabox-app-experiencias.webp",
     title: "La persona elige.",
     text: "No importa si prefiere la gastronomía, el bienestar o la aventura. Ella decide.",
   },
