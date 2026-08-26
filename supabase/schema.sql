@@ -330,6 +330,42 @@ end;
 $$;
 
 -- =============================================================
+-- ALIADOS — propuestas de experiencia (/aliados)
+-- =============================================================
+
+-- Propuesta enviada por un posible aliado a través de /aliados. Volumen
+-- bajo, sin ciclo de vida complejo en V1 : el equipo revisa manualmente
+-- (email de notificación) y da seguimiento por WhatsApp/email, no hay
+-- dashboard ni cambio de estado en la app todavía.
+create table partner_leads (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+
+  name text not null,
+  company text not null,
+  whatsapp text not null,
+  email text not null,
+
+  category text not null
+    check (category in (
+      'Gastronomía', 'Bienestar', 'Naturaleza & aventura',
+      'Cultura & creatividad', 'Escapadas', 'Parejas', 'Otro'
+    )),
+  experience_name text not null,
+  experience_description text not null,
+  website_or_instagram text
+);
+
+alter table partner_leads enable row level security;
+-- Mismo patrón que las demás tablas : sin policy, acceso exclusivo vía
+-- service_role (ruta API Next.js del lado servidor).
+
+-- Grant explícito para poder ejecutar solo este bloque en una base que ya
+-- tiene el resto del esquema (el bloque GRANTS de más abajo ya lo cubriría,
+-- pero solo si se vuelve a ejecutar completo).
+grant select, insert, update, delete on partner_leads to service_role;
+
+-- =============================================================
 -- GRANTS — nécessaire quand le projet est créé avec "Automatically
 -- expose new tables" décoché (recommandé : évite d'exposer une table par
 -- erreur à anon/authenticated). Sans ce bloc, service_role n'a aucun

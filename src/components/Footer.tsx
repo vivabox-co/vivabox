@@ -114,7 +114,7 @@ export default function Footer() {
 
             <ul className="space-y-4 text-sm">
               <li>
-                <Link href="/proximamente" className={linkClasses}>
+                <Link href="/aliados" className={linkClasses}>
                   Ofrece una experiencia
                 </Link>
               </li>

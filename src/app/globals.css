@@ -592,6 +592,54 @@ body {
   opacity: 0.5;
 }
 
+/* Horizontal card-slide transition — same "current stays in flow, next
+   mounts absolute and animates in" pattern as the activation web app
+   (vivabox-appben), so multi-step cards feel like one product family.
+   --vb-slide-enter-from controls direction: 100% for forward, -100% back. */
+.vb-slide-viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.vb-slide-current {
+  width: 100%;
+  transition:
+    transform var(--vb-slide-duration, 500ms) cubic-bezier(0.16, 1, 0.3, 1),
+    opacity var(--vb-slide-duration, 500ms) ease;
+}
+
+.vb-slide-next {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  animation: vb-slide-enter var(--vb-slide-duration, 500ms) cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes vb-slide-enter {
+  from {
+    transform: translateX(var(--vb-slide-enter-from, 100%));
+    opacity: 0.92;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vb-slide-current {
+    transition: none;
+  }
+  .vb-slide-next {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Round icon-only utility buttons (modal close, carousel arrows, etc.) —
    same neumorphic language as vb-btn-soft, just circular instead of the
    18px radius family since these are icon badges, not labeled CTAs. */

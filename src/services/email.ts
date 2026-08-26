@@ -92,3 +92,50 @@ export async function sendOrderReadyEmail(params: OrderReadyEmailParams) {
     console.error("ORDER READY EMAIL ERROR:", error)
   }
 }
+
+type PartnerLeadEmailParams = {
+  leadId: string
+  name: string
+  company: string
+  whatsapp: string
+  email: string
+  category: string
+  experienceName: string
+  experienceDescription: string
+  websiteOrInstagram?: string | null
+}
+
+// Best-effort, igual que sendOrderReadyEmail: una propuesta de aliado
+// siempre queda guardada en Supabase aunque el email falle o Resend esté
+// caído, así que nunca debe bloquear la respuesta al formulario.
+export async function sendPartnerLeadEmail(params: PartnerLeadEmailParams) {
+  const {
+    leadId, name, company, whatsapp, email, category,
+    experienceName, experienceDescription, websiteOrInstagram,
+  } = params
+
+  const html = `
+    <h2>Nueva propuesta de experiencia</h2>
+    <p style="font-size:18px"><strong>${escapeHtml(experienceName)}</strong> — ${escapeHtml(category)}</p>
+    <p style="white-space:pre-wrap">${escapeHtml(experienceDescription)}</p>
+    <ul>
+      <li><strong>Nombre:</strong> ${escapeHtml(name)}</li>
+      <li><strong>Empresa/marca:</strong> ${escapeHtml(company)}</li>
+      <li><strong>WhatsApp:</strong> ${escapeHtml(whatsapp)}</li>
+      <li><strong>Email:</strong> ${escapeHtml(email)}</li>
+      ${websiteOrInstagram ? `<li><strong>Instagram/web:</strong> ${escapeHtml(websiteOrInstagram)}</li>` : ""}
+    </ul>
+    <p style="color:#888;font-size:12px">Lead ID: ${leadId}</p>
+  `
+
+  try {
+    await getResend().emails.send({
+      from: FROM,
+      to: NOTIFY_TO,
+      subject: `Nueva propuesta de aliado — ${experienceName}`,
+      html,
+    })
+  } catch (error) {
+    console.error("PARTNER LEAD EMAIL ERROR:", error)
+  }
+}
