@@ -51,7 +51,7 @@ export default function BoxFAQ({ validityMonths }: Props) {
   ]
 
   return (
-    <section className="bg-surface py-10 md:py-14">
+    <section id="faq" className="bg-surface py-10 md:py-14 scroll-mt-24">
 
       <div className="max-w-[640px] mx-auto px-6">
 

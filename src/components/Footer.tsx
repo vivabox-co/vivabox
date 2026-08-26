@@ -1,7 +1,18 @@
+"use client";
+
 import Link from "next/link";
+import type { MouseEvent } from "react";
 
 const linkClasses =
   "text-gray-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-sm";
+
+function handleFaqClick(e: MouseEvent<HTMLAnchorElement>) {
+  const target = document.getElementById("faq");
+  if (target) {
+    e.preventDefault();
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
 
 export default function Footer() {
   return (
@@ -151,7 +162,7 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <Link href="/#faq" className={linkClasses}>
+                <Link href="/#faq" onClick={handleFaqClick} className={linkClasses}>
                   Preguntas frecuentes
                 </Link>
               </li>
