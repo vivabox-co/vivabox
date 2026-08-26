@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Package, CalendarCheck2 } from "lucide-react"
+import { Package, CalendarCheck2, Handshake } from "lucide-react"
 import { getHubCounts } from "./data"
 import { PAGE_PATH } from "./types"
 
@@ -37,6 +37,21 @@ export default async function PedidosHubPage() {
         {!!counts.reservas && (
           <span className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full bg-[#18140F] text-white text-sm font-bold">
             {counts.reservas}
+          </span>
+        )}
+      </Link>
+
+      <Link href={`${PAGE_PATH}/alianzas`} className="vb-card p-6 flex items-center gap-4">
+        <div className="vb-thumb text-[#0294D2]">
+          <Handshake size={24} />
+        </div>
+        <div className="flex-1">
+          <div className="text-[19px] font-bold text-[#0294D2] mb-1">Alianzas</div>
+          <p className="text-muted text-sm">Propuestas de experiencias de posibles aliados</p>
+        </div>
+        {!!counts.alianzas && (
+          <span className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full bg-[#0294D2] text-white text-sm font-bold">
+            {counts.alianzas}
           </span>
         )}
       </Link>

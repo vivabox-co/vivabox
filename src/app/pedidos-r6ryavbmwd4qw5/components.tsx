@@ -91,7 +91,7 @@ export function StageNav({
 // l'accueil. Chaque pastille garde sa couleur propre (orange/noir) qu'elle
 // soit active ou non — elle ne doit jamais hériter de la teinte de la zone
 // dans laquelle on se trouve actuellement.
-export function ZoneSwitcher({ active }: { active: "pedidos" | "reservas" }) {
+export function ZoneSwitcher({ active }: { active: "pedidos" | "reservas" | "alianzas" }) {
   return (
     <div className="flex gap-2 mb-5">
       <Link
@@ -109,6 +109,14 @@ export function ZoneSwitcher({ active }: { active: "pedidos" | "reservas" }) {
         }`}
       >
         Reservas
+      </Link>
+      <Link
+        href={`${PAGE_PATH}/alianzas`}
+        className={`flex-1 text-center rounded-[13px] px-3.5 py-2.5 text-sm font-semibold transition-colors ${
+          active === "alianzas" ? "bg-[#0294D2] text-white" : "vb-card text-muted"
+        }`}
+      >
+        Alianzas
       </Link>
     </div>
   )
