@@ -43,7 +43,10 @@ export default function Navbar() {
     pathname.startsWith("/experiencias") ||
     pathname.startsWith("/carrito") ||
     pathname.startsWith("/activar") ||
-    pathname.startsWith("/nuestra-historia")
+    pathname.startsWith("/nuestra-historia") ||
+    pathname.startsWith("/terminos-y-condiciones") ||
+    pathname.startsWith("/politica-de-datos") ||
+    pathname.startsWith("/cambios-y-devoluciones")
 
   useEffect(() => {
     if (forceSolid) return
