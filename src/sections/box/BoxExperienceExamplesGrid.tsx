@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { useState } from "react"
+import { Smartphone } from "lucide-react"
 import ExperienceModal from "@/components/ExperienceModal"
 import type { Experience } from "@/types/experience"
 import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR, formatCity } from "@/data/categories"
@@ -76,14 +77,14 @@ export default function BoxExperienceExamplesGrid({
         {/* LAST CARD */}
         <div className="vb-card group snap-start min-w-[260px] lg:min-w-0 hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden">
 
-          <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px] bg-gradient-to-br from-[#fff4ec] to-[#f7f7f7] flex items-center justify-center">
+          <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px]">
 
             <Image
-              src="/icons/logo.webp"
-              alt="Vivabox"
-              width={82}
-              height={82}
-              className="opacity-100"
+              src="/images/experiences-preview/vivabox-mapa-experiencias.webp"
+              alt="Mapa de experiencias Vivabox"
+              fill
+              sizes={CARD_IMAGE_SIZES}
+              className="object-cover"
             />
 
             <div className="absolute left-0 top-0 bottom-0 w-[6px] flex flex-col z-10">
@@ -92,16 +93,21 @@ export default function BoxExperienceExamplesGrid({
               ))}
             </div>
 
+            <span className="absolute top-3 left-4 z-10 inline-flex items-center gap-1 leading-none text-xs font-medium px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-sm shadow-sm text-ink">
+              <Smartphone size={13} strokeWidth={1.5} />
+              En la app Vivabox
+            </span>
+
           </div>
 
-          <div className="p-4 text-center">
+          <div className="p-4">
 
             <h3 className="font-semibold mb-1">
               Y muchas más por descubrir
             </h3>
 
             <p className="text-sm text-muted">
-              Siempre estamos incorporando nuevas experiencias.
+              Quien la reciba ve todo el catálogo, que seguimos ampliando.
             </p>
 
           </div>
