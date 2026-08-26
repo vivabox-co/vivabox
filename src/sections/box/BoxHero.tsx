@@ -128,20 +128,20 @@ export default function BoxHero({
                 +{experiences} experiencias
               </div>
               <div className="flex items-center gap-2 py-2 border-b border-white/10 whitespace-nowrap">
-                <span className="flex items-center justify-center w-5 h-5 rounded-md border-2 border-primary/80 shrink-0">
-                  <Check size={11} strokeWidth={3} className="text-primary" />
+                <span className="flex items-center justify-center w-5 h-5 rounded-md border-2 border-accent-red/80 shrink-0">
+                  <Check size={11} strokeWidth={3} className="text-accent-red" />
                 </span>
                 Quien recibe, elige 1 experiencia
               </div>
               <div className="flex items-center gap-2 py-2 border-b border-white/10 whitespace-nowrap">
-                <span className="flex items-center justify-center w-5 h-5 rounded-md border-2 border-primary/80 shrink-0">
-                  <Check size={11} strokeWidth={3} className="text-primary" />
+                <span className="flex items-center justify-center w-5 h-5 rounded-md border-2 border-accent-green/80 shrink-0">
+                  <Check size={11} strokeWidth={3} className="text-accent-green" />
                 </span>
                 6 meses para usarla
               </div>
               <div className="flex items-center gap-2 py-2 whitespace-nowrap">
-                <span className="flex items-center justify-center w-5 h-5 rounded-md border-2 border-primary/80 shrink-0">
-                  <Check size={11} strokeWidth={3} className="text-primary" />
+                <span className="flex items-center justify-center w-5 h-5 rounded-md border-2 border-accent-blue/80 shrink-0">
+                  <Check size={11} strokeWidth={3} className="text-accent-blue" />
                 </span>
                 Caja física incluida
               </div>
