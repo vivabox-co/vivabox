@@ -49,8 +49,8 @@ lista para copiar/pegar; el usuario la pega él mismo en Google Sheets.
 | 27 | entorno | No | indoor · outdoor | Genera la 2ª etiqueta de la tarjeta |
 | 28 | ritmo | No | relajado · activo · sacudido | Genera la 3ª etiqueta de la tarjeta |
 | 29 | tipo_duracion | No | media · larga | |
-| 30 | imagen | **Sí** | `/images/experiencias-reales/<codigo_interno>.jpg` (foto real) o URL de images.pexels.com / images.unsplash.com (placeholder) | Cualquier otra fuente cae a la imagen genérica de la caja |
-| 31 | imagenes_adicionales | No | Mismo formato que "imagen", separadas por `\|` | Alimenta la galería swipeable del modal |
+| 30 | imagen | **Sí** | `/images/experiencias-reales/<slug-descriptivo>/<slug-descriptivo>-1.webp` (foto real) o URL de images.pexels.com / images.unsplash.com (placeholder) | Cualquier otra fuente cae a la imagen genérica de la caja. Ver "Convención de nombres para fotos reales" abajo — el slug describe lo que se ve, NO el `codigo_interno` |
+| 31 | imagenes_adicionales | No | Mismo formato que "imagen" (`...-2.webp`, `...-3.webp`...), separadas por `\|` | Alimenta la galería swipeable del modal |
 | 32 | requiere_telefono | No | TRUE / FALSE | |
 | 33 | requiere_num_personas | No | TRUE / FALSE | |
 | 34 | permite_extra | No | TRUE / FALSE | |
@@ -90,6 +90,25 @@ buscar todos los `codigo_interno` que empiecen con el prefijo `CAT-CIUDAD-`, tom
 más alto encontrado y sumar 1 (con padding a 3 dígitos, ej `007`). Si no se puede alcanzar el
 sheet (fetch falla), pedir al usuario el próximo código disponible en vez de inventarlo.
 
+## Convención de nombres para fotos reales (columnas imagen/imagenes_adicionales)
+
+El `codigo_interno` es un identificador interno — no describe la experiencia, así que ya
+no se usa como nombre de archivo (esto se migró en agosto 2026; las fotos viejas vivían en
+`/images/experiencias-reales/<codigo_interno>/<n>.webp`, poco legible para SEO/accesibilidad).
+
+Cuando el prestador entregue fotos reales, el slug de carpeta/archivo debe describir lo que
+la foto **realmente muestra** (nunca solo el nombre comercial ni el `codigo_interno`):
+
+- Formato: `<qué-se-ve>-<ciudad-o-zona>-vivabox`, todo en minúsculas, sin tildes, con guiones.
+- Ejemplos ya en uso: `motocross-tocancipa-vivabox`, `cena-carnes-bogota-vivabox`,
+  `taller-cata-cacao-bogota-vivabox`, `domo-glamping-suesca-vivabox`.
+- La carpeta y cada archivo comparten el slug: `<slug>/<slug>-1.webp`, `<slug>/<slug>-2.webp`...
+- Si no hay foto real todavía, usar el placeholder (paso 6 abajo) — nunca inventar un slug
+  para una foto que no existe.
+- Nunca copiar el slug de otro código a ciegas: si dos experiencias comparten fotos (caso
+  real: `AVE-COR-004` no tiene fotos propias y usa las de `AVE-COR-003`), esa decisión debe
+  quedar explícita — avisar al usuario en el resumen, no dejarlo implícito.
+
 ## Flujo de trabajo
 
 1. El usuario pega información libre sobre un prestador/experiencia (puede ser desordenada:
@@ -105,7 +124,9 @@ sheet (fetch falla), pedir al usuario el próximo código disponible en vez de i
 5. Aplicar `estado = borrador` por defecto si no se especifica otro.
 6. Para `imagen`, si el usuario no tiene foto todavía, proponer un placeholder de
    images.pexels.com o images.unsplash.com coherente con la categoría, y avisar que se puede
-   reemplazar luego por `/images/experiencias-reales/<codigo_interno>.jpg` cuando haya foto real.
+   reemplazar luego por una foto real siguiendo la convención de slug descriptivo de arriba
+   (`/images/experiencias-reales/<slug-descriptivo>/<slug-descriptivo>-1.webp`) una vez que
+   haya foto real y se sepa qué muestra exactamente.
 7. Producir la fila final en un bloque de texto separado por tabulaciones (TSV), en el
    **orden exacto** de las 55 columnas de la tabla — listo para pegar directamente en una
    fila del Google Sheet. Incluir también un resumen legible campo por campo debajo, para
