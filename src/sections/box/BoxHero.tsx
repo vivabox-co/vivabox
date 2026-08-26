@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import { formatPrice } from "@/utils/formatPrice"
 import { Check, Lock, Minus, Plus } from "lucide-react"
@@ -14,6 +14,21 @@ type BoxHeroProps = {
   image: string
   slug: string
 }
+
+// Real, colorful experience photos for the rotating hero background.
+// Picked by hand across categories for visual variety and "peps".
+const HERO_GALLERY_IMAGES = [
+  "/images/experiencias-reales/brunch-bogota-vivabox/brunch-bogota-vivabox-1.webp",
+  "/images/experiencias-reales/cabalgata-parrillada-la-calera-vivabox/cabalgata-parrillada-la-calera-vivabox-1.webp",
+  "/images/experiencias-reales/cena-carnes-bogota-vivabox/cena-carnes-bogota-vivabox-1.webp",
+  "/images/experiencias-reales/escalada-rocas-suesca-vivabox/escalada-rocas-suesca-vivabox-1.webp",
+  "/images/experiencias-reales/motocross-tocancipa-vivabox/motocross-tocancipa-vivabox-1.webp",
+  "/images/experiencias-reales/pasteles-cafe-bogota-vivabox/pasteles-cafe-bogota-vivabox-1.webp",
+  "/images/experiencias-reales/refugio-montana-choachi-vivabox/refugio-montana-choachi-vivabox-1.webp",
+  "/images/experiencias-reales/taller-cata-cacao-bogota-vivabox/taller-cata-cacao-bogota-vivabox-1.webp",
+]
+
+const HERO_GALLERY_INTERVAL_MS = 3000
 
 export default function BoxHero({
   name,
@@ -33,6 +48,16 @@ export default function BoxHero({
     setBox({ slug, name, price })
   }, [slug, name, price, setBox])
 
+  const [heroImageIndex, setHeroImageIndex] = useState(0)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setHeroImageIndex((i) => (i + 1) % HERO_GALLERY_IMAGES.length)
+    }, HERO_GALLERY_INTERVAL_MS)
+
+    return () => clearInterval(id)
+  }, [])
+
   const increase = () => setQuantity(Math.min(10, quantity + 1))
   const decrease = () => setQuantity(Math.max(1, quantity - 1))
 
@@ -45,16 +70,21 @@ export default function BoxHero({
   return (
     <section id="box-hero" className="relative overflow-hidden pt-24 md:pt-28 pb-6 md:pb-8">
 
-      {/* BACKGROUND IMAGE */}
+      {/* BACKGROUND IMAGE GALLERY */}
       <div className="absolute inset-0 -z-10">
-        <Image
-          src="/images/hero/regalo-caja-vivabox-entrega.webp"
-          alt="Experiencias Vivabox"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover blur-[5px] brightness-[0.8] scale-110"
-        />
+        {HERO_GALLERY_IMAGES.map((src, i) => (
+          <Image
+            key={src}
+            src={src}
+            alt="Experiencias reales Vivabox"
+            fill
+            priority={i === 0}
+            sizes="100vw"
+            className={`object-cover blur-[5px] brightness-[0.8] scale-110 transition-opacity duration-1000 ease-in-out ${
+              i === heroImageIndex ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        ))}
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
