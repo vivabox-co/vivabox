@@ -485,11 +485,7 @@ export default function WhatsIncluded() {
 
         <div className="mt-8 md:mt-10 flex flex-col items-center text-center">
 
-          <div className="w-10 h-px bg-ink/10 mb-3 md:mb-4" />
-
-          <p className="text-muted text-[15px] md:text-[17px] mb-2">
-            Una experiencia a elegir.
-          </p>
+          <div className="w-10 h-px bg-ink/10 mb-8 md:mb-10" />
 
           <div className="text-[44px] sm:text-[52px] md:text-[64px] font-semibold text-ink leading-none tracking-tight mb-4 md:mb-5">
             ${formatPrice(vivabox.price)}
@@ -662,11 +658,7 @@ export default function WhatsIncluded() {
 
           <div className="mt-20 flex flex-col items-center text-center">
 
-            <div className="w-10 h-px bg-ink/10 mb-5" />
-
-            <p className="text-muted text-[17px] mb-2">
-              Una experiencia a elegir.
-            </p>
+            <div className="w-10 h-px bg-ink/10 mb-10" />
 
             <div className="text-[64px] font-semibold text-ink leading-none tracking-tight mb-5">
               ${formatPrice(vivabox.price)}
