@@ -16,6 +16,44 @@ const categoryMap: Record<string,string> = {
 const PLACEHOLDER_IMAGE = "/images/box-includes/vivabox-caja-regalo.webp"
 const LOCAL_CACHE_DIR = path.join(process.cwd(), "public", "images", "experiences")
 
+// codigo_interno -> descriptive slug for public/images/experiencias-reales/.
+// Keeps the Sheet's "imagen"/"imagenes_adicionales" columns (still codigo_interno-based,
+// per docs on the sheet's "imagen" column) untouched -- this is a presentation-only
+// rewrite for SEO-friendly URLs. Add an entry here whenever a new codigo_interno's
+// folder gets renamed; codes with no entry just pass through unchanged.
+const REAL_PHOTO_SLUGS: Record<string, string> = {
+  "AVE-CNO-001": "motocross-tocancipa-vivabox",
+  "AVE-CNO-002": "escalada-rocas-suesca-vivabox",
+  "AVE-COR-001": "caminata-laguna-ubaque-vivabox",
+  "AVE-COR-002": "cabalgata-parrillada-la-calera-vivabox",
+  "AVE-COR-003": "cabalgata-montana-la-calera-vivabox",
+  "BIE-BOG-001": "flotacion-tanque-sensorial-bogota-vivabox",
+  "EST-CNO-001": "domo-glamping-suesca-vivabox",
+  "EST-COR-001": "refugio-montana-choachi-vivabox",
+  "EST-COR-002": "cabana-montana-choachi-vivabox",
+  "GAS-BOG-001": "cena-carnes-bogota-vivabox",
+  "GAS-BOG-002": "cena-colombiana-bogota-vivabox",
+  "GAS-BOG-003": "taller-cata-cacao-bogota-vivabox",
+  "GAS-BOG-004": "brunch-bogota-vivabox",
+  "GAS-BOG-005": "pasteles-cafe-bogota-vivabox",
+  "GAS-CNO-001": "taller-sushi-pacho-vivabox",
+}
+
+// Rewrites /images/experiencias-reales/{codigo_interno}/{n}.webp to the
+// renamed /images/experiencias-reales/{slug}/{slug}-{n}.webp path, if a
+// mapping exists. Falls through unchanged otherwise (unmapped code, or an
+// already-slugged path).
+function resolveRealPhotoSlug(url: string): string {
+  const match = url.match(/^\/images\/experiencias-reales\/([^/]+)\/(\d+)\.webp$/)
+  if (!match) return url
+
+  const [, codigoInterno, n] = match
+  const slug = REAL_PHOTO_SLUGS[codigoInterno]
+  if (!slug) return url
+
+  return `/images/experiencias-reales/${slug}/${slug}-${n}.webp`
+}
+
 // Minimum photos per gallery so the modal always shows a real carousel.
 // Rows without enough "imagenes_adicionales" get padded with generic
 // experience shots -- relevance doesn't matter here, just variety.
@@ -35,15 +73,16 @@ function isRemoteExperienceImage(url?: string): url is string {
   return !!url && (url.includes("images.pexels.com") || url.includes("images.unsplash.com"))
 }
 
-// Real photos committed to public/images/experiencias-reales/, named after codigo_interno
-// (see docs on the sheet's "imagen" column).
+// Real photos committed to public/images/experiencias-reales/. The Sheet's "imagen"
+// column (see its docs) still stores the codigo_interno-based path; REAL_PHOTO_SLUGS
+// above rewrites it to the renamed folder for any code that's been migrated.
 function isLocalExperienceImage(url?: string): url is string {
   return !!url && url.startsWith("/images/experiencias-reales/")
 }
 
 // Must stay in sync with localFileNameFor() in scripts/cache-experience-images.mjs
 function resolveExperienceImage(url?: string): string {
-  if (isLocalExperienceImage(url)) return url
+  if (isLocalExperienceImage(url)) return resolveRealPhotoSlug(url)
   if (!isRemoteExperienceImage(url)) return PLACEHOLDER_IMAGE
 
   const hash = crypto.createHash("sha1").update(url).digest("hex").slice(0, 16)

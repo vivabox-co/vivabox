@@ -159,7 +159,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
               <div key={i} className="relative h-full w-full shrink-0">
                 <Image
                   src={src}
-                  alt={`${experience.title} ${i + 1}`}
+                  alt={experience.city ? `${experience.title} en ${experience.city}` : experience.title}
                   fill
                   sizes="(min-width: 576px) 576px, 100vw"
                   className="object-cover pointer-events-none"
