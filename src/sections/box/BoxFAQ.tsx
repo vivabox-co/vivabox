@@ -21,7 +21,7 @@ export default function BoxFAQ({ validityMonths }: Props) {
         "No. Tú regalas la Vivabox y la persona que la recibe elige la experiencia después. Así no tienes que adivinar qué le gustaría.",
     },
     {
-      question: "¿Cómo funciona la parte digital de la Vivabox?",
+      question: "¿Cómo funciona la app de la Vivabox?",
       answer:
         "La Vivabox combina una caja física con la app Vivabox, sencilla de usar. La persona que la recibe activa ahí su código para descubrir las experiencias, elegir una y reservarla. Quien compra la Vivabox no tiene que usar la app ni hacer ninguna gestión.",
     },
