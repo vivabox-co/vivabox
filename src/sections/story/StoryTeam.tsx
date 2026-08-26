@@ -5,24 +5,28 @@ import Reveal from "@/components/ui/Reveal";
 const FOUNDERS = [
   {
     name: "Gotie",
+    role: "Cofundador · Producto, estrategia y crecimiento",
     photo: "/images/founders/Gotie.webp",
     ring: "var(--color-accent-green)",
-    paragraphs: [
-      "Para mí, el mejor regalo siempre ha sido una buena historia que contar.",
-      "Me gusta preguntarle a la gente qué fue lo último que la sorprendió, y me quedo pensando en la respuesta.",
-      "Un poco de eso buscamos en cada experiencia Vivabox: que valga la pena contarla después.",
+    quote:
+      "Para mí, el reto no era crear otra forma de vender experiencias. Era hacer que regalar una buena experiencia fuera realmente sencillo.",
+    bio: [
+      "Gotie se enfoca en convertir la idea de Vivabox en un servicio sencillo de entender, fácil de usar y capaz de crecer.",
+      "Está detrás del producto, la estrategia y la experiencia del cliente en cada etapa del proceso.",
     ],
     circlePath:
       "M50,4 C74,3 97,23 96,49 C97,76 73,97 49,96 C24,97 4,75 4,50 C3,25 26,5 50,4 Z",
   },
   {
-    name: "Franko",
+    name: "Frank",
+    role: "Cofundador · Experiencias, alianzas y operaciones",
     photo: "/images/founders/Franko.webp",
     ring: "var(--color-primary)",
-    paragraphs: [
-      "Me gusta pensar en cada Vivabox como una excusa para vivir algo nuevo.",
-      "Prefiero un buen plan improvisado a uno perfecto sobre el papel.",
-      "Por eso disfruto tanto ver qué experiencia elige cada persona: casi nunca es la que uno esperaba.",
+    quote:
+      "Después de tantos años trabajando con experiencias en Colombia, aprendí que la diferencia muchas veces está en los detalles que el cliente no ve.",
+    bio: [
+      "Frank lleva 18 años viviendo en Colombia y más de 12 años trabajando en el mundo del turismo y las experiencias, incluyendo su paso por Aventure Colombia.",
+      "Su trabajo se enfoca en nuestros aliados, la calidad de las experiencias y todo lo que tiene que funcionar detrás de escena para que lo que prometemos realmente pase.",
     ],
     circlePath:
       "M50,3 C71,2 96,19 97,50 C98,79 76,98 49,97 C23,98 3,77 3,49 C2,22 25,4 50,3 Z",
@@ -33,7 +37,7 @@ export default function StoryTeam() {
   return (
     <section className="vb-dark bg-ink py-20 md:py-[120px]">
 
-      <div className="max-w-[840px] mx-auto px-6">
+      <div className="max-w-[880px] mx-auto px-6">
 
         <Reveal duration={400}>
           <BrandDots className="justify-center md:justify-start" />
@@ -41,14 +45,15 @@ export default function StoryTeam() {
 
         <Reveal duration={400} delay={60}>
           <h2 className="h2 text-white mb-4 text-center md:text-left">
-            Quiénes somos
+            Las personas detrás de Vivabox.
           </h2>
         </Reveal>
 
         <Reveal duration={400} delay={100}>
-          <p className="text-white/70 leading-relaxed mb-12 text-center md:text-left">
-            Detrás de Vivabox estamos Gotie y Franko, un equipo colombo-francés
-            que creó Vivabox en Colombia.
+          <p className="text-white/70 leading-relaxed mb-12 text-center md:text-left max-w-[520px]">
+            Gotie y Frank se unieron para construir Vivabox: uno viene del
+            producto y el crecimiento, el otro del mundo de las experiencias
+            en Colombia.
           </p>
         </Reveal>
 
@@ -57,13 +62,13 @@ export default function StoryTeam() {
           {FOUNDERS.map((founder, index) => (
             <Reveal key={founder.name} duration={400} delay={160 + index * 100}>
               <div className="text-center sm:text-left">
-                <div className="relative w-32 h-32 md:w-36 md:h-36 mx-auto sm:mx-0 mb-4">
+                <div className="relative w-28 h-28 md:w-32 md:h-32 mx-auto sm:mx-0 mb-5">
                   <div className="absolute inset-0 rounded-full overflow-hidden">
                     <Image
                       src={founder.photo}
-                      alt={founder.name}
-                      width={144}
-                      height={144}
+                      alt={`${founder.name}, cofundador de Vivabox`}
+                      width={128}
+                      height={128}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -81,10 +86,17 @@ export default function StoryTeam() {
                   </svg>
                 </div>
 
-                <p className="font-semibold text-white mb-3">{founder.name}</p>
+                <p className="font-semibold text-white">{founder.name}</p>
+                <p className="text-white/50 text-sm mb-5">{founder.role}</p>
+
+                <blockquote className="border-l-2 pl-4 mb-5" style={{ borderColor: founder.ring }}>
+                  <p className="text-white text-[15px] md:text-base italic leading-relaxed">
+                    &ldquo;{founder.quote}&rdquo;
+                  </p>
+                </blockquote>
 
                 <div className="space-y-3">
-                  {founder.paragraphs.map((paragraph) => (
+                  {founder.bio.map((paragraph) => (
                     <p
                       key={paragraph}
                       className="text-sm text-white/60 leading-relaxed"

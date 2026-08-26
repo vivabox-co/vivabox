@@ -14,14 +14,18 @@ export default function StoryHero() {
 
         <BrandDots className="justify-center" />
 
-        <h1 className="h1 mb-6">
+        <p className="text-sm font-semibold tracking-[0.14em] uppercase text-muted mb-4">
           Nuestra historia
+        </p>
+
+        <h1 className="h1 mb-6 text-balance">
+          Creemos que regalar debería ser más fácil.
         </h1>
 
-        <p className="text-lg text-muted leading-relaxed">
-          Creemos que regalar debería ser más fácil.
-          <br />
-          Por eso creamos una forma diferente de regalar experiencias.
+        <p className="text-lg text-muted leading-relaxed max-w-[520px] mx-auto">
+          Por eso creamos una nueva forma de regalar experiencias en Colombia:
+          una caja que no decide por ti, sino que deja que la persona elija
+          cómo quiere vivirla.
         </p>
 
       </div>
