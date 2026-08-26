@@ -3,7 +3,7 @@ import BrandDots from "@/components/ui/BrandDots";
 
 export default function StoryOrigin() {
   return (
-    <section className="bg-white py-24 md:py-[140px]">
+    <section className="bg-white py-16 md:py-24">
 
       <div className="max-w-[600px] mx-auto px-6">
 

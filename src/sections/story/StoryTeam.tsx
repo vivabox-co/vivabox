@@ -34,17 +34,17 @@ const FOUNDERS = [
 
 export default function StoryTeam() {
   return (
-    <section className="vb-dark bg-ink py-24 md:py-[140px]">
+    <section className="vb-dark bg-ink py-16 md:py-24">
 
       <div className="max-w-[880px] mx-auto px-6">
 
         <Reveal duration={400}>
-          <h2 className="h2 text-white mb-16 md:mb-20 text-center">
+          <h2 className="h2 text-white mb-10 md:mb-14 text-center">
             Las personas detrás de Vivabox.
           </h2>
         </Reveal>
 
-        <div className="grid sm:grid-cols-2 gap-16">
+        <div className="grid sm:grid-cols-2 gap-12 md:gap-14">
 
           {FOUNDERS.map((founder, index) => (
             <Reveal key={founder.name} duration={400} delay={160 + index * 100}>

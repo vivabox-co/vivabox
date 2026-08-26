@@ -2,7 +2,7 @@ import Reveal from "@/components/ui/Reveal";
 
 export default function StoryColombia() {
   return (
-    <section className="vb-dark bg-ink py-24 md:py-[140px]">
+    <section className="vb-dark bg-ink py-16 md:py-24">
 
       <div className="max-w-[600px] mx-auto px-6">
 
@@ -37,7 +37,7 @@ export default function StoryColombia() {
         </Reveal>
 
         <Reveal duration={400} delay={160}>
-          <p className="text-xl md:text-2xl font-semibold leading-snug my-12 md:my-16 max-w-[420px] mx-auto text-center">
+          <p className="text-xl md:text-2xl font-semibold leading-snug my-8 md:my-10 max-w-[420px] mx-auto text-center">
             <span className="text-white">
               Por eso Vivabox no busca simplemente reunir muchas experiencias.
             </span>{" "}

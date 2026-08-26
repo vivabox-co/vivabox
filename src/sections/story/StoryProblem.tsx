@@ -2,7 +2,7 @@ import Reveal from "@/components/ui/Reveal";
 
 export default function StoryProblem() {
   return (
-    <section className="vb-dark bg-ink py-24 md:py-[140px]">
+    <section className="vb-dark bg-ink py-16 md:py-24">
 
       <div className="max-w-[600px] mx-auto px-6">
 
@@ -28,7 +28,7 @@ export default function StoryProblem() {
         </Reveal>
 
         <Reveal duration={400} delay={160}>
-          <div className="max-w-[460px] mx-auto text-center my-16 md:my-20">
+          <div className="max-w-[460px] mx-auto text-center my-10 md:my-14">
             <p className="text-white/40 text-sm mb-4">Y ahí apareció la idea:</p>
             <p className="italic font-medium text-white text-[26px] md:text-[34px] leading-[1.25] text-balance">
               &ldquo;¿Por qué quien regala tiene que elegir la experiencia?&rdquo;

@@ -2,7 +2,7 @@ import BrandDots from "@/components/ui/BrandDots";
 
 export default function StoryHero() {
   return (
-    <section className="bg-white py-28 md:py-40">
+    <section className="bg-white py-20 md:py-28">
 
       <div className="max-w-[600px] mx-auto px-6 text-center">
 

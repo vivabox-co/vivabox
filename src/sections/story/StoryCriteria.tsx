@@ -32,7 +32,7 @@ const LAST_CRITERION = {
 
 export default function StoryCriteria() {
   return (
-    <section className="bg-white py-24 md:py-[140px]">
+    <section className="bg-white py-16 md:py-24">
 
       <div className="max-w-[760px] mx-auto px-6">
 
@@ -45,7 +45,7 @@ export default function StoryCriteria() {
         </Reveal>
 
         <Reveal duration={400} delay={60}>
-          <p className="text-muted leading-relaxed text-center max-w-[420px] mx-auto mb-16 md:mb-20">
+          <p className="text-muted leading-relaxed text-center max-w-[420px] mx-auto mb-10 md:mb-14">
             Antes de incluir una experiencia, nos hacemos preguntas simples:
           </p>
         </Reveal>
@@ -67,7 +67,7 @@ export default function StoryCriteria() {
         </div>
 
         <Reveal duration={400} delay={CRITERIA.length * 80}>
-          <div className="flex gap-5 max-w-[380px] mx-auto mt-14 md:mt-16 pt-14 md:pt-16 border-t border-ink/10">
+          <div className="flex gap-5 max-w-[380px] mx-auto mt-10 md:mt-12 pt-10 md:pt-12 border-t border-ink/10">
             <span className="font-condensed font-semibold text-[38px] leading-none text-primary shrink-0">
               {LAST_CRITERION.number}
             </span>

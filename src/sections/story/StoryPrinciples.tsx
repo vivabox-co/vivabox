@@ -22,13 +22,13 @@ const PRINCIPLES = [
 
 export default function StoryPrinciples() {
   return (
-    <section className="bg-white py-24 md:py-[140px]">
+    <section className="bg-white py-16 md:py-24">
 
       <div className="max-w-[760px] mx-auto px-6">
 
         <Reveal duration={400}>
           <BrandDots className="justify-center" />
-          <h2 className="h2 mb-16 md:mb-20 text-center">
+          <h2 className="h2 mb-10 md:mb-14 text-center">
             Lo que no negociamos.
           </h2>
         </Reveal>

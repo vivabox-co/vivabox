@@ -44,6 +44,9 @@ export default function StoryPage() {
         />
 
         <StoryProblem />
+
+        <BrandRibbon />
+
         <StoryOrigin />
 
         <StoryPhotoBand
@@ -58,6 +61,9 @@ export default function StoryPage() {
         <BrandRibbon />
 
         <StoryTeam />
+
+        <BrandRibbon />
+
         <StoryPrinciples />
         <StoryTimeline />
 

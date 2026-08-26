@@ -20,12 +20,12 @@ const MILESTONES = [
 
 export default function StoryTimeline() {
   return (
-    <section className="vb-dark bg-ink py-24 md:py-[140px]">
+    <section className="vb-dark bg-ink py-16 md:py-24">
 
       <div className="max-w-[520px] mx-auto px-6">
 
         <Reveal duration={400}>
-          <h2 className="h2 text-white mb-14 md:mb-16 text-center">
+          <h2 className="h2 text-white mb-10 md:mb-12 text-center">
             Estamos construyendo esto paso a paso.
           </h2>
         </Reveal>
@@ -34,7 +34,7 @@ export default function StoryTimeline() {
 
           <div className="absolute left-[7px] top-2 bottom-2 w-px bg-white/15" />
 
-          <div className="space-y-9">
+          <div className="space-y-7">
             {MILESTONES.map((item, index) => (
               <Reveal key={item.year} duration={400} delay={index * 90}>
                 <div className="relative">

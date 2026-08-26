@@ -4,11 +4,11 @@ import Reveal from "@/components/ui/Reveal";
 
 export default function StoryClosing() {
   return (
-    <section className="bg-white py-24 md:py-[140px]">
+    <section className="bg-white py-16 md:py-24">
 
       <div className="max-w-[1040px] mx-auto px-6">
 
-        <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+        <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center">
 
           <Reveal duration={400} className="order-2 md:order-1 text-center md:text-left">
             <div>
