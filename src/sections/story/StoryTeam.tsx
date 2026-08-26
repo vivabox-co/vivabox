@@ -3,20 +3,6 @@ import Reveal from "@/components/ui/Reveal";
 
 const FOUNDERS = [
   {
-    name: "Gotie",
-    role: "Cofundador · Producto, estrategia y crecimiento",
-    photo: "/images/founders/Gotie.webp",
-    ring: "var(--color-accent-green)",
-    quote:
-      "Para mí, el reto no era crear otra forma de vender experiencias. Era hacer que regalar una buena experiencia fuera realmente sencillo.",
-    bio: [
-      "Gotie se enfoca en convertir la idea de Vivabox en un servicio sencillo de entender, fácil de usar y capaz de crecer.",
-      "Está detrás del producto, la estrategia y la experiencia del cliente en cada etapa del proceso.",
-    ],
-    circlePath:
-      "M50,4 C74,3 97,23 96,49 C97,76 73,97 49,96 C24,97 4,75 4,50 C3,25 26,5 50,4 Z",
-  },
-  {
     name: "Frank",
     role: "Cofundador · Experiencias, alianzas y operaciones",
     photo: "/images/founders/Franko.webp",
@@ -29,6 +15,20 @@ const FOUNDERS = [
     ],
     circlePath:
       "M50,3 C71,2 96,19 97,50 C98,79 76,98 49,97 C23,98 3,77 3,49 C2,22 25,4 50,3 Z",
+  },
+  {
+    name: "Gotie",
+    role: "Cofundador · Producto, estrategia y crecimiento",
+    photo: "/images/founders/Gotie.webp",
+    ring: "var(--color-accent-green)",
+    quote:
+      "Para mí, el reto no era crear otra forma de vender experiencias. Era hacer que regalar una buena experiencia fuera realmente sencillo.",
+    bio: [
+      "Gotie se enfoca en convertir la idea de Vivabox en un servicio sencillo de entender, fácil de usar y capaz de crecer.",
+      "Está detrás del producto, la estrategia y la experiencia del cliente en cada etapa del proceso.",
+    ],
+    circlePath:
+      "M50,4 C74,3 97,23 96,49 C97,76 73,97 49,96 C24,97 4,75 4,50 C3,25 26,5 50,4 Z",
   },
 ] as const;
 
