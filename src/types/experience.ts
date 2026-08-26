@@ -19,7 +19,7 @@ export type Experience = {
   engagement?: string
   vivanote?: string
 
-  // Curated editorial badges (max 3, explicit order), resolved via
-  // src/data/badges.ts -- separate system from the internal filters above.
+  // Curated editorial "claves de elección" (max 3, explicit order), resolved
+  // via src/data/badges.ts -- separate system from the internal filters above.
   visibleBadges?: string[]
 }

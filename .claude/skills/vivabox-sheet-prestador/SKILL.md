@@ -75,7 +75,7 @@ lista para copiar/pegar; el usuario la pega él mismo en Google Sheets.
 | 53 | documento_anexo_url | No | URL (Drive u otro) | |
 | 54 | fecha_firma | No | AAAA-MM-DD | |
 | 55 | estado | **Sí** | borrador · en validación · contrato firmado · listo para publicar · publicado · pausado · vencido | Default `borrador`. Solo "publicado" se muestra en el sitio |
-| 56 | badges_visibles | No | Hasta 3 keys separadas por `\|`, en el orden en que deben mostrarse (ej: `nivel_basico\|guia_incluido\|equipo_incluido`) | Badges editoriales que se muestran en la ficha/popup, debajo de ciudad · duración · personas. Cada key debe existir en `BADGE_REGISTRY` (`src/data/badges.ts`) — ahí se centraliza label + icono. Sistema totalmente separado de `ambiente_animo`/`entorno`/`ritmo` (cols 26-28), que siguen existiendo solo como metadata interna de filtros para la web app beneficiaria. No repetir en los badges lo que ya muestra ciudad/duración/personas, y no rellenar hasta 3 si la experiencia no tiene 3 badges pertinentes |
+| 56 | claves_eleccion | No | Hasta 3 elementos separados por `\|`, en el orden en que deben mostrarse (ej: `nivel_basico\|guia_incluido\|equipo_incluido`, o texto libre corto como `2 bebidas`) | Antes se llamaba `badges_visibles`. NO es un resumen de características — solo las 2-3 informaciones que realmente pueden influir en la decisión del beneficiario para ESA experiencia puntual. Nunca rellenar por defecto con interior/exterior/esfuerzo bajo/ambiente relajado/categoría/duración/ciudad — eso ya se muestra en otro lado de la ficha. Reglas completas de curaduría (qué incluir, qué no, ejemplos por categoría) en `docs/editorial/experiencias.md`. Cada elemento puede ser una key existente en `BADGE_REGISTRY` (`src/data/badges.ts`, le da un ícono específico) o texto libre corto en español natural sin snake_case (se muestra tal cual con un ícono genérico) para un detalle puntual que no amerita una entrada permanente en el registro. Sistema totalmente separado de `ambiente_animo`/`entorno`/`ritmo` (cols 26-28), que siguen existiendo solo como metadata interna de filtros para la web app beneficiaria. Preferible dejarla vacía o con 1-2 elementos que rellenar hasta 3 sin que aporten nada |
 
 ## Cálculo de codigo_interno
 
@@ -128,7 +128,7 @@ la foto **realmente muestra** (nunca solo el nombre comercial ni el `codigo_inte
    (`/images/experiencias-reales/<slug-descriptivo>/<slug-descriptivo>-1.webp`) una vez que
    haya foto real y se sepa qué muestra exactamente.
 7. Producir la fila final en un bloque de texto separado por tabulaciones (TSV), en el
-   **orden exacto** de las 55 columnas de la tabla — listo para pegar directamente en una
+   **orden exacto** de las 56 columnas de la tabla — listo para pegar directamente en una
    fila del Google Sheet. Incluir también un resumen legible campo por campo debajo, para
    que el usuario pueda revisar antes de pegar.
 8. Recordar al usuario que debe pegar la fila él mismo en el Google Sheet real — este skill

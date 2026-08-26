@@ -51,6 +51,10 @@ export default function BoxHero({
   const [heroImageIndex, setHeroImageIndex] = useState(0)
 
   useEffect(() => {
+    // Users who ask their OS for reduced motion get a static hero instead
+    // of a rotating one -- the fades can feel unpleasant or disorienting.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
     const id = setInterval(() => {
       setHeroImageIndex((i) => (i + 1) % HERO_GALLERY_IMAGES.length)
     }, HERO_GALLERY_INTERVAL_MS)
@@ -80,7 +84,7 @@ export default function BoxHero({
             fill
             priority={i === 0}
             sizes="100vw"
-            className={`object-cover blur-[5px] brightness-[0.8] scale-110 transition-opacity duration-1000 ease-in-out ${
+            className={`object-cover blur-[5px] brightness-[0.8] scale-110 transition-opacity duration-[1800ms] ease-in-out ${
               i === heroImageIndex ? "opacity-100" : "opacity-0"
             }`}
           />

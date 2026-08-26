@@ -255,7 +255,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
             </div>
           )}
 
-          {/* BADGES — curated, editorial selection specific to this experience (max 3) */}
+          {/* CLAVES DE ELECCIÓN — curated, editorial selection specific to this experience (max 3) */}
           {badges.length > 0 && (
             <div className="flex flex-nowrap gap-1.5 mb-3">
               {badges.map((badge) => {

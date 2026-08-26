@@ -61,20 +61,28 @@ import {
   Sandwich,
   Cookie,
   Sprout,
+  IdCard,
+  FileCheck,
+  BadgeCheck,
 } from "lucide-react"
 
 export type Badge = { key: string; label: string; icon: LucideIcon }
 
-// Visible badges are a curated, per-experience editorial selection — up to 3,
-// chosen in the sheet's "badges_visibles" column (pipe-separated keys, e.g.
-// "nivel_basico|guia_incluido|equipo_incluido"). They are NOT derived from the
-// internal filter fields (ambiance/environment/engagement/idealFor/effortLevel),
-// which keep existing unchanged for catalogue filtering in the activation app.
+// "Claves de elección" are a curated, per-experience editorial selection —
+// up to 3, chosen in the sheet's "claves_eleccion" column (pipe-separated,
+// e.g. "nivel_basico|guia_incluido|equipo_incluido"). Content rules (what
+// belongs here vs. what doesn't) live in docs/editorial/experiencias.md.
+// They are NOT derived from the internal filter fields
+// (ambiance/environment/engagement/idealFor/effortLevel), which keep
+// existing unchanged for catalogue filtering in the activation app.
 //
 // Single source of truth for key → label/icon so both can be edited here
 // without touching any experience row. Keys are grouped by category below for
 // readability only — the registry itself is flat and a key can be reused by
-// any category.
+// any category. A sheet value that doesn't match any key here isn't dropped —
+// it's rendered as-is with a generic icon (see resolveVisibleBadges), so a
+// one-off detail that doesn't deserve a permanent registry entry (e.g. "2
+// bebidas") still works without editing this file.
 export const BADGE_REGISTRY: Record<string, { label: string; icon: LucideIcon }> = {
 
   // Bienestar
@@ -108,6 +116,8 @@ export const BADGE_REGISTRY: Record<string, { label: string; icon: LucideIcon }>
   en_el_agua: { label: "En agua", icon: Waves },
   en_montana: { label: "En montaña", icon: Mountain },
   con_animales: { label: "Con animales", icon: PawPrint },
+  mayor_edad_18: { label: "+18 años", icon: IdCard },
+  licencia_vigente: { label: "Licencia vigente", icon: FileCheck },
 
   // Cultura
   taller_practico: { label: "Taller práctico", icon: PencilRuler },
@@ -165,27 +175,32 @@ export const BADGE_REGISTRY: Record<string, { label: string; icon: LucideIcon }>
 
 const MAX_VISIBLE_BADGES = 3
 
-// Sheet's "badges_visibles" column: pipe-separated keys, explicit order,
-// e.g. "nivel_basico|guia_incluido|equipo_incluido".
+// Sheet's "claves_eleccion" column: pipe-separated values, explicit order,
+// e.g. "nivel_basico|guia_incluido|equipo_incluido". Casing is preserved
+// here (not lowercased) because a value may be freeform display text rather
+// than a registry key -- see resolveVisibleBadges.
 export function parseVisibleBadgeKeys(raw?: string): string[] {
   return (raw || "")
     .split("|")
-    .map((key) => key.trim().toLowerCase())
+    .map((key) => key.trim())
     .filter(Boolean)
     .slice(0, MAX_VISIBLE_BADGES)
 }
 
-// Resolves stored keys to {label, icon} for rendering. Unknown keys (typos,
-// a key removed from the registry) are dropped rather than shown broken —
-// never pads back up to 3.
+// Resolves stored values to {label, icon} for rendering. A value that
+// matches a BADGE_REGISTRY key (case-insensitive) gets that entry's curated
+// label/icon. A value that matches nothing is treated as literal, already
+// human-readable text (a one-off detail like "2 bebidas") and rendered as-is
+// with a generic icon rather than dropped.
 export function resolveVisibleBadges(keys?: string[]): Badge[] {
   if (!keys?.length) return []
 
   return keys
-    .map((key) => {
-      const entry = BADGE_REGISTRY[key]
-      return entry ? { key, label: entry.label, icon: entry.icon } : null
+    .map((raw) => {
+      const entry = BADGE_REGISTRY[raw.toLowerCase()]
+      return entry
+        ? { key: raw.toLowerCase(), label: entry.label, icon: entry.icon }
+        : { key: raw, label: raw, icon: BadgeCheck }
     })
-    .filter((badge): badge is Badge => badge !== null)
     .slice(0, MAX_VISIBLE_BADGES)
 }

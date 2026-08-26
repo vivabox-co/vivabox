@@ -1,8 +1,8 @@
 # Vivabox — Línea Editorial de Experiencias
 
-> Fuente de verdad para el contenido de cada ficha de experiencia: `descripcion_corta` y `nota_vivabox`.
+> Fuente de verdad para el contenido de cada ficha de experiencia: `descripcion_corta`, `nota_vivabox` y `claves_eleccion`.
 > Tono y lenguaje general de la marca → ver `../02_brand-voice.md`.
-> Esta doc NO cubre título, categoría, badges, iconos, ubicación, duración ni estructura visual — eso se mantiene tal cual está.
+> Esta doc NO cubre título, categoría, ubicación, duración ni estructura visual — eso se mantiene tal cual está. El registro de íconos de `claves_eleccion` (`BADGE_REGISTRY`) tampoco se cubre aquí — vive en `src/data/badges.ts`.
 
 ## 1. Propósito
 
@@ -16,6 +16,7 @@ Vivabox no selecciona experiencias para llenar un catálogo. Las selecciona porq
 |---|---|---|
 | Descripción | `descripcion_corta` → `shortDescription` | Cuenta la experiencia |
 | La elegimos | `nota_vivabox` → `vivanote` | Cuenta nuestro criterio |
+| Claves de elección | `claves_eleccion` → `visibleBadges` | Ayuda a decidir |
 
 Regla fundamental: **nunca deben leerse como dos versiones del mismo texto.** Si al leerlas seguidas dicen básicamente lo mismo con otras palabras, hay que reescribir una de las dos.
 
@@ -31,7 +32,7 @@ Regla fundamental: **nunca deben leerse como dos versiones del mismo texto.** Si
 
 **Reglas:**
 - Verbos concretos, lenguaje que permite imaginar la escena.
-- No repetir lo que ya dicen título, ubicación, duración o badges.
+- No repetir lo que ya dicen título, ubicación, duración o claves de elección.
 - No mencionar el nombre del prestador.
 - No convertirla en una reseña.
 
@@ -54,12 +55,59 @@ Antes: "Elegida por Vivabox". Ahora: **"La elegimos"**.
 | C. La incluimos por el equilibrio | El valor está en la combinación de elementos | "La incluimos porque combina..." |
 | D. Estábamos buscando algo que faltaba | Cubre un hueco del catálogo | "Queríamos encontrar algo así fuera de Bogotá. Cuando conocimos esta propuesta..." |
 
-## 5. Tono (para "La elegimos" especialmente)
+## 5. Sección 3 — "Claves de elección"
+
+**Campo:** `claves_eleccion` (sheet) → `visibleBadges` (código). Antes se llamaba `badges_visibles`.
+
+**Función:** no es un resumen de las características de la experiencia. Contiene únicamente las 2-3 informaciones más útiles para que el beneficiario pueda decidir si quiere elegir esta experiencia sobre las demás del catálogo. Una característica puede ser verdadera y aun así no pertenecer aquí.
+
+La pregunta a hacerse por cada candidato es siempre:
+
+> ¿Esta información puede influir realmente en la decisión del beneficiario?
+
+Si la respuesta es no, no se incluye.
+
+**Nunca añadir por defecto** (aunque sean ciertas para la experiencia):
+- Interior / Exterior
+- Esfuerzo bajo
+- Ambiente relajado
+- Categoría
+- Duración
+- Ciudad
+
+Estas informaciones solo entran si tienen una importancia real para decidir en *esa* experiencia puntual — no como relleno automático.
+
+**Priorizar:**
+- una condición importante
+- un nivel de dificultad
+- algo que tranquiliza o elimina una duda
+- algo diferencial
+- algo que el beneficiario querría saber antes de elegir
+- algo que hace la experiencia especialmente adecuada para cierto tipo de persona
+
+**Ejemplos:**
+
+| Experiencia | Claves de elección |
+|---|---|
+| Escalada | Nivel básico \| Guía incluido \| Equipo incluido |
+| Flotación | En silencio \| Sin pantallas \| Traje de baño |
+| Motocross | +18 años \| Licencia vigente \| Equipo incluido |
+| Restaurante | Cocina colombiana \| 2 bebidas |
+
+**Cantidad:** no hay obligación de llenar 3. Puede tener 3, 2, 1 elemento, o quedar vacía si ninguna información amerita destacarse. Es preferible tener 2 claves realmente útiles que 3 genéricas de relleno.
+
+**Formato:** elementos separados por ` | ` en el sheet. Cada elemento debe ser corto, claro, comprensible sin conocer el sistema interno, en español natural, sin lenguaje técnico y sin snake_case.
+
+**No inventar:** cada elemento debe estar respaldado por información confirmada de la experiencia, nunca una suposición.
+
+Técnicamente, cada elemento puede ser una key existente en `BADGE_REGISTRY` (`src/data/badges.ts`, le da un ícono específico y reutilizable) o texto libre corto como el del ejemplo de restaurante (se muestra tal cual, con un ícono genérico) para un detalle puntual que no amerita una entrada permanente en el registro.
+
+## 6. Tono (para "La elegimos" especialmente)
 
 Debe sentirse: humana, profesional, observadora, cercana, segura, con criterio, cálida, sobria.
 No debe sentirse: corporativa, publicitaria, artificial, exagerada, turística, escrita por IA.
 
-## 6. Regla contra el "copy IA": especificidad > adjetivos
+## 7. Regla contra el "copy IA": especificidad > adjetivos
 
 No intentar que los textos parezcan "bonitos". Intentar que parezcan **observados**.
 
@@ -71,7 +119,7 @@ No intentar que los textos parezcan "bonitos". Intentar que parezcan **observado
 No decir: *"Nos gusta porque es una experiencia única y especial."*
 Decir algo que **demuestre** por qué gusta: *"Fuimos a conocer la actividad y nos gustó que no parte de la idea de que ya sabes escalar."*
 
-## 7. Palabras y clichés a evitar (en ambas secciones)
+## 8. Palabras y clichés a evitar (en ambas secciones)
 
 `única` · `inolvidable` · `mágica` · `increíble` · `imperdible` · `especial` · "para crear recuerdos inolvidables" · "desconecta de la rutina y conecta contigo" · "vive una experiencia que..." · "perfecta para..." · "ideal para..."
 
@@ -79,36 +127,39 @@ Sin clichés de turismo, bienestar o lifestyle. Sin exagerar.
 
 > Nota de auditoría (2026): el contenido actual en el sheet usa "desconectar" con mucha frecuencia y algún "perfecta para" suelto — no son errores graves pero conviene variar el vocabulario entre fichas para que no se sientan repetidas entre sí.
 
-## 8. Primera persona / experiencia de Vivabox — regla de veracidad
+## 9. Primera persona / experiencia de Vivabox — regla de veracidad
 
 Cuando hay evidencia real de que Vivabox visitó/probó/conoció la experiencia, se puede usar: "Fuimos a conocerla...", "La probamos...", "Cuando la conocimos...", "Nos llamó la atención...", "Lo que más nos gustó fue...", "Nos convenció...", "Después de vivirla...".
 
 **Nunca inventar una visita o experiencia de primera mano.** Si no hay evidencia de que Vivabox estuvo ahí, usar una formulación basada en criterio de selección: "La incluimos porque...", "Nos llamó la atención...", "Nos convenció...", siempre sustentado en información real (no inventada).
 
-## 9. Prohibido mencionar al prestador
+## 10. Prohibido mencionar al prestador
 
 El nombre del prestador de servicio **no** aparece en `descripcion_corta` ni en `vivanote`. El foco es siempre la experiencia que vive la persona, no un directorio de proveedores.
 
-## 10. Ejemplos reales (del catálogo actual, para calibrar el nivel esperado)
+## 11. Ejemplos reales (del catálogo actual, para calibrar el nivel esperado)
 
 **Bueno** — Escalada en las rocas de Suesca:
 - Descripción: *"Escalar las icónicas rocas de Suesca con un guía experto y todo el equipo necesario, para sentir la montaña de una forma distinta."*
 - La elegimos: *"Nos gusta porque las rocas de Suesca son cuna de la escalada en Colombia, y vivirlo con un guía hace la experiencia accesible incluso para quienes nunca han escalado."*
-- Por qué funciona: acción concreta + dato específico (cuna de la escalada en Colombia) que demuestra criterio, no adjetivos.
+- Claves de elección: `Nivel básico | Guía incluido | Equipo incluido`
+- Por qué funciona: acción concreta + dato específico (cuna de la escalada en Colombia) que demuestra criterio, no adjetivos; las claves de elección refuerzan justo lo que alguien sin experiencia necesita saber antes de decidir.
 
 **Mejorable** — evitar este patrón:
-- *"Una experiencia perfecta para desconectar y vivir algo especial."* — cero información concreta, usa dos palabras de la lista prohibida (§7), podría ser cualquier experiencia de cualquier categoría.
+- *"Una experiencia perfecta para desconectar y vivir algo especial."* — cero información concreta, usa dos palabras de la lista prohibida (§8), podría ser cualquier experiencia de cualquier categoría.
+- Claves de elección `Interior | Esfuerzo bajo | Categoría Bienestar` — información genérica que no ayuda a decidir y que además está en la lista de "nunca añadir por defecto" (§5).
 
-## 11. Checklist editorial obligatorio (antes de dar por terminado un texto)
+## 12. Checklist editorial obligatorio (antes de dar por terminado un texto)
 
 1. **Comprensión** — ¿Se entiende qué se va a hacer? Si no, falla la descripción.
 2. **Curaduría** — ¿Se entiende por qué Vivabox escogió esta experiencia y no cualquier otra? Si no, falla "La elegimos".
 3. **Humanidad** — ¿Podría este texto haberlo escrito cualquier marketplace con IA? Si la respuesta es sí, reescribir.
 4. **Especificidad** — ¿Hay al menos una observación concreta que justifique la elección? Si no, profundizar.
 5. **Veracidad** — ¿Todo lo que afirma está sustentado por datos reales? Nunca inventar detalles ni visitas.
+6. **Claves de elección** — ¿Cada elemento realmente ayuda a decidir, o es información genérica de relleno? Si es relleno, sacarlo (una lista vacía es mejor que una genérica).
 
-## 12. Dónde vive esto técnicamente
+## 13. Dónde vive esto técnicamente
 
-- Datos: columnas `descripcion_corta` (obligatoria) y `nota_vivabox` (obligatoria) del Google Sheet "Experiencias" — ver diccionario completo en `.claude/skills/vivabox-sheet-prestador/SKILL.md`.
-- Código: `src/services/sheet.ts` (mapea headers ES→EN) → `src/services/experiences.ts` (arma `Experience`) → `src/components/ExperienceModal.tsx` (renderiza `shortDescription` como descripción y `vivanote` en el bloque "La elegimos", con fallback genérico por categoría en `src/data/categories.ts` solo para filas sin datos).
-- No hay que crear campos nuevos: la separación `description` / nota editorial ya existe en el modelo de datos.
+- Datos: columnas `descripcion_corta` (obligatoria), `nota_vivabox` (obligatoria) y `claves_eleccion` (opcional) del Google Sheet "Experiencias" — ver diccionario completo en `.claude/skills/vivabox-sheet-prestador/SKILL.md`.
+- Código: `src/services/sheet.ts` (mapea headers ES→EN) → `src/services/experiences.ts` (arma `Experience`) → `src/components/ExperienceModal.tsx` (renderiza `shortDescription` como descripción, `vivanote` en el bloque "La elegimos", y `claves_eleccion` como pills vía `resolveVisibleBadges` en `src/data/badges.ts`, con fallback genérico por categoría en `src/data/categories.ts` solo para filas sin datos).
+- No hay que crear campos nuevos: la separación `description` / nota editorial / claves de elección ya existe en el modelo de datos.

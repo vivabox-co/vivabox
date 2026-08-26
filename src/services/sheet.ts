@@ -28,7 +28,7 @@ const HEADER_MAP: Record<string, string> = {
   ritmo: "engagement",
   nota_vivabox: "vivanote",
   imagenes_adicionales: "imagenesAdicionales",
-  badges_visibles: "visibleBadges",
+  claves_eleccion: "visibleBadges",
 }
 
 function translateRow(row: Record<string, string>) {
