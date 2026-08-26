@@ -11,33 +11,43 @@ export default function BoxFAQ({ validityMonths }: Props) {
 
   const faqs = [
     {
-      question: "¿La persona elige la experiencia después?",
+      question: "¿Qué recibe la persona que regalo?",
       answer:
-        "Sí. Solo después de recibir la Vivabox podrá descubrir todas las experiencias disponibles y elegir la que más le emocione.",
+        "Recibe una caja Vivabox física, lista para regalar, con un mensaje personal y un código único de activación. Con ese código podrá descubrir y elegir su experiencia.",
     },
     {
-      question: "¿La caja está incluida?",
+      question: "¿La persona tiene que elegir la experiencia antes de recibir la Vivabox?",
       answer:
-        "Sí. La Vivabox incluye la caja física lista para regalar.",
+        "No. Tú regalas la Vivabox y la persona que la recibe elige la experiencia después. Así no tienes que adivinar qué le gustaría.",
     },
     {
-      question: "¿Tiene vencimiento?",
-      answer: `Sí. Es válida durante ${validityMonths} meses desde la compra.`,
+      question: "¿Cómo funciona la parte digital de la Vivabox?",
+      answer:
+        "La Vivabox combina una caja física con una experiencia digital sencilla. La persona que la recibe activa su código en nuestra plataforma para descubrir las experiencias, elegir una y reservarla. Quien compra la Vivabox no tiene que usar la plataforma ni hacer ninguna gestión.",
     },
     {
-      question: "¿En qué ciudades están disponibles las experiencias?",
+      question: "¿Cómo se reserva la experiencia?",
       answer:
-        "Por ahora las experiencias están disponibles en Bogotá y Cundinamarca. Vamos sumando más ciudades pronto.",
+        "Después de elegir una experiencia, la persona inicia la reserva desde nuestra plataforma y nuestro equipo la acompaña con el prestador hasta confirmar la fecha.",
     },
     {
-      question: "¿Puedo escribir un mensaje personal?",
+      question: "¿Qué experiencias puede elegir?",
       answer:
-        "Sí. Podrás agregarlo después del pago durante el checkout.",
+        "Puede elegir entre las experiencias disponibles en su Vivabox, con opciones de gastronomía, bienestar, aventura, estancias, cultura y mucho más. El catálogo se sigue ampliando.",
     },
     {
-      question: "¿Qué pasa si una experiencia deja de estar disponible?",
+      question: "¿Cuánto tiempo tiene para usarla?",
+      answer: `La Vivabox tiene una vigencia de ${validityMonths} meses desde la fecha de compra.`,
+    },
+    {
+      question: "¿Dónde están disponibles las experiencias?",
       answer:
-        "Siempre podrá elegir entre muchas otras experiencias disponibles dentro de su Vivabox.",
+        "Actualmente las experiencias están disponibles en Bogotá y Cundinamarca. Seguimos ampliando el catálogo y sumando nuevos lugares.",
+    },
+    {
+      question: "¿Tengo que hacer algo después de regalar la Vivabox?",
+      answer:
+        "No. Tú solo tienes que regalarla. La persona que la recibe se encarga de activar su Vivabox y elegir la experiencia, y nuestro equipo la acompaña durante todo el proceso, desde la elección hasta la reserva. No tienes que organizar nada ni gestionar la experiencia por ella.",
     },
   ]
 
@@ -83,7 +93,7 @@ export default function BoxFAQ({ validityMonths }: Props) {
 
                 <div
                   className={`overflow-hidden transition-all duration-300 ${
-                    isOpen ? "max-h-40 mt-2" : "max-h-0"
+                    isOpen ? "max-h-52 mt-2" : "max-h-0"
                   }`}
                 >
                   <p
