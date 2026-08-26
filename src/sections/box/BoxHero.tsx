@@ -28,7 +28,7 @@ const HERO_GALLERY_IMAGES = [
   "/images/experiencias-reales/taller-cata-cacao-bogota-vivabox/taller-cata-cacao-bogota-vivabox-1.webp",
 ]
 
-const HERO_GALLERY_INTERVAL_MS = 3000
+const HERO_GALLERY_INTERVAL_MS = 5000
 
 export default function BoxHero({
   name,
