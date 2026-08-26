@@ -9,10 +9,10 @@ export default function Footer() {
 
       <div className="max-w-6xl mx-auto px-6">
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-8">
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-x-6 sm:gap-x-8 gap-y-8">
 
           {/* COLUMN 1 — BRAND */}
-          <div className="lg:col-span-1">
+          <div className="col-span-2 row-start-1 lg:col-span-1 lg:col-start-1 lg:row-start-1">
             <h3 className="text-white font-semibold text-[17px] mb-3">
               Vivabox Colombia
             </h3>
@@ -23,7 +23,7 @@ export default function Footer() {
               Deja que elija la experiencia.
             </p>
 
-            <div className="flex items-center gap-4 mt-4">
+            <div className="flex items-center gap-4 mt-3 lg:mt-4">
               <a
                 href="https://www.instagram.com/vivaboxcolombia/"
                 target="_blank"
@@ -66,13 +66,16 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* COLUMN 2 — EXPLORA */}
-          <nav aria-label="Explora Vivabox">
-            <h4 className="text-white font-semibold text-[15px] mb-3">
+          {/* COLUMN 2 — EXPLORA (mobile: left, row 2) */}
+          <nav
+            aria-label="Explora Vivabox"
+            className="col-start-1 row-start-2 lg:col-start-2 lg:row-start-1"
+          >
+            <h4 className="text-white font-semibold text-[15px] mb-3.5">
               Explora
             </h4>
 
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/#incluye" className={linkClasses}>
                   Cómo funciona
@@ -91,13 +94,16 @@ export default function Footer() {
             </ul>
           </nav>
 
-          {/* COLUMN 3 — EMPRESAS */}
-          <nav aria-label="Empresas Vivabox">
-            <h4 className="text-white font-semibold text-[15px] mb-3">
+          {/* COLUMN 3 — EMPRESAS (mobile: left, row 3) */}
+          <nav
+            aria-label="Empresas Vivabox"
+            className="col-start-1 row-start-3 lg:col-start-3 lg:row-start-1"
+          >
+            <h4 className="text-white font-semibold text-[15px] mb-3.5">
               Empresas
             </h4>
 
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/empresas" className={linkClasses}>
                   Regalos corporativos
@@ -106,13 +112,16 @@ export default function Footer() {
             </ul>
           </nav>
 
-          {/* COLUMN 4 — ALIADOS */}
-          <nav aria-label="Aliados Vivabox">
-            <h4 className="text-white font-semibold text-[15px] mb-3">
+          {/* COLUMN 4 — ALIADOS (mobile: right, row 3) */}
+          <nav
+            aria-label="Aliados Vivabox"
+            className="col-start-2 row-start-3 lg:col-start-4 lg:row-start-1"
+          >
+            <h4 className="text-white font-semibold text-[15px] mb-3.5">
               Aliados
             </h4>
 
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/aliados" className={linkClasses}>
                   Ofrece una experiencia
@@ -121,13 +130,16 @@ export default function Footer() {
             </ul>
           </nav>
 
-          {/* COLUMN 5 — AYUDA */}
-          <nav aria-label="Ayuda Vivabox">
-            <h4 className="text-white font-semibold text-[15px] mb-3">
+          {/* COLUMN 5 — AYUDA (mobile: right, row 2) */}
+          <nav
+            aria-label="Ayuda Vivabox"
+            className="col-start-2 row-start-2 lg:col-start-5 lg:row-start-1"
+          >
+            <h4 className="text-white font-semibold text-[15px] mb-3.5">
               Ayuda
             </h4>
 
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-3 text-sm">
               <li>
                 <a
                   href="https://app.vivabox.com.co/activar"
@@ -156,13 +168,16 @@ export default function Footer() {
             </ul>
           </nav>
 
-          {/* COLUMN 6 — LEGAL */}
-          <nav aria-label="Legal">
-            <h4 className="text-white font-semibold text-[15px] mb-3">
+          {/* COLUMN 6 — LEGAL (mobile: full width, row 4) */}
+          <nav
+            aria-label="Legal"
+            className="col-span-2 row-start-4 lg:col-span-1 lg:col-start-6 lg:row-start-1"
+          >
+            <h4 className="text-white font-semibold text-[15px] mb-3.5">
               Legal
             </h4>
 
-            <ul className="space-y-2.5 text-sm">
+            <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm lg:flex-col lg:flex-nowrap lg:gap-x-0 lg:space-y-3">
               <li>
                 <Link href="/terminos-y-condiciones" className={linkClasses}>
                   Términos y condiciones
@@ -184,7 +199,7 @@ export default function Footer() {
         </div>
 
         {/* LEGAL / TRUST */}
-        <div className="border-t border-white/10 mt-8 pt-6">
+        <div className="border-t border-white/10 mt-6 pt-5 lg:mt-8 lg:pt-6">
           <p className="text-xs text-gray-500 mb-2">
             Empresa colombiana de regalos de experiencias.
           </p>
