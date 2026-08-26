@@ -4,19 +4,19 @@ import Reveal from "@/components/ui/Reveal";
 
 export default function StoryClosing() {
   return (
-    <section className="bg-accent-tint py-20 md:py-[120px]">
+    <section className="bg-white py-24 md:py-[140px]">
 
       <div className="max-w-[1040px] mx-auto px-6">
 
-        <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+        <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
 
           <Reveal duration={400} className="order-2 md:order-1 text-center md:text-left">
             <div>
-              <h2 className="h2 mb-4">
+              <h2 className="h2 mb-6">
                 Esta historia apenas comienza.
               </h2>
 
-              <p className="text-lg text-muted leading-relaxed mb-8">
+              <p className="text-lg text-muted leading-relaxed mb-10">
                 Queremos que cada vez más personas descubran que un buen
                 regalo no tiene que ser una cosa.
                 <br />

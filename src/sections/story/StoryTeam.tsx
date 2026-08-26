@@ -1,5 +1,4 @@
 import Image from "next/image";
-import BrandDots from "@/components/ui/BrandDots";
 import Reveal from "@/components/ui/Reveal";
 
 const FOUNDERS = [
@@ -35,29 +34,17 @@ const FOUNDERS = [
 
 export default function StoryTeam() {
   return (
-    <section className="vb-dark bg-ink py-20 md:py-[120px]">
+    <section className="vb-dark bg-ink py-24 md:py-[140px]">
 
       <div className="max-w-[880px] mx-auto px-6">
 
         <Reveal duration={400}>
-          <BrandDots className="justify-center md:justify-start" />
-        </Reveal>
-
-        <Reveal duration={400} delay={60}>
-          <h2 className="h2 text-white mb-4 text-center md:text-left">
+          <h2 className="h2 text-white mb-16 md:mb-20 text-center">
             Las personas detrás de Vivabox.
           </h2>
         </Reveal>
 
-        <Reveal duration={400} delay={100}>
-          <p className="text-white/70 leading-relaxed mb-12 text-center md:text-left max-w-[520px]">
-            Gotie y Frank se unieron para construir Vivabox: uno viene del
-            producto y el crecimiento, el otro del mundo de las experiencias
-            en Colombia.
-          </p>
-        </Reveal>
-
-        <div className="grid sm:grid-cols-2 gap-12 md:gap-16">
+        <div className="grid sm:grid-cols-2 gap-16">
 
           {FOUNDERS.map((founder, index) => (
             <Reveal key={founder.name} duration={400} delay={160 + index * 100}>
