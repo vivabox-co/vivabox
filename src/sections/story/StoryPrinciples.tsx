@@ -1,4 +1,5 @@
 import Reveal from "@/components/ui/Reveal";
+import BrandDots from "@/components/ui/BrandDots";
 
 const PRINCIPLES = [
   {
@@ -26,6 +27,7 @@ export default function StoryPrinciples() {
       <div className="max-w-[760px] mx-auto px-6">
 
         <Reveal duration={400}>
+          <BrandDots className="justify-center" />
           <h2 className="h2 mb-16 md:mb-20 text-center">
             Lo que no negociamos.
           </h2>

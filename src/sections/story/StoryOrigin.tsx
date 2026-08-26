@@ -1,4 +1,5 @@
 import Reveal from "@/components/ui/Reveal";
+import BrandDots from "@/components/ui/BrandDots";
 
 export default function StoryOrigin() {
   return (
@@ -7,6 +8,7 @@ export default function StoryOrigin() {
       <div className="max-w-[600px] mx-auto px-6">
 
         <Reveal duration={400}>
+          <BrandDots />
           <h2 className="h2 mb-10">
             Así nació Vivabox.
           </h2>

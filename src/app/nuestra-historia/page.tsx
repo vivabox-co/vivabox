@@ -14,6 +14,7 @@ import StoryTeam from "@/sections/story/StoryTeam";
 import StoryPrinciples from "@/sections/story/StoryPrinciples";
 import StoryTimeline from "@/sections/story/StoryTimeline";
 import StoryClosing from "@/sections/story/StoryClosing";
+import BrandRibbon from "@/components/ui/BrandRibbon";
 
 export const metadata: Metadata = {
   title: "Nuestra historia | Vivabox Colombia — Regalos de experiencias",
@@ -39,7 +40,7 @@ export default function StoryPage() {
         <StoryPhotoBand
           src="/images/hero/experiencia-vivabox-aire-libre.webp"
           alt="Una experiencia Vivabox vivida al aire libre"
-          objectPosition="center 50%"
+          objectPosition="center 56%"
         />
 
         <StoryProblem />
@@ -53,9 +54,15 @@ export default function StoryPage() {
 
         <StoryColombia />
         <StoryCriteria />
+
+        <BrandRibbon />
+
         <StoryTeam />
         <StoryPrinciples />
         <StoryTimeline />
+
+        <BrandRibbon />
+
         <StoryClosing />
       </main>
 
