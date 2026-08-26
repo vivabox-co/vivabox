@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { archivoNarrow, caveatBrush, gloriaHallelujah } from "@/lib/fonts";
 import RouteLoaderOverlay from "@/components/ui/RouteLoaderOverlay";
+import { GoogleTagManagerScript, GoogleTagManagerNoscript } from "@/components/analytics/GoogleTagManager";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -30,7 +31,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={`${jakarta.variable} ${caveatBrush.variable} ${gloriaHallelujah.variable} ${archivoNarrow.variable}`}>
+      <head>
+        <GoogleTagManagerScript />
+      </head>
       <body className="font-sans notranslate">
+        <GoogleTagManagerNoscript />
         <RouteLoaderOverlay />
         {children}
       </body>
