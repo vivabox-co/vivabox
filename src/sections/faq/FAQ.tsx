@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Gift,
   HelpCircle,
@@ -10,8 +9,8 @@ import {
   Clock,
   Smartphone,
   Repeat,
-  ChevronDown
 } from "lucide-react";
+import FaqAccordion from "@/components/FaqAccordion";
 
 export default function FAQ() {
 
@@ -66,84 +65,16 @@ export default function FAQ() {
     },
   ];
 
-  const [open, setOpen] = useState<number | null>(null);
-
   return (
     <section className="vb-dark bg-ink py-8 md:py-10">
 
-      <div className="container max-w-[760px]">
+      <div className="container max-w-[640px]">
 
-        <h2 className="h2 text-white text-center mb-8">
+        <h2 className="h2 text-white text-center mb-6 md:mb-8">
           Preguntas frecuentes
         </h2>
 
-        <div className="flex flex-col gap-3">
-
-          {faqs.map((faq, i) => {
-
-            const Icon = faq.icon;
-            const isOpen = open === i;
-
-            return (
-
-              <div
-                key={i}
-                className="vb-card px-5 py-4"
-              >
-
-                <button
-                  onClick={() => setOpen(isOpen ? null : i)}
-                  className="flex items-center justify-between w-full text-left group"
-                >
-
-                  <div className="flex items-center gap-3">
-
-                    <Icon
-                      size={18}
-                      strokeWidth={1.5}
-                      className="text-primary"
-                    />
-
-                    <span className="font-medium text-white">
-                      {faq.question}
-                    </span>
-
-                  </div>
-
-                  <ChevronDown
-                    size={20}
-                    strokeWidth={1.5}
-                    className={`transition-transform duration-300 text-white/40 ${
-                      isOpen ? "rotate-180 text-primary" : ""
-                    }`}
-                  />
-
-                </button>
-
-                {/* ANSWER */}
-
-                <div
-                  className={`overflow-hidden transition-all duration-300 ${
-                    isOpen ? "max-h-40 mt-3" : "max-h-0"
-                  }`}
-                >
-
-                  <p
-                    onClick={() => setOpen(null)}
-                    className="text-white/60 text-sm leading-relaxed pl-7 cursor-pointer"
-                  >
-                    {faq.answer}
-                  </p>
-
-                </div>
-
-              </div>
-
-            );
-
-          })}
-
-        </div>
+        <FaqAccordion items={faqs} />
 
       </div>
 
