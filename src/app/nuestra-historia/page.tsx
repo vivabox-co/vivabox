@@ -22,7 +22,7 @@ export default function StoryPage() {
         <StoryHero />
 
         <StoryPhotoBand
-          src="/images/hero/hero2.webp"
+          src="/images/hero/experiencia-vivabox-aire-libre.webp"
           alt="Una experiencia Vivabox vivida al aire libre"
           objectPosition="center 30%"
         />
@@ -31,7 +31,7 @@ export default function StoryPage() {
         <StoryIdea />
 
         <StoryPhotoBand
-          src="/images/hero/hero.webp"
+          src="/images/hero/regalo-caja-vivabox-entrega.webp"
           alt="Alguien regalando una Vivabox"
           objectPosition="center 35%"
         />

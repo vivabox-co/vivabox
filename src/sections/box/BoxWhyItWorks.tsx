@@ -3,7 +3,7 @@ import BrandDots from "@/components/ui/BrandDots"
 
 const items = [
   {
-    image: "/images/hero/hero2.webp",
+    image: "/images/hero/experiencia-vivabox-aire-libre.webp",
     title: "Siempre aciertas.",
     text: "No tienes que adivinar: la persona elige lo que más le emociona.",
   },

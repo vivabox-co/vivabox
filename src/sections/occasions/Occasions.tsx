@@ -13,37 +13,43 @@ export default function Occasions() {
     {
       name: "Cumpleaños",
       subtitle: "Sorpréndelo con algo que recordará.",
-      image: "/images/occasions/cumpleanos.webp",
+      image: "/images/occasions/regalo-cumpleanos-vivabox.webp",
+      alt: "Mujer soplando las velas de una torta de cumpleaños",
       ariaLabel: "Regalo de cumpleaños",
     },
     {
       name: "Aniversario",
       subtitle: "Un momento para compartir juntos.",
-      image: "/images/occasions/aniversario.webp",
+      image: "/images/occasions/regalo-aniversario-pareja-vivabox.webp",
+      alt: "Pareja abrazada celebrando su aniversario",
       ariaLabel: "Regalo de aniversario",
     },
     {
       name: "Agradecimiento",
       subtitle: "La mejor forma de decir gracias.",
-      image: "/images/occasions/agradecimiento.webp",
+      image: "/images/occasions/regalo-agradecimiento-vivabox.webp",
+      alt: "Dos amigas conversando y agradeciendo un momento juntas",
       ariaLabel: "Regalo de agradecimiento",
     },
     {
       name: "Matrimonio",
       subtitle: "Un regalo para disfrutar en pareja.",
-      image: "/images/occasions/boda.webp",
+      image: "/images/occasions/regalo-matrimonio-vivabox.webp",
+      alt: "Invitados brindando en una celebración de matrimonio",
       ariaLabel: "Regalo de matrimonio",
     },
     {
       name: "Para dos",
       subtitle: "Tiempo de calidad para compartir.",
-      image: "/images/occasions/pareja.webp",
+      image: "/images/occasions/regalo-experiencia-pareja-vivabox.webp",
+      alt: "Pareja celebrando un momento especial juntos",
       ariaLabel: "Regalo para parejas",
     },
     {
       name: "Empresas",
       subtitle: "Cada persona elige su experiencia.",
-      image: "/images/occasions/empresarial.webp",
+      image: "/images/occasions/regalo-corporativo-vivabox-equipo.webp",
+      alt: "Equipo de trabajo mostrando una caja Vivabox en la oficina",
       ariaLabel: "Regalos empresariales",
     },
   ];
@@ -84,7 +90,7 @@ export default function Occasions() {
 
               <Image
                 src={item.image}
-                alt={item.name}
+                alt={item.alt}
                 fill
                 sizes={CARD_IMAGE_SIZES}
                 className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"

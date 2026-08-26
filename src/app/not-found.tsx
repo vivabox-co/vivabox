@@ -16,7 +16,7 @@ export default function NotFound() {
           "exception state" in the site shares one visual language. */}
       <div className="absolute inset-0">
         <Image
-          src="/images/hero/hero2.webp"
+          src="/images/hero/experiencia-vivabox-aire-libre.webp"
           alt=""
           fill
           priority

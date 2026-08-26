@@ -27,7 +27,7 @@ export default async function ProximamentePage({
       {/* BACKGROUND PHOTO */}
       <div className="absolute inset-0">
         <Image
-          src="/images/hero/hero2.webp"
+          src="/images/hero/experiencia-vivabox-aire-libre.webp"
           alt=""
           fill
           priority
