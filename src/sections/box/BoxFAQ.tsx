@@ -23,12 +23,12 @@ export default function BoxFAQ({ validityMonths }: Props) {
     {
       question: "¿Cómo funciona la parte digital de la Vivabox?",
       answer:
-        "La Vivabox combina una caja física con una experiencia digital sencilla. La persona que la recibe activa su código en nuestra plataforma para descubrir las experiencias, elegir una y reservarla. Quien compra la Vivabox no tiene que usar la plataforma ni hacer ninguna gestión.",
+        "La Vivabox combina una caja física con la app Vivabox, sencilla de usar. La persona que la recibe activa ahí su código para descubrir las experiencias, elegir una y reservarla. Quien compra la Vivabox no tiene que usar la app ni hacer ninguna gestión.",
     },
     {
       question: "¿Cómo se reserva la experiencia?",
       answer:
-        "Después de elegir una experiencia, la persona inicia la reserva desde nuestra plataforma y nuestro equipo la acompaña con el prestador hasta confirmar la fecha.",
+        "Después de elegir una experiencia, la persona inicia la reserva desde la app Vivabox y nuestro equipo la acompaña con el prestador hasta confirmar la fecha.",
     },
     {
       question: "¿Qué experiencias puede elegir?",
