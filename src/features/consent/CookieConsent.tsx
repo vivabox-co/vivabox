@@ -65,12 +65,14 @@ export default function CookieConsent() {
   return (
     <div
       ref={rootRef}
-      className="fixed right-4 bottom-[calc(0.9rem+env(safe-area-inset-bottom)+var(--sticky-cta-offset,0px))] z-50 w-[calc(100vw-2rem)] max-w-[336px] sm:right-6 sm:bottom-[calc(1.5rem+var(--sticky-cta-offset,0px))] sm:w-[368px]"
+      className={`fixed right-4 bottom-[calc(0.9rem+env(safe-area-inset-bottom)+var(--sticky-cta-offset,0px))] z-50 w-[calc(100vw-2rem)] max-sm:max-w-[336px] sm:right-6 sm:bottom-[calc(1.5rem+var(--sticky-cta-offset,0px))] ${
+        isPanelOpen ? "sm:w-[420px]" : "sm:w-[368px]"
+      }`}
       role="dialog"
       aria-label="Preferencias de cookies"
     >
       <div
-        className="rounded-[20px] border p-4 space-y-3"
+        className="rounded-[20px] border p-3.5 space-y-2"
         style={{
           background: "var(--color-card)",
           borderColor: "var(--nm-border)",
@@ -122,47 +124,26 @@ export default function CookieConsent() {
           <>
             <div>
               <h2 className="text-sm font-semibold text-ink">Preferencias de cookies</h2>
-              <p className="text-xs text-muted mt-1 leading-relaxed">
-                Tú decides qué cookies usamos. Las necesarias siempre estarán activas.
-              </p>
+              <p className="text-xs text-muted mt-0.5">Tú decides qué cookies usamos.</p>
             </div>
 
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted/80 mb-1.5">
-                Siempre activas
-              </p>
-
-              <div className="flex items-center justify-between gap-3 py-1">
-                <div className="min-w-0">
-                  <p className="text-[13px] font-medium text-ink">Necesarias</p>
-                  <p className="text-[11px] text-muted leading-snug mt-0.5">
-                    Son esenciales para que Vivabox funcione correctamente.
-                  </p>
-                </div>
-                <span className="shrink-0 text-[10px] font-semibold text-ink/70 bg-[var(--color-base)] px-2.5 py-1 rounded-full whitespace-nowrap">
-                  Siempre activas
-                </span>
+            <div className="divide-y divide-[var(--nm-border)]">
+              <div className="py-1 first:pt-0">
+                <p className="text-[13px] font-medium text-ink">
+                  Necesarias <span className="font-normal text-muted">· Siempre activas</span>
+                </p>
+                <p className="text-[11px] text-muted mt-0.5">Para que Vivabox funcione.</p>
               </div>
-            </div>
 
-            <div className="border-t" style={{ borderColor: "var(--nm-border)" }} />
-
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted/80 mb-1.5">
-                Opcionales
-              </p>
-
-              <div className="flex items-center justify-between gap-3">
+              <div className="py-1 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-[13px] font-medium text-ink">
                     Analíticas{" "}
-                    <span className="text-[10px] font-normal text-muted">
+                    <span className="font-normal text-muted">
                       · {draftAnalytics ? "Activadas" : "Desactivadas"}
                     </span>
                   </p>
-                  <p className="text-[11px] text-muted leading-snug mt-0.5">
-                    Nos ayudan a entender cómo navegas por Vivabox y mejorar el sitio.
-                  </p>
+                  <p className="text-[11px] text-muted mt-0.5">Para mejorar Vivabox.</p>
                 </div>
                 <Switch
                   checked={draftAnalytics}
@@ -171,15 +152,12 @@ export default function CookieConsent() {
                 />
               </div>
 
-              <div className="flex items-center justify-between gap-3 mt-1">
+              <div className="py-1 last:pb-0 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-[13px] font-medium text-ink">
-                    Marketing{" "}
-                    <span className="text-[10px] font-normal text-muted">· Desactivadas</span>
+                    Marketing <span className="font-normal text-muted">· Desactivadas</span>
                   </p>
-                  <p className="text-[11px] text-muted leading-snug mt-0.5">
-                    No usamos cookies de marketing actualmente.
-                  </p>
+                  <p className="text-[11px] text-muted mt-0.5">No las usamos actualmente.</p>
                 </div>
                 <Switch
                   checked={false}
@@ -189,19 +167,26 @@ export default function CookieConsent() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5 pt-1">
-              <button onClick={savePreferences} className="vb-btn-dark h-11 w-full text-sm">
-                Guardar preferencias
-              </button>
+            <div className="flex items-center justify-between gap-3">
+              <Link
+                href="/politica-de-datos#s10"
+                className="text-[11px] font-medium text-ink hover:opacity-70 transition-opacity underline underline-offset-2"
+              >
+                Política de Cookies
+              </Link>
               {hasDecided && (
                 <button
                   onClick={closePanel}
-                  className="h-7 text-xs font-medium text-muted hover:text-ink transition-colors"
+                  className="text-[11px] font-medium text-muted hover:text-ink transition-colors"
                 >
                   Cancelar
                 </button>
               )}
             </div>
+
+            <button onClick={savePreferences} className="vb-btn-dark h-11 w-full text-sm">
+              Guardar preferencias
+            </button>
           </>
         )}
       </div>
