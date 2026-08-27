@@ -34,8 +34,8 @@ export default function Switch({ checked, onChange, disabled, label }: SwitchPro
         style={{
           width: TRACK_WIDTH,
           height: TRACK_HEIGHT,
-          background: checked ? "var(--color-ink)" : "#DCD5C8",
-          borderColor: checked ? "var(--color-ink)" : "rgba(24, 20, 15, 0.2)",
+          background: checked ? "var(--color-ink)" : "#A79C8C",
+          borderColor: checked ? "var(--color-ink)" : "rgba(24, 20, 15, 0.25)",
         }}
       >
         <span

@@ -65,8 +65,12 @@ export default function CookieConsent() {
   return (
     <div
       ref={rootRef}
-      className={`fixed right-4 bottom-[calc(0.9rem+env(safe-area-inset-bottom)+var(--sticky-cta-offset,0px))] z-50 w-[calc(100vw-2rem)] max-sm:max-w-[336px] sm:right-6 sm:bottom-[calc(1.5rem+var(--sticky-cta-offset,0px))] ${
-        isPanelOpen ? "sm:w-[420px]" : "sm:w-[368px]"
+      // Mobile: marges égales gauche/droite (inset-x-3 = 24px de marge totale),
+      // jamais ancré à droite — sinon la card reste étroite malgré l'espace
+      // disponible. Desktop (sm:) : on repasse en bottom-right, mais large et
+      // bas plutôt qu'étroite et haute.
+      className={`fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom)+var(--sticky-cta-offset,0px))] z-50 sm:inset-x-auto sm:right-6 sm:left-auto sm:bottom-[calc(1.5rem+var(--sticky-cta-offset,0px))] ${
+        isPanelOpen ? "sm:w-[500px]" : "sm:w-[460px]"
       }`}
       role="dialog"
       aria-label="Preferencias de cookies"
@@ -84,8 +88,8 @@ export default function CookieConsent() {
             <div className="text-left">
               <p className="text-[13px] font-semibold text-ink">Usamos cookies</p>
               <p className="text-xs text-muted leading-relaxed mt-1">
-                Usamos cookies necesarias para que Vivabox funcione y, si lo permites, otras
-                para entender cómo navegas y mejorar tu experiencia.
+                Usamos cookies necesarias para que Vivabox funcione y otras opcionales
+                para mejorar tu experiencia.
               </p>
             </div>
 
