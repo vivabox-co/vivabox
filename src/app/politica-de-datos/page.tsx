@@ -39,7 +39,7 @@ export default function PoliticaDeDatosPage() {
     <LegalLayout
       eyebrow="Legal"
       title="Política de tratamiento de datos personales"
-      updated="15 de agosto de 2026"
+      updated="27 de agosto de 2026"
       intro="Esta política explica qué datos personales recolectamos cuando compras, envías o activas una Vivabox, para qué los usamos y qué derechos tienes sobre ellos, de acuerdo con la Ley 1581 de 2012 y sus normas reglamentarias."
     >
       <Sec n={1} title="Responsable del tratamiento">
@@ -178,7 +178,40 @@ export default function PoliticaDeDatosPage() {
         </p>
       </Sec>
 
-      <Sec n={10} title="Modificaciones a esta política">
+      <Sec n={10} title="Cookies y tecnologías similares">
+        <p>
+          Usamos cookies y almacenamiento local del navegador para dos cosas
+          distintas:
+        </p>
+        <ul>
+          <li>
+            <strong>Funcionamiento del sitio:</strong> cuando estás comprando
+            una Vivabox, guardamos temporalmente en tu navegador (almacenamiento
+            local, no una cookie) los datos que vas ingresando — para que no los
+            pierdas si cierras la pestaña a mitad del proceso. Esto siempre está
+            activo, porque el sitio lo necesita para funcionar.
+          </li>
+          <li>
+            <strong>Analítica:</strong> usamos Google Analytics, a través de
+            Google Tag Manager, para entender cómo se usa el sitio (qué páginas
+            visitas, desde dónde llegas) y así mejorarlo. Esto solo se activa si
+            nos das tu consentimiento.
+          </li>
+        </ul>
+        <p>
+          Por ahora no usamos cookies de marketing o publicidad, pero dejamos la
+          opción lista para el futuro, siempre bajo el mismo control de
+          consentimiento.
+        </p>
+        <p>
+          Al entrar por primera vez al sitio te preguntamos qué prefieres.
+          Puedes cambiar tu elección cuando quieras desde el enlace{" "}
+          <strong>&quot;Preferencias de cookies&quot;</strong> en el pie de
+          página.
+        </p>
+      </Sec>
+
+      <Sec n={11} title="Modificaciones a esta política">
         <p>
           Podemos actualizar esta política cuando cambien nuestras prácticas de
           tratamiento de datos o la normativa aplicable. La versión vigente es siempre

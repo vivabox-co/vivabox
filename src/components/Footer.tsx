@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { MouseEvent } from "react";
+import { useConsentStore } from "@/features/consent/consentStore";
 
 const linkClasses =
   "text-gray-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-sm";
@@ -15,6 +16,8 @@ function handleFaqClick(e: MouseEvent<HTMLAnchorElement>) {
 }
 
 export default function Footer() {
+  const openCookiePanel = useConsentStore((s) => s.openPanel);
+
   return (
     <footer className="vb-dark bg-ink text-white py-12 md:py-14">
 
@@ -203,6 +206,11 @@ export default function Footer() {
                 <Link href="/cambios-y-devoluciones" className={linkClasses}>
                   Cambios y devoluciones
                 </Link>
+              </li>
+              <li>
+                <button type="button" onClick={openCookiePanel} className={linkClasses}>
+                  Preferencias de cookies
+                </button>
               </li>
             </ul>
           </nav>
