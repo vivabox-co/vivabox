@@ -30,7 +30,7 @@ export default function WhatsappButton() {
 
   return (
     <div
-      className={`fixed bottom-[calc(2rem+var(--sticky-cta-offset,0px))] lg:bottom-8 right-6 z-50 flex items-center gap-3 transition-all duration-500 ease-out
+      className={`fixed bottom-[calc(2rem+var(--sticky-cta-offset,0px)+var(--cookie-banner-offset,0px))] lg:bottom-[calc(2rem+var(--cookie-banner-offset,0px))] right-6 z-50 flex items-center gap-3 transition-all duration-500 ease-out
       ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3 pointer-events-none"}`}
     >
 
