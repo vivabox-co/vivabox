@@ -95,20 +95,20 @@ export default function CookieConsent() {
 
             <div className="flex gap-2">
               <button
-                onClick={acceptAll}
-                className="vb-btn-dark h-11 flex-1 text-xs px-2"
-              >
-                Aceptar todas
-              </button>
-              <button
                 onClick={rejectOptional}
                 className="h-11 flex-1 px-2 flex items-center justify-center text-xs font-semibold rounded-[18px] border border-[rgba(24,20,15,0.28)] text-ink bg-transparent hover:bg-[rgba(24,20,15,0.05)] hover:border-[rgba(24,20,15,0.45)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
               >
                 Rechazar opcionales
               </button>
+              <button
+                onClick={acceptAll}
+                className="vb-btn-dark h-11 flex-1 text-xs px-2"
+              >
+                Aceptar todas
+              </button>
             </div>
 
-            <div className="flex items-center gap-1.5 text-[11px] text-muted">
+            <div className="flex items-center justify-end gap-1.5 text-[11px] text-muted">
               <button
                 onClick={openPanel}
                 className="font-medium text-ink hover:opacity-70 transition-opacity underline underline-offset-2"
