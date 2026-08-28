@@ -785,6 +785,63 @@ body {
     inset -2px -2px 5px var(--nm-light);
 }
 
+/* Fila de método de pago en el paso "Pagar" — mismo lenguaje visual que
+   .vb-choice, pero es un botón de acción (abre Wompi), no una selección
+   persistente, por eso no tiene estado "checked". */
+.vb-pay-method {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--nm-border);
+  background: var(--color-card);
+  box-shadow:
+    4px 4px 10px var(--nm-dark),
+    -4px -4px 10px var(--nm-light);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.vb-pay-method:hover:not(:disabled) {
+  box-shadow:
+    5px 5px 12px var(--nm-dark),
+    -5px -5px 12px var(--nm-light);
+  transform: translateY(-1px);
+}
+
+.vb-pay-method:active:not(:disabled) {
+  box-shadow:
+    inset 3px 3px 7px var(--nm-dark-strong),
+    inset -2px -2px 6px var(--nm-light);
+  transform: translateY(0);
+}
+
+.vb-pay-method:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.vb-pay-method:focus-visible {
+  outline: 2.5px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.vb-pay-method-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--color-card);
+  color: var(--color-primary);
+  box-shadow:
+    2px 2px 6px var(--nm-dark),
+    -2px -2px 6px var(--nm-light);
+}
+
 .vb-steps {
   display: flex;
   gap: 6px;
