@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Script from "next/script"
 import { useState, useEffect } from "react"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { formatPrice } from "@/utils/formatPrice"
@@ -26,6 +27,7 @@ export default function PagoPage() {
   const hasHydrated = useCheckoutStore(s => s.hasHydrated)
 
   const [loading, setLoading] = useState(false)
+  const [widgetReady, setWidgetReady] = useState(false)
 
   // ======================
   // GUARDS
@@ -71,82 +73,93 @@ export default function PagoPage() {
   }
 
   // ======================
-// PAY
-// ======================
-async function handleFakePayment() {
-  if (loading) return
+  // PAY — abre el Widget Wompi
+  // ======================
+  async function handlePayment() {
+    if (loading) return
 
-  if (!ventaId) {
-    alert("Error interno: ventaId faltante")
-    return
-  }
-
-  if (!quantity || !deliveryMethod) {
-    alert("Error interno: datos incompletos")
-    return
-  }
-
-  const urlDeliveryType = deliveryMethod === "digital" ? "digital" : "physical"
-
-  setLoading(true)
-
-  try {
-    const res = await fetch("/api/checkout/pay", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        action: "pay",
-        ventaId,
-      }),
-    })
-
-    const data = await res.json()
-
-    // ======================
-    // ERROR HANDLING
-    // ======================
-
-    if (!data.ok) {
-      if (data.error === "RESERVATION_EXPIRED") {
-        alert("La reserva expiró")
-        router.replace("/cajas")
-        return
-      }
-
-      if (data.error === "ALREADY_PAID") {
-        router.replace(
-          `/checkout/success?ventaId=${ventaId}&quantity=${quantity}&deliveryType=${urlDeliveryType}`
-        )
-        return
-      }
-
-      alert(data.error || "No pudimos procesar el pago")
-      setLoading(false)
+    if (!ventaId) {
+      alert("Error interno: ventaId faltante")
       return
     }
 
-    // ======================
-    // SUCCESS
-    // ======================
+    if (!widgetReady || !window.WidgetCheckout) {
+      alert("El módulo de pago todavía se está cargando, intenta de nuevo en un momento")
+      return
+    }
 
-    router.replace(
-      `/checkout/success?ventaId=${ventaId}&quantity=${quantity}&deliveryType=${urlDeliveryType}`
-    )
+    setLoading(true)
 
-  } catch (error) {
-    console.error("Payment error:", error)
-    alert("Error procesando el pago")
-    setLoading(false)
+    try {
+      const res = await fetch("/api/checkout/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ventaId }),
+      })
+
+      const data = await res.json()
+
+      if (!data.ok) {
+        if (data.error === "RESERVATION_EXPIRED") {
+          alert("La reserva expiró")
+          router.replace("/cajas")
+          return
+        }
+
+        if (data.error === "ALREADY_PAID") {
+          const urlDeliveryType = deliveryMethod === "digital" ? "digital" : "physical"
+          router.replace(
+            `/checkout/success?ventaId=${ventaId}&quantity=${quantity}&deliveryType=${urlDeliveryType}`
+          )
+          return
+        }
+
+        alert(data.error || "No pudimos iniciar el pago")
+        setLoading(false)
+        return
+      }
+
+      const { publicKey, currency, amountInCents, reference, signature, redirectUrl } = data.wompi
+
+      const checkout = new window.WidgetCheckout({
+        currency,
+        amountInCents,
+        reference,
+        publicKey,
+        redirectUrl,
+        signature: { integrity: signature },
+      })
+
+      checkout.open((result) => {
+        setLoading(false)
+
+        // El usuario cerró el widget sin completar el pago (ej. Nequi/PSE
+        // en curso o abandonado) — se queda en esta pantalla para reintentar.
+        if (!result?.transaction) return
+
+        router.replace(
+          `/checkout/pago/retorno?ventaId=${ventaId}&id=${result.transaction.id}`
+        )
+      })
+
+    } catch (error) {
+      console.error("Payment error:", error)
+      alert("Error iniciando el pago")
+      setLoading(false)
+    }
   }
-}
 
   // ======================
   // UI
   // ======================
   return (
     <>
+      <Script
+        src="https://checkout.wompi.co/widget.js"
+        strategy="afterInteractive"
+        onLoad={() => setWidgetReady(true)}
+      />
+
       <CheckoutProgress current="pagar" />
 
       <div className="min-h-screen vb-surface-base py-10 checkout-container">
@@ -162,34 +175,14 @@ async function handleFakePayment() {
                 Pago seguro
               </h2>
               <span className="text-xs text-[#6B6B6B]">
-                MercadoPago
+                Wompi
               </span>
             </div>
 
-            <input
-              type="text"
-              placeholder="Número de tarjeta"
-              className="vb-input"
-            />
-
-            <input
-              type="text"
-              placeholder="Nombre en la tarjeta"
-              className="vb-input"
-            />
-
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                placeholder="MM/AA"
-                className="vb-input"
-              />
-              <input
-                type="text"
-                placeholder="CVV"
-                className="vb-input"
-              />
-            </div>
+            <p className="text-sm text-[#6B6B6B]">
+              Al hacer clic en &ldquo;Pagar&rdquo; se abrirá la ventana segura de Wompi, donde eliges
+              cómo pagar: Nequi, PSE, tarjeta de crédito o débito, Bancolombia y más.
+            </p>
 
             <p className="text-xs text-[#6B6B6B] text-center">
               Tus datos están protegidos
@@ -233,8 +226,8 @@ async function handleFakePayment() {
             </div>
 
             <button
-              onClick={handleFakePayment}
-              disabled={loading}
+              onClick={handlePayment}
+              disabled={loading || !widgetReady}
               className="vb-btn-primary w-full h-12 disabled:opacity-60"
             >
               {loading ? (
@@ -251,7 +244,7 @@ async function handleFakePayment() {
             </button>
 
             <p className="text-xs text-[#6B6B6B] text-center">
-              Pago seguro · sin complicaciones
+              Pago seguro con Wompi
             </p>
 
             <p className="text-[11px] text-[#6B6B6B] text-center leading-relaxed">
