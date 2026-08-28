@@ -18,7 +18,12 @@ export function middleware(req: NextRequest) {
   // Checkout n'est pas encore prêt pour de vrais clients : on renvoie
   // toute tentative d'y accéder (lien direct, bouton, deep link) vers
   // /proximamente, en gardant le chemin d'origine pour y revenir plus tard.
-  if (pathname === "/checkout" || pathname.startsWith("/checkout/")) {
+  // Exception : sur les déploiements Preview (VERCEL_ENV), on laisse passer
+  // pour pouvoir tester le checkout (ex. l'intégration Wompi) avant le
+  // lancement public — la vraie prod reste bloquée normalement.
+  const isProduction = process.env.VERCEL_ENV === "production"
+
+  if (isProduction && (pathname === "/checkout" || pathname.startsWith("/checkout/"))) {
     const url = req.nextUrl.clone()
     url.pathname = "/proximamente"
     url.search = `?next=${encodeURIComponent(pathname + search)}`
