@@ -9,7 +9,7 @@ export default function CheckoutLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen vb-surface-base relative">
+    <div className="min-h-screen vb-surface-base vb-checkout-white relative">
 
       <Navbar />
 

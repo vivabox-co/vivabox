@@ -378,6 +378,14 @@ body {
   background: var(--color-base);
 }
 
+/* Checkout override — pure white base instead of the site-wide cream
+   --color-base, so the checkout flow never reads as "crema". Scoped here
+   (not a global --color-base change) so other vb-surface-base pages
+   (error page, admin, Empresas) keep the warm-neutral base. */
+.vb-checkout-white {
+  --color-base: #FFFFFF;
+}
+
 .vb-card {
   background: var(--color-card);
   border: 1px solid var(--nm-border);
