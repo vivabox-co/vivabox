@@ -55,6 +55,40 @@ export function computeEventChecksum(params: {
   return crypto.createHash("sha256").update(raw).digest("hex")
 }
 
+// Métodos de pago realmente habilitados en el comercio Wompi (sandbox o
+// producción, según la public key) — se consultan en vivo para que el
+// checkout nunca muestre un método que Wompi no vaya a ofrecer de verdad.
+// https://docs.wompi.co/docs/colombia/comercios/
+// Devuelve null si la consulta falla; el llamador decide el fallback.
+export async function fetchWompiAcceptedPaymentMethods(
+  publicKey: string
+): Promise<string[] | null> {
+  const base = getWompiApiBase(publicKey)
+
+  try {
+    const res = await fetch(`${base}/merchants/${encodeURIComponent(publicKey)}`, {
+      cache: "no-store",
+    })
+
+    if (!res.ok) return null
+
+    const body = await res.json()
+    const methods = body?.data?.payment_methods
+
+    if (!Array.isArray(methods)) return null
+
+    const codes = methods
+      .map((m: unknown) => (typeof m === "string" ? m : (m as { name?: string })?.name))
+      .filter((m): m is string => typeof m === "string")
+      .map((m) => m.toUpperCase())
+
+    return codes.length > 0 ? codes : null
+  } catch (error) {
+    console.error("WOMPI MERCHANT FETCH ERROR:", error)
+    return null
+  }
+}
+
 export type WompiTransaction = {
   id: string
   reference: string

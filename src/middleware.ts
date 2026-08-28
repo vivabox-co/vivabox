@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { PREVIEW_ACCESS_COOKIE, PREVIEW_ACCESS_VALUE } from "@/services/previewAccess"
 
 // URL volontairement non devinable, jamais liée depuis le site — c'est la
 // première barrière. Le Basic Auth ci-dessous est la deuxième : même en
@@ -22,8 +23,19 @@ export function middleware(req: NextRequest) {
   // pour pouvoir tester le checkout (ex. l'intégration Wompi) avant le
   // lancement public — la vraie prod reste bloquée normalement.
   const isProduction = process.env.VERCEL_ENV === "production"
+  const isCheckoutPath = pathname === "/checkout" || pathname.startsWith("/checkout/")
 
-  if (isProduction && (pathname === "/checkout" || pathname.startsWith("/checkout/"))) {
+  if (isProduction && isCheckoutPath) {
+    // Entrée secrète : un clic caché sur /proximamente (POST /api/preview-access)
+    // pose ce cookie pour laisser entrer les premiers testeurs/clients sans
+    // attendre le lancement public officiel, sans exiger le Basic Auth staff.
+    const hasPreviewAccess =
+      req.cookies.get(PREVIEW_ACCESS_COOKIE)?.value === PREVIEW_ACCESS_VALUE
+
+    if (hasPreviewAccess) {
+      return NextResponse.next()
+    }
+
     const url = req.nextUrl.clone()
     url.pathname = "/proximamente"
     url.search = `?next=${encodeURIComponent(pathname + search)}`

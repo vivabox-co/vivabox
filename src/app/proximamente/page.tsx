@@ -6,20 +6,17 @@ export const metadata = {
   description: "El lanzamiento oficial de Vivabox está por llegar.",
 };
 
-function resolveNext(next: string | undefined) {
-  if (next && next.startsWith("/") && !next.startsWith("//")) {
-    return next;
-  }
-  return "/";
-}
-
 export default async function ProximamentePage({
   searchParams,
 }: {
   searchParams: Promise<{ next?: string }>;
 }) {
   const { next } = await searchParams;
-  const nextHref = resolveNext(next);
+
+  // Entrée secrète : la lettre "o" ci-dessous (aucune affordance visuelle,
+  // se fond dans le texte) pose le cookie d'accès anticipé et renvoie vers
+  // le checkout — voir /api/preview-access et middleware.ts.
+  const secretHref = `/api/preview-access${next ? `?next=${encodeURIComponent(next)}` : ""}`;
 
   return (
     <main className="relative min-h-screen flex items-center justify-center px-6 py-16 overflow-hidden">
@@ -65,7 +62,7 @@ export default async function ProximamentePage({
         {/* HEADLINE */}
         <h1 className="mt-10 text-[28px] md:text-[32px] font-bold text-ink leading-[1.15] tracking-tight">
           Muy pronto podrás regalar experiencias con Vivab
-          <Link href={nextHref} className="text-inherit no-underline">
+          <Link href={secretHref} className="text-inherit no-underline">
             o
           </Link>
           x.

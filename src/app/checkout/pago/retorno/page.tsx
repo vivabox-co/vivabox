@@ -127,8 +127,10 @@ function RetornoPageContent() {
       <CheckoutProgress current="pagar" />
       <div className="min-h-screen vb-surface-base flex flex-col items-center justify-center gap-4 text-center px-6">
         <XCircle size={48} strokeWidth={2} className="text-[#6B6B6B]" />
-        <p className="text-ink font-medium">
-          {status === "declined" ? "No pudimos confirmar tu pago" : "Algo salió mal"}
+        <p className="text-ink font-medium max-w-sm">
+          {status === "declined"
+            ? "No pudimos procesar tu pago. Puedes intentarlo de nuevo o elegir otro medio de pago."
+            : "Algo salió mal al confirmar tu pago."}
         </p>
         <a href={pagoHref} className="vb-btn-primary h-12 px-6 inline-flex items-center">
           Volver a intentar
