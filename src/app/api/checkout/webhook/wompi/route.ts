@@ -3,6 +3,13 @@ import { getSupabase } from "@/services/supabase"
 import { computeEventChecksum } from "@/services/wompi"
 import { finalizeVentaPayment } from "@/features/checkout/finalizeVentaPayment"
 
+// Certains outils (dont, semble-t-il, le formulaire "URL de Eventos" du
+// Dashboard Wompi) font un GET de vérification avant d'enregistrer l'URL —
+// sans ce handler, Next.js répond 405 et l'enregistrement échoue côté Wompi.
+export async function GET() {
+  return NextResponse.json({ ok: true })
+}
+
 // Source de vérité des paiements (docs Wompi : "Do not use the redirection
 // as a validation method, ... Wompi will inform you using an Event").
 // Configurée dans le Dashboard Wompi comme URL d'événements du comercio.
