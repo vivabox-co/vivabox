@@ -682,7 +682,7 @@ body {
 }
 
 /* Danger tier — cancel/destructive actions in staff back-office tools
-   (e.g. /pedidos-r6ryavbmwd4qw5/reservas). Same shape/shadow grammar as
+   (e.g. /operativo-nuhxy2z8tfv31m/reservas). Same shape/shadow grammar as
    vb-btn-soft (18px radius, neumorphic shadow) — the tier is read from
    --color-accent-red instead of orange, never from breaking the shape
    family, per the site's CTA-tier convention above. */

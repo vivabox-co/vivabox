@@ -39,7 +39,7 @@ create table ventas (
 
   completed_at timestamptz,
 
-  -- Rempli depuis /pedidos-r6ryavbmwd4qw5 (page interne) au fil de la
+  -- Rempli depuis /operativo-nuhxy2z8tfv31m (page interne) au fil de la
   -- préparation physique. Deux étapes distinctes : prepared_at = code écrit
   -- dans la box, box fermée ; shipped_at = remise au transportista (peut se
   -- faire plus tard, le ramassage n'est pas toujours immédiat). Distinct de

@@ -2,7 +2,7 @@
 // seul fichier de ce dossier qu'un Client Component peut importer sans
 // entraîner tout le code Supabase/Server Actions dans le bundle client.
 
-export const PAGE_PATH = "/pedidos-r6ryavbmwd4qw5"
+export const PAGE_PATH = "/operativo-nuhxy2z8tfv31m"
 export const HISTORY_LIMIT = 50
 
 export function formatDate(iso: string) {

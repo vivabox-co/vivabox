@@ -4,7 +4,7 @@ import { PREVIEW_ACCESS_COOKIE, PREVIEW_ACCESS_VALUE } from "@/services/previewA
 // URL volontairement non devinable, jamais liée depuis le site — c'est la
 // première barrière. Le Basic Auth ci-dessous est la deuxième : même en
 // trouvant l'URL, il faut le mot de passe pour voir les codes d'activation.
-const STAFF_ORDERS_PATH = "/pedidos-r6ryavbmwd4qw5"
+const STAFF_ORDERS_PATH = "/operativo-nuhxy2z8tfv31m"
 
 function unauthorized() {
   return new NextResponse("Autenticación requerida", {
@@ -70,8 +70,8 @@ export const config = {
   // les deux entrées, sinon la page racine se charge sans passer par le
   // middleware (bug constaté : la page s'affichait sans mot de passe).
   matcher: [
-    "/pedidos-r6ryavbmwd4qw5",
-    "/pedidos-r6ryavbmwd4qw5/:path*",
+    "/operativo-nuhxy2z8tfv31m",
+    "/operativo-nuhxy2z8tfv31m/:path*",
     "/checkout",
     "/checkout/:path*",
   ],
