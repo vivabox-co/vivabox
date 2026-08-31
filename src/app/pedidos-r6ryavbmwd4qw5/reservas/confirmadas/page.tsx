@@ -1,6 +1,6 @@
 import { getConfirmed } from "../data"
 import { completeBooking, cancelBooking } from "../actions"
-import { BookingCard } from "../components"
+import { ConfirmadasView } from "./view"
 
 export default async function ConfirmadasPage() {
   const bookings = await getConfirmed()
@@ -11,17 +11,14 @@ export default async function ConfirmadasPage() {
       <p className="text-muted mb-5">
         {bookings.length === 0 ? "Nada por aquí 🎉" : `${bookings.length} reserva(s) confirmada(s)`}
       </p>
-      <div className="flex flex-col gap-4">
-        {bookings.map((b) => (
-          <BookingCard
-            key={b.id}
-            booking={b}
-            primaryAction={completeBooking}
-            primaryLabel="Marcar como completada"
-            cancelAction={cancelBooking}
-          />
-        ))}
-      </div>
+      {bookings.length > 0 && (
+        <ConfirmadasView
+          bookings={bookings}
+          primaryAction={completeBooking}
+          primaryLabel="Marcar como completada"
+          cancelAction={cancelBooking}
+        />
+      )}
     </section>
   )
 }
