@@ -280,6 +280,37 @@ create unique index bookings_one_active_per_code
 alter table bookings enable row level security;
 -- Accès exclusif via service_role côté serveur.
 
+-- Trace de chaque reprogrammation faite par le bénéficiaire depuis /ayuda
+-- (vivabox-appben, POST /api/booking/[bookingId]/reschedule) : table à part
+-- plutôt qu'un champ "previous_date" sur bookings pour garder tout
+-- l'historique si le bénéficiaire change plusieurs fois, pas juste la
+-- dernière valeur écrasée. Lue en lecture seule côté /pedidos (reservas,
+-- BookingCard) pour afficher "12 ago → 20 ago" sous chaque réservation
+-- reprogrammée.
+create table booking_reschedules (
+  id uuid primary key default gen_random_uuid(),
+  booking_id uuid not null references bookings(id) on delete cascade,
+
+  -- Repris de bookings.requested_date / le segment "Horario: ..." de
+  -- bookings.message juste avant d'être écrasés — previous_time_label est du
+  -- texte déjà formaté (ex: "Mañana (~10:00)"), pas une clé morning/
+  -- afternoon/night, car c'est la seule forme dans laquelle l'ancien horario
+  -- existe (voir message ci-dessus). NULL si la réservation n'avait encore
+  -- aucun horario enregistré (1er reschedule depuis la création).
+  previous_date date,
+  previous_time_label text,
+
+  new_date date not null,
+  new_time_label text not null,
+
+  changed_at timestamptz not null default now()
+);
+
+create index booking_reschedules_booking_id_idx on booking_reschedules(booking_id);
+
+alter table booking_reschedules enable row level security;
+-- Accès exclusif via service_role côté serveur.
+
 -- Compteur de tentatives, utilisé pour le rate limiting des endpoints
 -- d'activation. Contrairement à AppScript (qui limitait par email soumis,
 -- donc contournable en changeant d'email), on limite par IP ET par code

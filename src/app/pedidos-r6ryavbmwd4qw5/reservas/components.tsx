@@ -336,6 +336,23 @@ export function BookingCard({
       {booking.buyer_name && (
         <p className="my-1 text-[15px] text-muted"><strong>Comprador:</strong> {booking.buyer_name}</p>
       )}
+      {booking.reschedule_history.length > 0 && (
+        <div className="mt-2.5">
+          <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-1">Historial de cambios de fecha</p>
+          <div className="flex flex-col gap-0.5">
+            {booking.reschedule_history.map((h) => (
+              <p key={h.changed_at} className="text-xs text-muted">
+                {h.previous_date ? formatRequestedDate(h.previous_date) : "Sin fecha previa"}
+                {h.previous_time_label ? ` · ${h.previous_time_label}` : ""}
+                {" → "}
+                {formatRequestedDate(h.new_date)}
+                {h.new_time_label ? ` · ${h.new_time_label}` : ""}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
+
       <p className="text-muted text-xs mt-2.5">
         Solicitada el {formatDate(booking.created_at)} · Booking ID: {booking.id}
       </p>

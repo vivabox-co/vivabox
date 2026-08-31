@@ -22,6 +22,18 @@ export type ProposedAlternative = {
   hour: string | null
 }
 
+// Une ligne de booking_reschedules (voir vivabox-appben,
+// app/api/booking/[bookingId]/reschedule/route.ts) : chaque "Solicitar
+// cambio" fait par le bénéficiaire depuis /ayuda de l'autre côté du schéma
+// partagé. La plus ancienne en premier — voir enrich() dans ./data.ts.
+export type RescheduleHistoryEntry = {
+  previous_date: string | null
+  previous_time_label: string | null
+  new_date: string
+  new_time_label: string
+  changed_at: string
+}
+
 export type Booking = {
   id: string
   created_at: string
@@ -34,6 +46,7 @@ export type Booking = {
   proposed_moment: string | null
   proposed_hour: string | null
   proposed_alternatives: ProposedAlternative[] | null
+  reschedule_history: RescheduleHistoryEntry[]
 
   experience_code: string
   experience_title: string | null

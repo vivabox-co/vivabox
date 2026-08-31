@@ -1,14 +1,19 @@
 import { getSupabase } from "@/services/supabase"
 import { getSheetData } from "@/services/sheet"
-import { Booking, BookingStatus, ProposedAlternative } from "./types"
+import { Booking, BookingStatus, ProposedAlternative, RescheduleHistoryEntry } from "./types"
 import { HISTORY_LIMIT } from "../types"
 
 // bookings -> activation_codes (to-one, FK sur bookings.activation_code_id)
 // -> ventas (to-one, FK sur activation_codes.venta_id). PostgREST renvoie ces
 // deux embeds comme des objets (pas des tableaux) car la FK part bien de la
-// table "many" vers la table "one" à chaque étape.
+// table "many" vers la table "one" à chaque étape. bookings ->
+// booking_reschedules est l'inverse (to-many, FK sur
+// booking_reschedules.booking_id) : PostgREST renvoie un tableau, trié côté
+// enrich() plutôt que dans la string de select (pas de syntaxe d'ordre sur
+// une resource embarquée en JS client).
 const BOOKING_FIELDS =
   "id, created_at, requested_date, requested_dates, message, status, experience_code, proposed_date, proposed_moment, proposed_hour, proposed_alternatives, " +
+  "booking_reschedules(previous_date, previous_time_label, new_date, new_time_label, changed_at), " +
   "activation_codes(code, beneficiary_name, beneficiary_email, ventas(box_slug, buyer_name, buyer_email))"
 
 type RawBooking = {
@@ -22,6 +27,7 @@ type RawBooking = {
   proposed_moment: string | null
   proposed_hour: string | null
   proposed_alternatives: ProposedAlternative[] | null
+  booking_reschedules: RescheduleHistoryEntry[] | null
   experience_code: string
   activation_codes: {
     code: string | null
@@ -56,6 +62,9 @@ async function enrich(rows: RawBooking[]): Promise<Booking[]> {
       proposed_moment: r.proposed_moment,
       proposed_hour: r.proposed_hour,
       proposed_alternatives: r.proposed_alternatives,
+      reschedule_history: [...(r.booking_reschedules ?? [])].sort(
+        (a, b) => new Date(a.changed_at).getTime() - new Date(b.changed_at).getTime()
+      ),
       experience_code: r.experience_code,
       experience_title: experience?.title ?? null,
       experience_city: experience?.city ?? null,
