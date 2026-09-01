@@ -10,8 +10,12 @@ export async function GET() {
       name: "Vivabox — Operativo",
       short_name: "Vivabox Operativo",
       description: "Panel operativo Vivabox: pedidos, reservas y alianzas.",
+      // scope doit être un préfixe strict de start_url (spec Web App
+      // Manifest) : un "/" final en trop sur scope seul cassait cette
+      // règle et pouvait faire échouer la vérification d'installabilité
+      // de Chrome en silence.
       start_url: PAGE_PATH,
-      scope: `${PAGE_PATH}/`,
+      scope: PAGE_PATH,
       display: "standalone",
       background_color: "#FAF7F2",
       theme_color: "#FF8406",

@@ -39,6 +39,7 @@ type InstallState = {
   dismissed: boolean
   platform: Platform
   installEvent: BeforeInstallPromptEvent | null
+  showHelp: boolean
 }
 
 const INITIAL_STATE: InstallState = {
@@ -46,12 +47,15 @@ const INITIAL_STATE: InstallState = {
   dismissed: true,
   platform: "desktop",
   installEvent: null,
+  showHelp: false,
 }
 
-// beforeinstallprompt est peu fiable en pratique (cooldowns internes à
-// Chrome, ne se déclenche jamais sur iOS Safari) — la card reste donc
-// toujours visible tant que l'app n'est pas installée : bouton "Instalar"
-// en un clic quand l'événement est là, instructions manuelles sinon.
+// Aucun navigateur ne permet à du JS de déclencher l'installation sans son
+// propre feu vert (beforeinstallprompt) — protection anti-spam délibérée,
+// pas une limite qu'on peut coder autour. Le bouton reste donc unique et
+// toujours cliquable : il installe directement si Chrome a donné
+// l'événement, sinon le clic révèle la marche à suivre (jamais imposée
+// avant qu'on clique).
 export function PwaRegister() {
   const [state, setState] = useState<InstallState>(INITIAL_STATE)
 
@@ -71,6 +75,7 @@ export function PwaRegister() {
       dismissed: localStorage.getItem(DISMISS_KEY) === "1",
       platform: detectPlatform(),
       installEvent: window.__vbDeferredInstallPrompt ?? null,
+      showHelp: false,
     })
 
     const onBeforeInstall = (e: Event) => {
@@ -87,7 +92,7 @@ export function PwaRegister() {
     }
   }, [])
 
-  const { visible, dismissed, platform, installEvent } = state
+  const { visible, dismissed, platform, installEvent, showHelp } = state
   if (!visible || dismissed) return null
 
   return (
@@ -95,18 +100,22 @@ export function PwaRegister() {
       <div className="flex items-center gap-3">
         <Download size={18} className="text-primary shrink-0" />
         <p className="flex-1 text-sm">Instalá esta app en tu celular para acceso rápido.</p>
-        {installEvent && (
-          <button
-            className="vb-btn-primary px-3 py-1.5 text-sm shrink-0"
-            onClick={async () => {
+        <button
+          className="vb-btn-primary px-3 py-1.5 text-sm shrink-0"
+          onClick={async () => {
+            if (installEvent) {
               await installEvent.prompt()
               await installEvent.userChoice
               setState((s) => ({ ...s, installEvent: null, visible: false }))
-            }}
-          >
-            Instalar
-          </button>
-        )}
+              return
+            }
+            // Chrome n'a pas (encore) donné l'accès direct : le clic révèle
+            // la marche à suivre plutôt que de l'imposer sans qu'on demande.
+            setState((s) => ({ ...s, showHelp: true }))
+          }}
+        >
+          Instalar
+        </button>
         <button
           aria-label="Cerrar"
           className="text-muted p-1 shrink-0"
@@ -118,7 +127,7 @@ export function PwaRegister() {
           <X size={16} />
         </button>
       </div>
-      {!installEvent && (
+      {showHelp && !installEvent && (
         <p className="text-muted text-xs mt-2 pl-[30px]">
           {platform === "ios"
             ? "Tocá el ícono Compartir y elegí “Agregar a inicio”."
