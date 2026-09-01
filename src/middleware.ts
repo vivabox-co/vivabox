@@ -22,6 +22,21 @@ export function middleware(req: NextRequest) {
   // Exception : sur les déploiements Preview (VERCEL_ENV), on laisse passer
   // pour pouvoir tester le checkout (ex. l'intégration Wompi) avant le
   // lancement public — la vraie prod reste bloquée normalement.
+  // Chrome vérifie l'installabilité PWA en refetchant le manifest et le
+  // service worker lui-même, en interne — cette requête n'envoie pas
+  // forcément les identifiants Basic Auth mis en cache pour l'onglet, et
+  // reçoit alors un 401 qui fait échouer la détection en silence (aucun
+  // beforeinstallprompt n'est jamais émis). Ces deux fichiers ne contiennent
+  // rien de sensible (pas de données pedidos/reservas) et restent de toute
+  // façon protégés par l'URL non devinable — on les laisse passer sans mot
+  // de passe.
+  const isPwaAssetPath =
+    pathname === `${STAFF_ORDERS_PATH}/manifest.webmanifest` || pathname === `${STAFF_ORDERS_PATH}/sw.js`
+
+  if (isPwaAssetPath) {
+    return NextResponse.next()
+  }
+
   const isProduction = process.env.VERCEL_ENV === "production"
   const isCheckoutPath = pathname === "/checkout" || pathname.startsWith("/checkout/")
 
