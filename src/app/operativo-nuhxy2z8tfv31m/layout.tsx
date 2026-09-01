@@ -33,9 +33,24 @@ export const viewport: Viewport = {
 // Données live (Supabase), jamais pré-rendues au build.
 export const dynamic = "force-dynamic"
 
+// Capture beforeinstallprompt dès le parsing du HTML, avant l'hydratation
+// React — sur un mobile lent, Chrome peut l'émettre avant que le useEffect
+// de PwaRegister ait eu le temps de poser son propre listener, et
+// l'événement raté ne se represente pas. PwaRegister relit cette variable
+// globale au montage.
+const CAPTURE_INSTALL_PROMPT_SCRIPT = `
+window.__vbDeferredInstallPrompt = null;
+window.addEventListener("beforeinstallprompt", function (e) {
+  e.preventDefault();
+  window.__vbDeferredInstallPrompt = e;
+});
+`
+
 export default function OperativoRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="vb-surface-base min-h-screen text-foreground">
+      {/* eslint-disable-next-line react/no-danger */}
+      <script dangerouslySetInnerHTML={{ __html: CAPTURE_INSTALL_PROMPT_SCRIPT }} />
       <div className="max-w-[860px] mx-auto px-5 pt-8 pb-[100px]">
         {children}
       </div>

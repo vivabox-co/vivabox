@@ -11,6 +11,12 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>
 }
 
+declare global {
+  interface Window {
+    __vbDeferredInstallPrompt?: BeforeInstallPromptEvent | null
+  }
+}
+
 // Chrome n'affiche plus de bandeau d'installation automatique depuis
 // quelques versions — sans ce bouton, l'option est cachée dans le menu ⋮
 // et personne ne la trouve. iOS Safari n'émet jamais beforeinstallprompt,
@@ -27,6 +33,12 @@ export function PwaRegister() {
     }
 
     setDismissed(localStorage.getItem(DISMISS_KEY) === "1")
+
+    // Le script inline du layout a pu capturer l'événement avant que ce
+    // composant ne soit monté (voir CAPTURE_INSTALL_PROMPT_SCRIPT).
+    if (window.__vbDeferredInstallPrompt) {
+      setInstallEvent(window.__vbDeferredInstallPrompt)
+    }
 
     const onBeforeInstall = (e: Event) => {
       e.preventDefault()
