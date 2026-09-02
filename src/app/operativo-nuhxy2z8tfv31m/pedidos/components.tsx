@@ -4,6 +4,7 @@ import { Package, Truck, History } from "lucide-react"
 import { Order } from "./types"
 import { formatDate, PAGE_PATH } from "../types"
 import { StageNav, StageTab, ConfirmSubmitButton } from "../components"
+import { deactivateCode } from "./actions"
 
 export function OrderCard({ order, action, actionLabel }: { order: Order; action?: (formData: FormData) => void; actionLabel?: string }) {
   const destinatario = order.recipient_name || order.buyer_name
@@ -11,8 +12,25 @@ export function OrderCard({ order, action, actionLabel }: { order: Order; action
 
   return (
     <div className="vb-card p-5">
-      <div className="text-[26px] font-bold tracking-wide mb-3.5 text-primary">
-        {order.code ?? "⚠ Sin código generado"}
+      <div className="flex items-center justify-between gap-3 mb-3.5">
+        <div className="text-[26px] font-bold tracking-wide text-primary">
+          {order.code ?? "⚠ Sin código generado"}
+        </div>
+        {order.code && (
+          order.code_status === "expired" ? (
+            <span className="text-xs text-muted whitespace-nowrap">Código desactivado</span>
+          ) : (
+            <form action={deactivateCode}>
+              <input type="hidden" name="ventaId" value={order.id} />
+              <ConfirmSubmitButton
+                confirmMessage="¿Desactivar este código? Ya no podrá activarse ni usarse, aunque ya haya sido activado."
+                className="text-xs text-red-600 underline underline-offset-2 whitespace-nowrap"
+              >
+                Desactivar código
+              </ConfirmSubmitButton>
+            </form>
+          )
+        )}
       </div>
 
       <p className="my-1 text-[15px]"><strong>Caja:</strong> {order.box_slug} x{order.quantity}</p>

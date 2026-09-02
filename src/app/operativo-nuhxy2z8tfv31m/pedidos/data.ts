@@ -2,18 +2,23 @@ import { getSupabase } from "@/services/supabase"
 import { Order } from "./types"
 import { HISTORY_LIMIT } from "../types"
 
-async function attachCodes<T extends { id: string }>(ventas: T[]): Promise<(T & { code: string | null })[]> {
+async function attachCodes<T extends { id: string }>(
+  ventas: T[]
+): Promise<(T & { code: string | null; code_status: Order["code_status"] })[]> {
   if (!ventas.length) return []
 
   const supabase = getSupabase()
   const { data: codes } = await supabase
     .from("activation_codes")
-    .select("venta_id, code")
+    .select("venta_id, code, status")
     .in("venta_id", ventas.map((v) => v.id))
 
-  const codeByVenta = new Map((codes || []).map((c) => [c.venta_id, c.code]))
+  const codeByVenta = new Map((codes || []).map((c) => [c.venta_id, c]))
 
-  return ventas.map((v) => ({ ...v, code: codeByVenta.get(v.id) ?? null }))
+  return ventas.map((v) => {
+    const entry = codeByVenta.get(v.id)
+    return { ...v, code: entry?.code ?? null, code_status: entry?.status ?? null }
+  })
 }
 
 const ORDER_FIELDS =

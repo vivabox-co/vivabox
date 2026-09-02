@@ -16,4 +16,5 @@ export type Order = {
   prepared_at: string | null
   shipped_at: string | null
   code: string | null
+  code_status: "unused" | "activated" | "expired" | null
 }

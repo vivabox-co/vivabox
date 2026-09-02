@@ -22,6 +22,26 @@ export async function markPrepared(formData: FormData) {
   revalidatePath(PAGE_PATH, "layout")
 }
 
+// Désactivation "douce" : on ne supprime jamais la ligne (traçabilité de la
+// vente/comptabilité), on la fait juste basculer sur le statut "expired" déjà
+// prévu par le schéma. Ça bloque à la fois une future activation (route
+// /api/activation/activate exige status="unused") et l'accès si le code était
+// déjà activé (route /api/activation/verify exige status="activated").
+export async function deactivateCode(formData: FormData) {
+  const ventaId = formData.get("ventaId")
+  if (typeof ventaId !== "string" || !ventaId) return
+
+  const supabase = getSupabase()
+
+  await supabase
+    .from("activation_codes")
+    .update({ status: "expired" })
+    .eq("venta_id", ventaId)
+    .neq("status", "expired")
+
+  revalidatePath(PAGE_PATH, "layout")
+}
+
 export async function markShipped(formData: FormData) {
   const ventaId = formData.get("ventaId")
   if (typeof ventaId !== "string" || !ventaId) return
