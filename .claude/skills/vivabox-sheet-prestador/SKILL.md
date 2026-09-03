@@ -34,48 +34,49 @@ lista para copiar/pegar; el usuario la pega él mismo en Google Sheets.
 | 12 | proveedor_telefono | No | Texto libre | |
 | 13 | proveedor_email | No | Texto libre | |
 | 14 | proveedor_instagram | No | Texto libre | |
-| 15 | duracion_min | No | Columna formateada como Duración en Sheets (`Formato > Número > Duración`), escrita `h:mm` (ej: `2:00`, `0:45`, `24:00`) | `formatDuration()` en `src/data/categories.ts` parsea `h:mm`/`h:mm:ss` y también acepta un número plano de minutos (compatibilidad hacia atrás) |
-| 16 | formato | No | solo · duo | Alimenta el número de personas mostrado en la ficha/popup (`formatPeopleCount()` en `src/data/categories.ts`: solo → "1 persona", duo → "2 personas") |
-| 17 | descripcion_corta | **Sí** | Texto libre, ~30-45 palabras | Una sensación, no una ficha de servicios. Reglas completas (longitud, estructura, clichés a evitar) en `docs/editorial/experiencias.md` |
-| 18 | nota_vivabox | **Sí** | Texto libre, ~20-35 palabras | Por qué la elegimos — razón editorial, nunca inventar una visita de primera mano. Reglas completas en `docs/editorial/experiencias.md` |
-| 19 | incluye | No | Texto libre | |
-| 20 | requisitos | No | Texto libre | Ej: edad mínima, acompañamiento |
-| 21 | ideal_para | No | Texto libre | Ej: Parejas, Amigos, En familia |
-| 22 | nivel_esfuerzo | No | bajo · medio · alto | |
-| 23 | nota_clima | No | Texto libre | |
-| 24 | nota_vestimenta | No | Texto libre | |
-| 25 | info_importante | No | Texto libre | |
-| 26 | ambiente_animo | No | relax · adrenalina · social · romántico · cultural | Genera la 1ª etiqueta de la tarjeta |
-| 27 | entorno | No | indoor · outdoor | Genera la 2ª etiqueta de la tarjeta |
-| 28 | ritmo | No | relajado · activo · sacudido | Genera la 3ª etiqueta de la tarjeta |
-| 29 | tipo_duracion | No | media · larga | |
-| 30 | imagen | **Sí** | `/images/experiencias-reales/<slug-descriptivo>/<slug-descriptivo>-1.webp` (foto real) o URL de images.pexels.com / images.unsplash.com (placeholder) | Cualquier otra fuente cae a la imagen genérica de la caja. Ver "Convención de nombres para fotos reales" abajo — el slug describe lo que se ve, NO el `codigo_interno` |
-| 31 | imagenes_adicionales | No | Mismo formato que "imagen" (`...-2.webp`, `...-3.webp`...), separadas por `\|` | Alimenta la galería swipeable del modal |
-| 32 | requiere_telefono | No | TRUE / FALSE | |
-| 33 | requiere_num_personas | No | TRUE / FALSE | |
-| 34 | permite_extra | No | TRUE / FALSE | |
-| 35 | max_personas_extra | No | Número | |
-| 36 | extra_requiere_aprobacion | No | TRUE / FALSE | |
-| 37 | nota_extra | No | Texto libre | |
-| 38 | tipo_calma | No | ambiental · corporal · interior | Taxonomía no conectada aún al sitio |
-| 39 | tipo_participacion | No | tecnico · manual · sensorial · mental | Taxonomía no conectada aún al sitio |
-| 40 | tipo_sacudida | No | sensorial · emocional | Taxonomía no conectada aún al sitio |
-| 41 | resolucion | No | inmediato · entorno · duradero · cuerpo · crear · comprender | Taxonomía no conectada aún al sitio |
-| 42 | precio_publico_referencia | No | Número (COP) | |
-| 43 | tarifa_neta_vivabox | No | Número (COP) | |
-| 44 | canal_reserva | No | Texto libre | |
-| 45 | anticipacion_minima | No | Texto libre | |
-| 46 | tiempo_respuesta_maximo | No | Texto libre | |
-| 47 | horario_disponible | No | Texto libre | |
-| 48 | politica_cancelacion | No | Texto libre | |
-| 49 | politica_no_show | No | Texto libre | |
-| 50 | metodo_redencion | No | Texto libre | |
-| 51 | momento_redencion | No | Texto libre | |
-| 52 | extras_permitidos | No | Texto libre | Nunca deben condicionar la experiencia base |
-| 53 | documento_anexo_url | No | URL (Drive u otro) | |
-| 54 | fecha_firma | No | AAAA-MM-DD | |
-| 55 | estado | **Sí** | borrador · en validación · contrato firmado · listo para publicar · publicado · pausado · vencido | Default `borrador`. Solo "publicado" se muestra en el sitio |
-| 56 | claves_eleccion | No | Hasta 3 elementos separados por `\|`, en el orden en que deben mostrarse (ej: `nivel_basico\|guia_incluido\|equipo_incluido`, o texto libre corto como `2 bebidas`) | Antes se llamaba `badges_visibles`. NO es un resumen de características — solo las 2-3 informaciones que realmente pueden influir en la decisión del beneficiario para ESA experiencia puntual. Nunca rellenar por defecto con interior/exterior/esfuerzo bajo/ambiente relajado/categoría/duración/ciudad — eso ya se muestra en otro lado de la ficha. Reglas completas de curaduría (qué incluir, qué no, ejemplos por categoría) en `docs/editorial/experiencias.md`. Cada elemento puede ser una key existente en `BADGE_REGISTRY` (`src/data/badges.ts`, le da un ícono específico) o texto libre corto en español natural sin snake_case (se muestra tal cual con un ícono genérico) para un detalle puntual que no amerita una entrada permanente en el registro. Sistema totalmente separado de `ambiente_animo`/`entorno`/`ritmo` (cols 26-28), que siguen existiendo solo como metadata interna de filtros para la web app beneficiaria. Preferible dejarla vacía o con 1-2 elementos que rellenar hasta 3 sin que aporten nada |
+| 15 | proveedor_direccion | No | Texto libre (dirección exacta: calle y número) | Uso interno para logística/redención — NUNCA se muestra al comprador |
+| 16 | duracion_min | No | Columna formateada como Duración en Sheets (`Formato > Número > Duración`), escrita `h:mm` (ej: `2:00`, `0:45`, `24:00`) | `formatDuration()` en `src/data/categories.ts` parsea `h:mm`/`h:mm:ss` y también acepta un número plano de minutos (compatibilidad hacia atrás) |
+| 17 | formato | No | solo · duo | Alimenta el número de personas mostrado en la ficha/popup (`formatPeopleCount()` en `src/data/categories.ts`: solo → "1 persona", duo → "2 personas") |
+| 18 | descripcion_corta | **Sí** | Texto libre, ~30-45 palabras | Una sensación, no una ficha de servicios. Reglas completas (longitud, estructura, clichés a evitar) en `docs/editorial/experiencias.md` |
+| 19 | nota_vivabox | **Sí** | Texto libre, ~20-35 palabras | Por qué la elegimos — razón editorial, nunca inventar una visita de primera mano. Reglas completas en `docs/editorial/experiencias.md` |
+| 20 | incluye | No | Texto libre | |
+| 21 | requisitos | No | Texto libre | Ej: edad mínima, acompañamiento |
+| 22 | ideal_para | No | Texto libre | Ej: Parejas, Amigos, En familia |
+| 23 | nivel_esfuerzo | No | bajo · medio · alto | |
+| 24 | nota_clima | No | Texto libre | |
+| 25 | nota_vestimenta | No | Texto libre | |
+| 26 | info_importante | No | Texto libre | |
+| 27 | ambiente_animo | No | relax · adrenalina · social · romántico · cultural | Genera la 1ª etiqueta de la tarjeta |
+| 28 | entorno | No | indoor · outdoor | Genera la 2ª etiqueta de la tarjeta |
+| 29 | ritmo | No | relajado · activo · sacudido | Genera la 3ª etiqueta de la tarjeta |
+| 30 | tipo_duracion | No | media · larga | |
+| 31 | imagen | **Sí** | `/images/experiencias-reales/<slug-descriptivo>/<slug-descriptivo>-1.webp` (foto real) o URL de images.pexels.com / images.unsplash.com (placeholder) | Cualquier otra fuente cae a la imagen genérica de la caja. Ver "Convención de nombres para fotos reales" abajo — el slug describe lo que se ve, NO el `codigo_interno` |
+| 32 | imagenes_adicionales | No | Mismo formato que "imagen" (`...-2.webp`, `...-3.webp`...), separadas por `\|` | Alimenta la galería swipeable del modal |
+| 33 | requiere_telefono | No | TRUE / FALSE | |
+| 34 | requiere_num_personas | No | TRUE / FALSE | |
+| 35 | permite_extra | No | TRUE / FALSE | |
+| 36 | max_personas_extra | No | Número | |
+| 37 | extra_requiere_aprobacion | No | TRUE / FALSE | |
+| 38 | nota_extra | No | Texto libre | |
+| 39 | tipo_calma | No | ambiental · corporal · interior | Taxonomía no conectada aún al sitio |
+| 40 | tipo_participacion | No | tecnico · manual · sensorial · mental | Taxonomía no conectada aún al sitio |
+| 41 | tipo_sacudida | No | sensorial · emocional | Taxonomía no conectada aún al sitio |
+| 42 | resolucion | No | inmediato · entorno · duradero · cuerpo · crear · comprender | Taxonomía no conectada aún al sitio |
+| 43 | precio_publico_referencia | No | Número (COP) | |
+| 44 | tarifa_neta_vivabox | No | Número (COP) | |
+| 45 | canal_reserva | No | Texto libre | |
+| 46 | anticipacion_minima | No | Texto libre | |
+| 47 | tiempo_respuesta_maximo | No | Texto libre | |
+| 48 | horario_disponible | No | Texto libre | |
+| 49 | politica_cancelacion | No | Texto libre | |
+| 50 | politica_no_show | No | Texto libre | |
+| 51 | metodo_redencion | No | Texto libre | |
+| 52 | momento_redencion | No | Texto libre | |
+| 53 | extras_permitidos | No | Texto libre | Nunca deben condicionar la experiencia base |
+| 54 | documento_anexo_url | No | URL (Drive u otro) | |
+| 55 | fecha_firma | No | AAAA-MM-DD | |
+| 56 | estado | **Sí** | borrador · en validación · contrato firmado · listo para publicar · publicado · pausado · vencido | Default `borrador`. Solo "publicado" se muestra en el sitio |
+| 57 | claves_eleccion | No | Hasta 3 elementos separados por `\|`, en el orden en que deben mostrarse (ej: `nivel_basico\|guia_incluido\|equipo_incluido`, o texto libre corto como `2 bebidas`) | Antes se llamaba `badges_visibles`. NO es un resumen de características — solo las 2-3 informaciones que realmente pueden influir en la decisión del beneficiario para ESA experiencia puntual. Nunca rellenar por defecto con interior/exterior/esfuerzo bajo/ambiente relajado/categoría/duración/ciudad — eso ya se muestra en otro lado de la ficha. Reglas completas de curaduría (qué incluir, qué no, ejemplos por categoría) en `docs/editorial/experiencias.md`. Cada elemento puede ser una key existente en `BADGE_REGISTRY` (`src/data/badges.ts`, le da un ícono específico) o texto libre corto en español natural sin snake_case (se muestra tal cual con un ícono genérico) para un detalle puntual que no amerita una entrada permanente en el registro. Sistema totalmente separado de `ambiente_animo`/`entorno`/`ritmo` (cols 27-29), que siguen existiendo solo como metadata interna de filtros para la web app beneficiaria. Preferible dejarla vacía o con 1-2 elementos que rellenar hasta 3 sin que aporten nada |
 
 ## Cálculo de codigo_interno
 
@@ -128,7 +129,7 @@ la foto **realmente muestra** (nunca solo el nombre comercial ni el `codigo_inte
    (`/images/experiencias-reales/<slug-descriptivo>/<slug-descriptivo>-1.webp`) una vez que
    haya foto real y se sepa qué muestra exactamente.
 7. Producir la fila final en un bloque de texto separado por tabulaciones (TSV), en el
-   **orden exacto** de las 56 columnas de la tabla — listo para pegar directamente en una
+   **orden exacto** de las 57 columnas de la tabla — listo para pegar directamente en una
    fila del Google Sheet. Incluir también un resumen legible campo por campo debajo, para
    que el usuario pueda revisar antes de pegar.
 8. Recordar al usuario que debe pegar la fila él mismo en el Google Sheet real — este skill
