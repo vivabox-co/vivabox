@@ -199,6 +199,16 @@ create table activation_codes (
   beneficiary_name text,
   beneficiary_email text,
 
+  -- Renseigné après confirmation d'une réservation (vivabox-appben,
+  -- app/reservar/fechas/confirmacion/page.tsx), jamais à l'activation :
+  -- opt-in séparé pour recevoir du contenu promotionnel (estados WhatsApp,
+  -- SMS) par WhatsApp/SMS. Distinct du numéro WhatsApp demandé à l'étape
+  -- /reservar/fechas/confirmar, qui ne sert qu'à coordonner cette réservation
+  -- précise et n'est jamais stocké ici de façon structurée (voir bookings.message).
+  beneficiary_phone text,
+  marketing_consent boolean not null default false,
+  marketing_consent_at timestamptz,
+
   activated_at timestamptz,
   expires_at timestamptz not null
 );
