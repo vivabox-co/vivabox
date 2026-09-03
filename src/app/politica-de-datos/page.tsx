@@ -39,7 +39,7 @@ export default function PoliticaDeDatosPage() {
     <LegalLayout
       eyebrow="Legal"
       title="Política de tratamiento de datos personales"
-      updated="27 de agosto de 2026"
+      updated="2 de septiembre de 2026"
       intro="Esta política explica qué datos personales recolectamos cuando compras, envías o activas una Vivabox, para qué los usamos y qué derechos tienes sobre ellos, de acuerdo con la Ley 1581 de 2012 y sus normas reglamentarias."
     >
       <Sec n={1} title="Responsable del tratamiento">
@@ -59,7 +59,12 @@ export default function PoliticaDeDatosPage() {
       <Sec n={2} title="Qué datos podemos recolectar">
         <p>Dependiendo del paso del proceso (compra, envío, activación o reserva), podemos recolectar:</p>
         <ul>
-          <li>Datos de identificación y contacto: nombre, correo electrónico, número de WhatsApp o teléfono.</li>
+          <li>
+            Datos de identificación y contacto: nombre, correo electrónico,
+            número de WhatsApp o teléfono, que también podemos usar para
+            enviarte comunicaciones por WhatsApp o SMS si diste tu
+            consentimiento para ello.
+          </li>
           <li>Datos de entrega: dirección, ciudad e indicaciones adicionales para el envío de la caja física.</li>
           <li>Datos de quien recibe el regalo, cuando el comprador elige enviarla directamente a esa persona.</li>
           <li>El mensaje personal opcional que el comprador escribe para acompañar el regalo.</li>
@@ -82,9 +87,12 @@ export default function PoliticaDeDatosPage() {
           <li>Enviar comunicaciones necesarias sobre tu compra, envío o reserva (correo de confirmación, avisos de estado, entre otros).</li>
           <li>Atender peticiones, quejas y reclamos.</li>
           <li>
-            Enviarte comunicaciones comerciales de Vivabox, únicamente si diste tu
-            consentimiento expreso para ello (por ejemplo, al aceptar recibir
-            comunicaciones en el proceso de compra).
+            Enviarte, por correo, WhatsApp (incluyendo estados/&quot;stories&quot;) y/o
+            SMS al número que nos proporcionaste, contenido promocional,
+            novedades, inspiración y beneficios de Vivabox, únicamente si
+            diste tu consentimiento expreso y específico para recibir
+            comunicaciones por esos canales (por ejemplo, al aceptar
+            recibirlas en el proceso de compra).
           </li>
         </ul>
       </Sec>
@@ -119,6 +127,11 @@ export default function PoliticaDeDatosPage() {
           <li>El proveedor de correo transaccional que usamos para enviarte confirmaciones y avisos relacionados con tu compra.</li>
           <li>Los aliados que prestan la experiencia elegida, únicamente los datos necesarios para coordinar la reserva.</li>
           <li>Nuestro proveedor de infraestructura y base de datos, que almacena la información de forma segura en nuestro nombre.</li>
+          <li>
+            Nuestro proveedor de mensajería, para enviar comunicaciones por
+            WhatsApp y SMS, únicamente cuando diste tu consentimiento para
+            recibirlas.
+          </li>
         </ul>
         <p>
           Todos estos terceros están obligados, contractual o legalmente, a usar tus
@@ -211,7 +224,26 @@ export default function PoliticaDeDatosPage() {
         </p>
       </Sec>
 
-      <Sec n={11} title="Modificaciones a esta política">
+      <Sec n={11} title="Cómo darte de baja de comunicaciones comerciales">
+        <p>
+          Si diste tu consentimiento para recibir comunicaciones por correo,
+          WhatsApp o SMS, puedes dejar de recibirlas cuando quieras:
+          respondiendo &quot;STOP&quot; al mensaje de texto, escribiéndonos por{" "}
+          <a href="https://wa.me/573142590291" target="_blank" rel="noopener noreferrer">
+            WhatsApp
+          </a>{" "}
+          o a{" "}
+          <a href="mailto:contact@vivabox.com.co">contact@vivabox.com.co</a>, o
+          desde el enlace de baja incluido en la comunicación.
+        </p>
+        <p>
+          Darte de baja no afecta tu compra, la vigencia de tu Vivabox ni las
+          comunicaciones necesarias para gestionar tu pedido, activación o
+          reserva.
+        </p>
+      </Sec>
+
+      <Sec n={12} title="Modificaciones a esta política">
         <p>
           Podemos actualizar esta política cuando cambien nuestras prácticas de
           tratamiento de datos o la normativa aplicable. La versión vigente es siempre

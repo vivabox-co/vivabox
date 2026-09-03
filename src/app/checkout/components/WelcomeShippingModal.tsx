@@ -186,7 +186,7 @@ export default function WelcomeShippingModal({ onClose, onSuccess }: Props) {
                   onChange={(e) => setConsent(e.target.checked)}
                   className="mt-1 accent-primary"
                 />
-                Acepto recibir comunicaciones de Vivabox.
+                Acepto recibir comunicaciones de Vivabox por correo, WhatsApp y SMS.
               </label>
 
               {error && <p className="text-xs text-accent-red">{error}</p>}
