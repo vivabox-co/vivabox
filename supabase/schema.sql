@@ -450,3 +450,15 @@ alter default privileges in schema public
   grant usage, select on sequences to service_role;
 alter default privileges in schema public
   grant execute on functions to service_role;
+
+-- =============================================================
+-- VENTA MANUAL — vente créée en direct par l'équipe (app operativo,
+-- /pedidos/nueva-venta) plutôt que via le checkout web.
+-- =============================================================
+--
+-- Reste null pour toute vente issue du checkout web : sert aussi de
+-- marqueur implicite "vente manuelle", pas besoin d'une colonne source
+-- séparée pour distinguer les deux origines dans /pedidos.
+alter table ventas
+  add column if not exists payment_method text
+    check (payment_method is null or payment_method in ('cash', 'transfer', 'card', 'other'));
