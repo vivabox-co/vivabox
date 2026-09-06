@@ -10,10 +10,13 @@ export function middleware(req: NextRequest) {
   // Exception : sur les déploiements Preview (VERCEL_ENV), on laisse passer
   // pour pouvoir tester le checkout (ex. l'intégration Wompi) avant le
   // lancement public — la vraie prod reste bloquée normalement.
+  // Le lancement se fait en passant CHECKOUT_ENABLED=true sur l'env Vercel
+  // "production" (puis redeploy) — aucun changement de code nécessaire.
   const isProduction = process.env.VERCEL_ENV === "production"
+  const isCheckoutEnabled = process.env.CHECKOUT_ENABLED === "true"
   const isCheckoutPath = pathname === "/checkout" || pathname.startsWith("/checkout/")
 
-  if (isProduction && isCheckoutPath) {
+  if (isProduction && !isCheckoutEnabled && isCheckoutPath) {
     // Entrée secrète : un clic caché sur /proximamente (POST /api/preview-access)
     // pose ce cookie pour laisser entrer les premiers testeurs/clients sans
     // attendre le lancement public officiel.
