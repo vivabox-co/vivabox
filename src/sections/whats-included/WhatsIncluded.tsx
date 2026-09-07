@@ -6,7 +6,6 @@ import BrandRibbon from "@/components/ui/BrandRibbon"
 import BenefitsBar from "@/components/BenefitsBar"
 import FitLine from "@/components/ui/FitLine"
 import { readSubtitleFontSize, SUBTITLE_FONT_SIZE_EVENT } from "@/utils/subtitleFontSize"
-import { formatPrice } from "@/utils/formatPrice"
 import { boxes } from "@/data/boxes"
 
 const vivabox = boxes[0]
@@ -481,22 +480,17 @@ export default function WhatsIncluded() {
           Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 20 experiencias en Bogotá y Cundinamarca.
         </p>
 
-        {/* PRICE — editorial, the price itself is the focal point, no card */}
+        {/* CTA — value understood first, price lives on the product page */}
 
         <div className="mt-6 md:mt-7 flex flex-col items-center text-center">
 
           <div className="w-10 h-px bg-ink/10 mb-5 md:mb-6" />
 
-          <div className="text-[44px] sm:text-[52px] md:text-[64px] font-semibold text-ink leading-none tracking-tight mb-4 md:mb-5">
-            ${formatPrice(vivabox.price)}
-            <span className="text-[20px] sm:text-[24px] md:text-[30px] align-baseline"> COP</span>
-          </div>
-
           <a
             href={`/cajas/${vivabox.slug}`}
             className="vb-btn-primary h-[54px] px-10 text-[17px]"
           >
-            Comprar Vivabox
+            Ver precio y comprar
           </a>
 
           <p className="mt-5 md:mt-6 mb-6 md:mb-8 text-muted text-[13px] md:text-[14px]">
@@ -660,16 +654,11 @@ export default function WhatsIncluded() {
 
             <div className="w-10 h-px bg-ink/10 mb-6" />
 
-            <div className="text-[64px] font-semibold text-ink leading-none tracking-tight mb-5">
-              ${formatPrice(vivabox.price)}
-              <span className="text-[30px] align-baseline"> COP</span>
-            </div>
-
             <a
               href={`/cajas/${vivabox.slug}`}
               className="h-[54px] px-10 rounded-xl bg-primary text-white text-[17px] font-semibold inline-flex items-center justify-center transition hover:bg-primary-hover shadow-[0_10px_35px_rgba(254,132,47,.35)]"
             >
-              Comprar Vivabox
+              Ver precio y comprar
             </a>
 
             <p className="mt-6 text-muted text-[14px]">
