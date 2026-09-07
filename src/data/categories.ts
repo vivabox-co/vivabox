@@ -64,12 +64,13 @@ export function formatDuration(duration?: string): string | null {
   return `${label} h`
 }
 
-// Sheet's "formato" column: solo | duo -- every experience today is for 1 or 2 people.
+// Sheet's "formato" column: solo | duo | solo o duo -- every experience today is for 1 or 2 people.
 export function formatPeopleCount(format?: string): string | null {
   const key = (format || "").trim().toLowerCase()
 
   if (key === "solo") return "1 persona"
   if (key === "duo") return "2 personas"
+  if (key === "solo o duo") return "1-2 personas"
 
   return null
 }

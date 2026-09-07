@@ -7,7 +7,7 @@ export type Experience = {
 
   duration?: string
   zone?: string
-  format?: string // sheet "formato": solo | duo -- feeds the practical people-count metadata
+  format?: string // sheet "formato": solo | duo | solo o duo -- feeds the practical people-count metadata
   shortDescription?: string
 
   // Internal filter metadata -- kept for the beneficiary activation app's
