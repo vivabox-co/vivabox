@@ -6,9 +6,6 @@ import BrandRibbon from "@/components/ui/BrandRibbon"
 import BenefitsBar from "@/components/BenefitsBar"
 import FitLine from "@/components/ui/FitLine"
 import { readSubtitleFontSize, SUBTITLE_FONT_SIZE_EVENT } from "@/utils/subtitleFontSize"
-import { boxes } from "@/data/boxes"
-
-const vivabox = boxes[0]
 
 // Two fixed lines (chosen break point, never re-wrapped by the browser) —
 // scaled up together as large as possible while neither line overflows the
@@ -476,22 +473,11 @@ export default function WhatsIncluded() {
 
         </div>
 
-        <p className="mt-5 md:mt-6 text-muted text-[14px] sm:text-[15px] md:text-[16px] text-center">
-          Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 20 experiencias en Bogotá y Cundinamarca.
-        </p>
-
         {/* CTA — value understood first, price lives on the product page */}
 
         <div className="mt-6 md:mt-7 flex flex-col items-center text-center">
 
           <div className="w-10 h-px bg-ink/10 mb-5 md:mb-6" />
-
-          <a
-            href={`/cajas/${vivabox.slug}`}
-            className="vb-btn-primary h-[54px] px-10 text-[17px]"
-          >
-            Ver precio y comprar
-          </a>
 
           <p className="mt-5 md:mt-6 mb-6 md:mb-8 text-muted text-[13px] md:text-[14px]">
             Compra segura. Sin costos ocultos.
@@ -644,22 +630,11 @@ export default function WhatsIncluded() {
 
           </div>
 
-          <p className="mt-4 text-muted text-[14px] text-center">
-            Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 20 experiencias en Bogotá y Cundinamarca.
-          </p>
-
           {/* STAGE 5 — the purchase action, only after the product has been understood */}
 
           <div className="mt-16 flex flex-col items-center text-center">
 
             <div className="w-10 h-px bg-ink/10 mb-6" />
-
-            <a
-              href={`/cajas/${vivabox.slug}`}
-              className="h-[54px] px-10 rounded-xl bg-primary text-white text-[17px] font-semibold inline-flex items-center justify-center transition hover:bg-primary-hover shadow-[0_10px_35px_rgba(254,132,47,.35)]"
-            >
-              Ver precio y comprar
-            </a>
 
             <p className="mt-6 text-muted text-[14px]">
               Compra segura. Sin costos ocultos.
