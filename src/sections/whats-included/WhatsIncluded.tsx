@@ -321,7 +321,6 @@ export default function WhatsIncluded() {
                   fill
                   sizes="76vw"
                   className="object-contain drop-shadow-[18px_10px_14px_rgba(24,20,15,0.22)]"
-                  priority
                 />
               </div>
 
@@ -536,7 +535,6 @@ export default function WhatsIncluded() {
                   fill
                   sizes="(min-width: 1280px) 480px, 440px"
                   className="object-contain drop-shadow-[0_30px_36px_rgba(24,20,15,0.16)]"
-                  priority
                 />
               </div>
 

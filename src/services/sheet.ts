@@ -1,4 +1,5 @@
 import Papa from "papaparse"
+import { unstable_cache } from "next/cache"
 
 const SHEET_URL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vS0wvZlSud-v8_n6IWeI6_qfWgmuViBjkp1-yHP-RJ90VlxhistJE2MuV0k_jc88cUeyOngtBI3ZdWM/pub?gid=1700161859&single=true&output=csv"
@@ -39,11 +40,9 @@ function translateRow(row: Record<string, string>) {
   return translated
 }
 
-export async function getSheetData() {
+async function fetchSheetData() {
 
-  const res = await fetch(SHEET_URL, {
-    next: { revalidate: 3600 } // refresh every hour
-  })
+  const res = await fetch(SHEET_URL)
 
   const csv = await res.text()
 
@@ -58,3 +57,13 @@ export async function getSheetData() {
       row.codigo_interno && PUBLISHED_STATES.has((row.estado || "").trim().toLowerCase())
     )
 }
+
+// The homepage's "Ejemplos de experiencias" shuffle needs `dynamic =
+// "force-dynamic"` to re-run per request, which also forces every plain
+// fetch() in the same render to skip Next's fetch cache (`next.revalidate`
+// has no effect there). unstable_cache is a separate cache layer that isn't
+// subject to that override, so the CSV download + parse still only happens
+// once per hour across all requests instead of on every single pageview.
+export const getSheetData = unstable_cache(fetchSheetData, ["sheet-data"], {
+  revalidate: 3600 // refresh every hour
+})

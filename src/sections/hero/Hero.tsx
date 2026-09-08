@@ -10,6 +10,7 @@ const DESKTOP_SRC = "/videos/hero/hero.mp4"
 const MOBILE_SRC = "/videos/hero/hero-mobile.mp4"
 const DESKTOP_POSTER = "/images/hero/hero-poster.webp"
 const MOBILE_POSTER = "/images/hero/hero-poster-mobile.webp"
+const MOBILE_QUERY = "(max-width: 767px)"
 
 const vivabox = boxes[0]
 
@@ -23,8 +24,15 @@ export default function Hero() {
   const poster = src === MOBILE_SRC ? MOBILE_POSTER : DESKTOP_POSTER
 
   useEffect(() => {
-    const mql = window.matchMedia("(max-width: 767px)")
-    setSrc(mql.matches ? MOBILE_SRC : DESKTOP_SRC)
+    const mql = window.matchMedia(MOBILE_QUERY)
+    const update = () => setSrc(mql.matches ? MOBILE_SRC : DESKTOP_SRC)
+    update()
+    // Listening (not just checking once) protects against the initial read
+    // landing before the viewport has actually settled -- without this, a
+    // stale first read locks the wrong source in for the page's whole life
+    // since there's nothing else to correct it afterward.
+    mql.addEventListener("change", update)
+    return () => mql.removeEventListener("change", update)
   }, [])
 
   // Subtitle must always read as a single line (never wrap), so its size is
@@ -55,6 +63,9 @@ export default function Hero() {
     // autoplay can silently fail on iPhone. Retried on loadedmetadata since
     // play() can reject if called before the new source is ready.
     video.muted = true
+    // Not in the DOM types for <video> yet, though browsers support it --
+    // set imperatively instead of erroring out the JSX prop.
+    video.setAttribute("fetchpriority", "high")
     const tryPlay = () => video.play().catch(() => {})
     tryPlay()
     video.addEventListener("loadedmetadata", tryPlay)
@@ -63,6 +74,13 @@ export default function Hero() {
 
   return (
     <section className="relative h-[78vh] md:h-[82vh] min-h-[620px] overflow-hidden">
+
+      {/* POSTER PRELOAD — static hints for both variants (media-gated) so the
+          browser can start fetching the right one straight from the initial
+          HTML, before hydration picks the actual src/poster above. */}
+
+      <link rel="preload" as="image" href={DESKTOP_POSTER} media="(min-width: 768px)" fetchPriority="high" />
+      <link rel="preload" as="image" href={MOBILE_POSTER} media={MOBILE_QUERY} fetchPriority="high" />
 
       {/* VIDEO */}
 
@@ -75,7 +93,7 @@ export default function Hero() {
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         aria-label="Persona recibiendo una Vivabox como regalo"
         className="
           absolute inset-0
