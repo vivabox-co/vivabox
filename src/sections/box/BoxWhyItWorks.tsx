@@ -23,7 +23,7 @@ export default function BoxWhyItWorks() {
   return (
     <section className="bg-white py-10 md:py-14">
 
-      <div className="max-w-[640px] mx-auto px-6">
+      <div className="max-w-[640px] md:max-w-[1040px] mx-auto px-6">
 
         <BrandDots />
 
@@ -31,14 +31,14 @@ export default function BoxWhyItWorks() {
           ¿Por qué funciona tan bien como regalo?
         </h2>
 
-        <div>
+        <div className="md:grid md:grid-cols-3 md:gap-x-10 md:border-t md:border-border md:pt-10">
 
           {items.map(({ image, title, text }, i) => (
             <div
               key={title}
-              className={`vb-divider-top flex items-center gap-4 py-5 ${
-                i === items.length - 1 ? "border-b border-border" : ""
-              }`}
+              className={`vb-divider-top md:[&::before]:hidden flex items-center gap-4 py-5 md:flex-col md:items-center md:text-center md:py-0 ${
+                i === items.length - 1 ? "border-b border-border md:border-b-0" : ""
+              } ${i > 0 ? "md:border-l md:border-border md:pl-10" : ""}`}
             >
 
               <div className="shrink-0 relative w-[76px] h-[76px] sm:w-[88px] sm:h-[88px] rounded-full overflow-hidden">
