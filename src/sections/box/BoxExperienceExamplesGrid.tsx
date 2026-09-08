@@ -7,7 +7,7 @@ import ExperienceModal from "@/components/ExperienceModal"
 import type { Experience } from "@/types/experience"
 import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR, formatCity } from "@/data/categories"
 
-const CARD_IMAGE_SIZES = "(min-width: 1280px) 220px, (min-width: 1024px) 280px, 260px"
+const CARD_IMAGE_SIZES = "(min-width: 1024px) 210px, 260px"
 
 export default function BoxExperienceExamplesGrid({
   experiences,
@@ -19,8 +19,8 @@ export default function BoxExperienceExamplesGrid({
 
   return (
     <>
-      {/* SCROLL CONTAINER on mobile/tablet — grid from lg up, where horizontal scroll has no discoverable affordance with a mouse */}
-      <div className="flex gap-4 overflow-x-auto pb-2 scroll-pl-4 no-scrollbar snap-x snap-mandatory scroll-smooth lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
+      {/* SCROLL CONTAINER at every breakpoint — the container clips the trailing card so part of it peeks in, signaling there's more to scroll */}
+      <div className="flex gap-4 overflow-x-auto pb-2 scroll-pl-4 no-scrollbar snap-x snap-mandatory scroll-smooth">
 
         {experiences.map((exp, index) => {
 
@@ -34,7 +34,7 @@ export default function BoxExperienceExamplesGrid({
             <div
               key={index}
               onClick={() => setSelectedExperience(exp)}
-              className="vb-card group cursor-pointer snap-start min-w-[260px] lg:min-w-0 hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden"
+              className="vb-card group cursor-pointer snap-start min-w-[260px] lg:min-w-[210px] hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden"
             >
 
               <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px]">
@@ -75,7 +75,7 @@ export default function BoxExperienceExamplesGrid({
         })}
 
         {/* LAST CARD */}
-        <div className="vb-card group snap-start min-w-[260px] lg:min-w-0 hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden">
+        <div className="vb-card group snap-start min-w-[260px] lg:min-w-[210px] hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden">
 
           <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px]">
 
