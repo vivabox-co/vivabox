@@ -329,7 +329,7 @@ body {
 
 :root {
   --color-base: #F1EAE0;
-  --nm-light: rgba(255, 255, 255, 0.9);
+  --nm-light: rgba(255, 255, 255, 0);
   --nm-dark: rgba(24, 20, 15, 0.12);
   --nm-dark-strong: rgba(24, 20, 15, 0.18);
   --nm-border: rgba(24, 20, 15, 0.08);
@@ -347,7 +347,7 @@ body {
 .vb-dark {
   --color-base: #18140F;
   --color-card: #241E17;
-  --nm-light: rgba(255, 250, 245, 0.05);
+  --nm-light: rgba(255, 250, 245, 0);
   --nm-dark: rgba(0, 0, 0, 0.45);
   --nm-dark-strong: rgba(0, 0, 0, 0.6);
   --nm-border: rgba(255, 255, 255, 0.06);
@@ -364,7 +364,7 @@ body {
 .vb-light {
   --color-base: #F1EAE0;
   --color-card: #FFFCF9;
-  --nm-light: rgba(255, 255, 255, 0.9);
+  --nm-light: rgba(255, 255, 255, 0);
   --nm-dark: rgba(24, 20, 15, 0.12);
   --nm-dark-strong: rgba(24, 20, 15, 0.18);
   --nm-border: rgba(24, 20, 15, 0.08);
