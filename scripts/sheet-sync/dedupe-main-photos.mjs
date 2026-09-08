@@ -43,6 +43,49 @@ const FIXES = {
       "/images/experiencias-reales/cabalgata-montana-la-calera-vivabox/cabalgata-montana-la-calera-vivabox-3.webp",
     ],
   },
+  // Round 2 -- found by hashing file *content*, not just comparing the
+  // "imagen" string: these rows point at different filenames that happen to
+  // be the exact same photo (duplicated asset files, or genuinely shared
+  // photo shoots). See scripts/sheet-sync/_tmp-hash-dupes.mjs pattern for how
+  // to re-detect this.
+  //
+  // Termales (Club Duchi) -- "hidratacion facial" duplicated "masaje y coctel"'s
+  // cover (both are literally the same sangria-glass photo file, saved twice
+  // under different folders).
+  "BIE-COR-002": {
+    expectedImagen: "/images/experiencias-reales/termales-hidratacion-facial-la-calera-vivabox/termales-hidratacion-facial-la-calera-vivabox-1.webp",
+    imagen: "/images/experiencias-reales/termales-hidratacion-facial-la-calera-vivabox/termales-hidratacion-facial-la-calera-vivabox-2.webp",
+    imagenesAdicionales: [
+      "/images/experiencias-reales/termales-hidratacion-facial-la-calera-vivabox/termales-hidratacion-facial-la-calera-vivabox-1.webp",
+      "/images/experiencias-reales/termales-hidratacion-facial-la-calera-vivabox/termales-hidratacion-facial-la-calera-vivabox-3.webp",
+    ],
+  },
+  // Teatro Libre -- "tras bambalinas con cena y vino" duplicated "una copa
+  // antes del teatro"'s cover (same drink photo reused across two different
+  // experiences).
+  "CUL-BOG-006": {
+    expectedImagen: "/images/experiencias-reales/bambalinas-cena-vino-bogota-vivabox/bambalinas-cena-vino-bogota-vivabox-1.webp",
+    imagen: "/images/experiencias-reales/bambalinas-cena-vino-bogota-vivabox/bambalinas-cena-vino-bogota-vivabox-4.webp",
+    imagenesAdicionales: [
+      "/images/experiencias-reales/bambalinas-cena-vino-bogota-vivabox/bambalinas-cena-vino-bogota-vivabox-1.webp",
+      "/images/experiencias-reales/bambalinas-cena-vino-bogota-vivabox/bambalinas-cena-vino-bogota-vivabox-2.webp",
+      "/images/experiencias-reales/bambalinas-cena-vino-bogota-vivabox/bambalinas-cena-vino-bogota-vivabox-3.webp",
+      "/images/experiencias-reales/bambalinas-cena-vino-bogota-vivabox/bambalinas-cena-vino-bogota-vivabox-5.webp",
+    ],
+  },
+  // Teatro Libre -- "cena, bambalinas y taller de teatro" duplicated "tras
+  // bambalinas (chapinero)"'s cover (same bambalinas hero photo, shared
+  // across all 3 "tras bambalinas"-family experiences -- see CUL-BOG-005,
+  // left untouched, which keeps that hero photo as its own cover).
+  "CUL-BOG-007": {
+    expectedImagen: "/images/experiencias-reales/cena-bambalinas-taller-teatro-bogota-vivabox/cena-bambalinas-taller-teatro-bogota-vivabox-1.webp",
+    imagen: "/images/experiencias-reales/cena-bambalinas-taller-teatro-bogota-vivabox/cena-bambalinas-taller-teatro-bogota-vivabox-2.webp",
+    imagenesAdicionales: [
+      "/images/experiencias-reales/cena-bambalinas-taller-teatro-bogota-vivabox/cena-bambalinas-taller-teatro-bogota-vivabox-1.webp",
+      "/images/experiencias-reales/cena-bambalinas-taller-teatro-bogota-vivabox/cena-bambalinas-taller-teatro-bogota-vivabox-3.webp",
+      "/images/experiencias-reales/cena-bambalinas-taller-teatro-bogota-vivabox/cena-bambalinas-taller-teatro-bogota-vivabox-4.webp",
+    ],
+  },
 }
 
 function columnLetter(index) {
@@ -118,11 +161,19 @@ async function main() {
   })
   const currentImagenValues = currentImagenData.values || []
 
+  // Rows already matching the target value are treated as already-applied
+  // (skipped, not an error) so this script stays safe to re-run.
   const mismatches = []
+  const pending = []
   for (const [code, fix] of Object.entries(FIXES)) {
     const row = rowFor[code]
     const actual = (currentImagenValues[row - rows[0]]?.[0] || "").trim()
-    if (actual !== fix.expectedImagen) mismatches.push({ code, row, expected: fix.expectedImagen, actual })
+    if (actual === fix.imagen) continue // already applied
+    if (actual !== fix.expectedImagen) {
+      mismatches.push({ code, row, expected: fix.expectedImagen, actual })
+      continue
+    }
+    pending.push(code)
   }
   if (mismatches.length) {
     console.error("El sheet cambió desde que se armó este mapeo -- abortando. Discrepancias:")
@@ -130,8 +181,14 @@ async function main() {
     process.exit(1)
   }
 
-  console.log(`Pestaña "${title}". ${Object.keys(FIXES).length} filas a corregir:\n`)
-  for (const [code, fix] of Object.entries(FIXES)) {
+  if (!pending.length) {
+    console.log("Todas las filas ya tienen el valor esperado -- nada que hacer.")
+    return
+  }
+
+  console.log(`Pestaña "${title}". ${pending.length} fila(s) a corregir:\n`)
+  for (const code of pending) {
+    const fix = FIXES[code]
     const row = rowFor[code]
     console.log(`  ${code} (fila ${row}):`)
     console.log(`    imagen: ${fix.expectedImagen} -> ${fix.imagen}`)
@@ -144,7 +201,8 @@ async function main() {
   }
 
   const data = []
-  for (const [code, fix] of Object.entries(FIXES)) {
+  for (const code of pending) {
+    const fix = FIXES[code]
     const row = rowFor[code]
     data.push({ range: `'${title}'!${imagenCol}${row}`, values: [[fix.imagen]] })
     data.push({ range: `'${title}'!${adicionalesCol}${row}`, values: [[fix.imagenesAdicionales.join("|")]] })
