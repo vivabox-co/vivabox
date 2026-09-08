@@ -37,7 +37,7 @@ export const faqSchemaItems: FAQItem[] = [
   {
     question: "¿Cuántas experiencias hay disponibles?",
     answer:
-      "Más de 20 experiencias disponibles en Bogotá y Cundinamarca. La selección continúa creciendo constantemente.",
+      "Más de 50 experiencias disponibles en Bogotá y Cundinamarca. La selección continúa creciendo constantemente.",
   },
   {
     question: "¿Hay experiencias gastronómicas?",

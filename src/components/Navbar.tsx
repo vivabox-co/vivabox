@@ -299,7 +299,7 @@ export default function Navbar() {
 
       {/* TRUST (minimal) */}
       <div className="mt-auto pt-6 text-xs text-gray-400">
-        +20 experiencias · Confirmación rápida
+        +50 experiencias · Confirmación rápida
       </div>
 
     </div>

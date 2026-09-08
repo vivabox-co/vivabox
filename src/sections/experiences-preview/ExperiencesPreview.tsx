@@ -18,7 +18,7 @@ export default function ExperiencesPreview() {
           Muchas formas de disfrutar una Vivabox
         </h2>
         <p className="text-muted">
-          Quien la reciba escoge 1 entre más de 20,
+          Quien la reciba escoge 1 entre más de 50,
           <br />
           <span className="font-medium">en Bogotá y Cundinamarca.</span>
         </p>
