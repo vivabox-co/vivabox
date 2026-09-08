@@ -31,7 +31,7 @@ export default function BoxWhyItWorks() {
           ¿Por qué funciona tan bien como regalo?
         </h2>
 
-        <div className="md:grid md:grid-cols-3 md:gap-x-10 md:border-t md:border-border md:pt-10">
+        <div className="md:grid md:grid-cols-3 md:gap-x-10">
 
           {items.map(({ image, title, text }, i) => (
             <div
