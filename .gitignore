@@ -25,6 +25,7 @@ vivabox-coming-soon/.next/
 # misc
 .DS_Store
 *.pem
+*.bak
 
 # raw/unprocessed media masters (not shipped)
 /assets-raw
