@@ -1,0 +1,110 @@
+// Wires up the webp photos converted into public/images/experiencias-reales/
+// for EST-COR-003, EST-COR-004, EST-COR-005 and AVE-COR-009 (photos provided
+// by the user in LatiBox/Images/Prestataires) and marks them ready to publish.
+//
+// Usage (dry run, default):
+//   SHEET_ID=<spreadsheet id> node scripts/sheet-sync/add-photos-4-new-cor-rows.mjs
+// Usage (applies the change):
+//   SHEET_ID=<spreadsheet id> node scripts/sheet-sync/add-photos-4-new-cor-rows.mjs --confirm
+
+import { getSheetsClient } from "./client.mjs"
+
+const DEFAULT_GID = "1700161859"
+
+const PHOTOS = {
+  "EST-COR-003": { slug: "carpa-glamping-embalse-guatavita-vivabox", count: 3 },
+  "EST-COR-004": { slug: "domo-piedra-sesquile-vivabox", count: 3 },
+  "EST-COR-005": { slug: "cabana-panoramica-sesquile-vivabox", count: 3 },
+  "AVE-COR-009": { slug: "velero-embalse-tomine-guatavita-vivabox", count: 3 },
+}
+
+function buildFields({ slug, count }) {
+  const path = (n) => `/images/experiencias-reales/${slug}/${slug}-${n}.webp`
+  const extras = Array.from({ length: count - 1 }, (_, i) => path(i + 2))
+  return {
+    imagen: path(1),
+    imagenes_adicionales: extras.join("|"),
+    estado: "listo para publicar",
+  }
+}
+
+function columnLetter(index) {
+  let letter = ""
+  let n = index + 1
+  while (n > 0) {
+    const rem = (n - 1) % 26
+    letter = String.fromCharCode(65 + rem) + letter
+    n = Math.floor((n - 1) / 26)
+  }
+  return letter
+}
+
+async function main() {
+  const spreadsheetId = process.env.SHEET_ID
+  if (!spreadsheetId) throw new Error("Falta SHEET_ID")
+  const gid = process.env.SHEET_GID || DEFAULT_GID
+  const confirm = process.argv.includes("--confirm")
+
+  const sheets = await getSheetsClient()
+  const { data: meta } = await sheets.spreadsheets.get({ spreadsheetId })
+  const sheet = meta.sheets.find((s) => String(s.properties.sheetId) === String(gid))
+  if (!sheet) throw new Error(`No encontré una pestaña con gid=${gid}.`)
+  const title = sheet.properties.title
+
+  const { data } = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `'${title}'!A1:BF10000`,
+  })
+  const [header, ...rows] = data.values
+  const codeCol = header.indexOf("codigo_interno")
+
+  const valueRanges = []
+  let cellCount = 0
+
+  for (const [code, photoInfo] of Object.entries(PHOTOS)) {
+    const rowIndex = rows.findIndex((r) => (r[codeCol] || "").trim() === code)
+    if (rowIndex === -1) {
+      console.log(`AVISO: no encontré ${code}, la salto`)
+      continue
+    }
+    const sheetRow = rowIndex + 2
+    const fields = buildFields(photoInfo)
+    console.log(`\n${code} (fila ${sheetRow})`)
+    for (const [field, newValue] of Object.entries(fields)) {
+      const colIndex = header.indexOf(field)
+      if (colIndex === -1) {
+        console.log(`  AVISO: columna "${field}" no existe, la salto`)
+        continue
+      }
+      const current = rows[rowIndex][colIndex] || ""
+      if (current.trim() === newValue.trim()) continue
+      const col = columnLetter(colIndex)
+      console.log(`  ${field}:`)
+      console.log(`    antes:    ${JSON.stringify(current).slice(0, 150)}`)
+      console.log(`    después:  ${JSON.stringify(newValue).slice(0, 150)}`)
+      valueRanges.push({ range: `'${title}'!${col}${sheetRow}`, values: [[newValue]] })
+      cellCount++
+    }
+  }
+
+  console.log(`\n${cellCount} celdas para actualizar.`)
+
+  if (!confirm) {
+    console.log("\nDry run -- no se escribió nada. Vuelve a correr con --confirm para aplicar.")
+    return
+  }
+
+  if (valueRanges.length) {
+    await sheets.spreadsheets.values.batchUpdate({
+      spreadsheetId,
+      requestBody: { valueInputOption: "RAW", data: valueRanges },
+    })
+  }
+
+  console.log("\nListo.")
+}
+
+main().catch((err) => {
+  console.error(err.message)
+  process.exit(1)
+})
