@@ -40,6 +40,15 @@ function readCodes(csvPath) {
   return rows;
 }
 
+// Print-only readability split: "VIVA-RHUCYW5W" -> "VIVA-RHUC-YW5W". The
+// underlying code (Supabase, CSV, SQL) is untouched — normalizeCode() at
+// activation strips every dash anyway, so this only affects what's printed.
+function formatForDisplay(code) {
+  const [prefix, suffix] = code.split("-");
+  const mid = Math.ceil(suffix.length / 2);
+  return `${prefix}-${suffix.slice(0, mid)}-${suffix.slice(mid)}`;
+}
+
 // Helvetica-Bold isn't monospace, so same-length codes can still render at
 // different widths (e.g. "M" vs "I") — size against the widest code in the
 // batch, not just any one sample, or narrower cells would overflow.
@@ -56,6 +65,7 @@ async function main() {
     : csvPath.replace(/-codes\.csv$/, "-sheet.pdf");
 
   const codes = readCodes(csvPath);
+  const displayTexts = codes.map(formatForDisplay);
   const rows = Math.ceil(codes.length / COLUMNS);
 
   const pageWidthPt = mm(COLUMNS * CELL_WIDTH_MM);
@@ -67,7 +77,7 @@ async function main() {
 
   const availableWidthPt = mm(CELL_WIDTH_MM - 2 * CELL_PADDING_X_MM);
   const availableHeightPt = mm(CELL_HEIGHT_MM - 2 * CELL_PADDING_Y_MM);
-  const fontSize = fitFontSize(font, codes, availableWidthPt, availableHeightPt);
+  const fontSize = fitFontSize(font, displayTexts, availableWidthPt, availableHeightPt);
 
   // Cut grid: full hairline lines at every column/row boundary, edge to edge.
   for (let c = 0; c <= COLUMNS; c++) {
@@ -89,7 +99,7 @@ async function main() {
     });
   }
 
-  codes.forEach((code, i) => {
+  displayTexts.forEach((text, i) => {
     const col = i % COLUMNS;
     const row = Math.floor(i / COLUMNS);
 
@@ -97,13 +107,13 @@ async function main() {
     // PDF y-axis grows upward; row 0 is the top row of the sheet.
     const cellTopY = pageHeightPt - mm(row * CELL_HEIGHT_MM);
 
-    const textWidth = font.widthOfTextAtSize(code, fontSize);
+    const textWidth = font.widthOfTextAtSize(text, fontSize);
     const textHeight = font.heightAtSize(fontSize);
 
     const x = cellX + (mm(CELL_WIDTH_MM) - textWidth) / 2;
     const y = cellTopY - mm(CELL_HEIGHT_MM) / 2 - textHeight * 0.35; // optical baseline centering
 
-    page.drawText(code, { x, y, size: fontSize, font, color: rgb(0, 0, 0) });
+    page.drawText(text, { x, y, size: fontSize, font, color: rgb(0, 0, 0) });
   });
 
   fs.writeFileSync(outPath, await pdf.save());
