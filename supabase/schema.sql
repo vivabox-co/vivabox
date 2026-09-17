@@ -462,3 +462,30 @@ alter default privileges in schema public
 alter table ventas
   add column if not exists payment_method text
     check (payment_method is null or payment_method in ('cash', 'transfer', 'card', 'other'));
+
+-- =============================================================
+-- CORTESÍAS SIN ACUERDO — código regalado a un partner (agencia, aliado,
+-- influencer...) antes de que exista un acuerdo comercial firmado.
+-- requires_agreement se marca al crear la venta manual (nueva-venta) y se
+-- retira con "Marcar acuerdo firmado" (vivabox-operativo, pedidos/
+-- actions.ts::markAgreementSigned) una vez firmado. Leído también en
+-- /reservas para reforzar el aviso antes de confirmar una reserva hecha
+-- con uno de estos códigos — ver reservas/data.ts.
+alter table ventas
+  add column if not exists requires_agreement boolean not null default false,
+  add column if not exists requires_agreement_note text;
+
+-- =============================================================
+-- MIGRATION — backfill único, 2026-09-17 : 4 cortesías dadas a Masago
+-- Talent (agencia de influencers) antes de firmar acuerdo. Creadas por
+-- error con subtotal/total a 199000 (precio de catálogo) — no hubo venta
+-- real, así que se corrigen a 0 para no inflar el revenue reportado en
+-- /pedidos. Sin efecto en una base que no tiene estas 4 filas.
+-- =============================================================
+--
+-- update ventas
+-- set requires_agreement = true,
+--     requires_agreement_note = 'Masago Talent — cortesía, sin acuerdo firmado',
+--     subtotal = 0,
+--     total = 0
+-- where buyer_email = 'alejandro@masagotalent.com';
