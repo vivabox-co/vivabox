@@ -53,5 +53,10 @@ next-env.d.ts
 # Google Sheets OAuth credentials/tokens (see scripts/sheet-sync)
 /scripts/sheet-sync/.credentials/
 
+# Generated activation code batches — real, usable codes, never committed
+# (see scripts/activation-codes/)
+/scripts/activation-codes/output/*
+!/scripts/activation-codes/output/.gitkeep
+
 # Supabase CLI local state
 /supabase/.temp/

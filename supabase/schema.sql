@@ -178,15 +178,22 @@ $$;
 --   add column if not exists promo_code_id uuid references promo_codes(id),
 --   add column if not exists discount integer not null default 0;
 
--- Code d'activation unique de chaque Vivabox physique (un code par vente).
--- Généré au moment du paiement. Le destinataire l'utilise plus tard sur la
--- plateforme d'activation (application séparée, MÊME projet Supabase) pour
--- débloquer le choix d'expérience.
+-- Code d'activation unique de chaque Vivabox physique. Deux origines :
+-- (1) vente en ligne — généré au moment du paiement avec venta_id/expires_at
+--     déjà renseignés (voir finalizeVentaPayment.ts) ;
+-- (2) lot pré-imprimé (autocollants collés sur des box physiques avant toute
+--     vente) — inséré en stock avec venta_id et expires_at NULL, puis
+--     rattaché à une vente par l'app opérative (App_Operativo, hors repo)
+--     au moment où la box est effectivement vendue (en ligne ou en boutique).
+-- Le destinataire utilise le code plus tard sur la plateforme d'activation
+-- (application séparée, MÊME projet Supabase) pour débloquer le choix
+-- d'expérience.
 create table activation_codes (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
 
-  venta_id uuid not null references ventas(id),
+  -- NULL tant que le code est en stock (lot pré-imprimé non encore vendu).
+  venta_id uuid references ventas(id),
   code text not null unique,
   -- Forme normalisée de code (majuscules, sans tirets/espaces) utilisée pour
   -- la recherche : le destinataire peut coller "viva-ab3d7", "VIVA AB3D7"...
@@ -210,7 +217,9 @@ create table activation_codes (
   marketing_consent_at timestamptz,
 
   activated_at timestamptz,
-  expires_at timestamptz not null
+  -- NULL tant que le code est en stock ; renseigné (6 mois, comme la vente
+  -- en ligne) quand App_Operativo le rattache à une vente.
+  expires_at timestamptz
 );
 
 alter table activation_codes enable row level security;
