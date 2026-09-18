@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
 import { validatePromoCode } from "@/features/promotions/validatePromoCode"
+import { isTestPriceCode } from "@/features/promotions/testPriceCode"
 import { checkRateLimit, getClientIp } from "@/utils/rateLimit"
 
 const RATE_LIMIT_MAX_ATTEMPTS = 5
@@ -33,6 +34,10 @@ export async function POST(req: Request) {
 
     if (!ipAllowed || !codeAllowed || !globalAllowed) {
       return NextResponse.json({ ok: false, error: "TOO_MANY_ATTEMPTS" })
+    }
+
+    if (isTestPriceCode(code)) {
+      return NextResponse.json({ ok: true })
     }
 
     const result = await validatePromoCode(supabase, code, null)

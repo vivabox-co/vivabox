@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { boxes } from "@/data/boxes"
 import { getSupabase } from "@/services/supabase"
 import { validatePromoCode } from "@/features/promotions/validatePromoCode"
+import { isTestPriceCode, getTestTotal, TEST_PROMO_MARKER } from "@/features/promotions/testPriceCode"
 import { checkRateLimit, getClientIp } from "@/utils/rateLimit"
 
 const RATE_LIMIT_MAX_ATTEMPTS = 5
@@ -64,6 +65,7 @@ export async function POST(req: Request) {
     const originalDeliveryPrice = computeDelivery(delivery.type, delivery.speed || null)
     let deliveryPrice = originalDeliveryPrice
     let discount = 0
+    let chargedSubtotal = subtotal
 
     const supabase = getSupabase()
 
@@ -85,6 +87,18 @@ export async function POST(req: Request) {
 
       if (!ipAllowed || !codeAllowed || !globalAllowed) {
         promoWarning = "TOO_MANY_ATTEMPTS"
+      } else if (isTestPriceCode(normalizedPromo)) {
+        // Code "prix test" (voir testPriceCode.ts) : montant symbolique pour
+        // tester le vrai parcours en production. Une seule unité, livraison
+        // offerte ; discount garde l'écart avec le prix normal pour la compta.
+        if (quantity === 1) {
+          chargedSubtotal = getTestTotal()
+          deliveryPrice = 0
+          discount = subtotal + originalDeliveryPrice - chargedSubtotal
+          promoCodeInput = TEST_PROMO_MARKER
+        } else {
+          promoWarning = "INVALID_CODE"
+        }
       } else {
         const result = await validatePromoCode(supabase, normalizedPromo, buyer.email)
 
@@ -98,7 +112,7 @@ export async function POST(req: Request) {
       }
     }
 
-    const total = subtotal + deliveryPrice
+    const total = chargedSubtotal + deliveryPrice
 
     const isPhysical = delivery.type === "physical"
     const isRecipient = isPhysical && destination === "recipient"
@@ -123,7 +137,7 @@ export async function POST(req: Request) {
         delivery_ciudad: isPhysical ? address.city : "",
         delivery_detalles: isPhysical ? (address.addressExtra || "") : "",
 
-        subtotal,
+        subtotal: chargedSubtotal,
         delivery_price: deliveryPrice,
         total,
 
@@ -141,7 +155,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       ventaId: data.id,
-      pricing: { subtotal, delivery: deliveryPrice, total, discount },
+      pricing: { subtotal: chargedSubtotal, delivery: deliveryPrice, total, discount },
       promoApplied: promoCodeInput !== null,
       promoWarning,
     })
