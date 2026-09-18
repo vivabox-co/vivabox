@@ -2,7 +2,7 @@
 
 import { useId, useState, type ReactNode } from "react"
 import Image from "next/image"
-import { Check, Copy, Info } from "lucide-react"
+import { Check, Copy, Heart } from "lucide-react"
 import { MANUAL_PAYMENT, paymentReference } from "@/services/manualPayment"
 import { formatPrice } from "@/utils/formatPrice"
 
@@ -133,18 +133,28 @@ export default function ManualPaymentPanel({
 
   return (
     <div className="space-y-4">
+      {/* Disculpa por el pago temporal: va primero y bien visible para que
+          nadie lo lea como un error del sitio. */}
+      <div
+        role="note"
+        className="flex items-start gap-3 rounded-[20px] border border-primary/30 bg-primary/[0.07] p-4"
+      >
+        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+          <Heart size={16} strokeWidth={2.25} />
+        </span>
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-ink">Disculpa las molestias</p>
+          <p className="text-sm text-ink/80 leading-relaxed">
+            Todavía estamos activando el pago con tarjeta, Nequi y PSE. Mientras tanto, pagas por
+            Bre-B y nosotros confirmamos tu pedido apenas veamos la transferencia.
+          </p>
+        </div>
+      </div>
+
       <div className="space-y-1">
         <p className="text-sm font-medium text-ink">Transfiere ${formatPrice(total)} con Bre-B</p>
         <p className="text-xs text-[#6B6B6B]">
           Es una transferencia inmediata y sin costo, desde la app de tu banco.
-        </p>
-      </div>
-
-      <div className="flex items-start gap-2 text-xs text-[#6B6B6B] leading-relaxed">
-        <Info size={14} strokeWidth={2} className="mt-0.5 shrink-0 text-primary" />
-        <p>
-          Estamos activando el pago con tarjeta, Nequi y PSE. Mientras tanto, pagas por Bre-B y
-          nosotros confirmamos tu pedido apenas veamos la transferencia.
         </p>
       </div>
 
