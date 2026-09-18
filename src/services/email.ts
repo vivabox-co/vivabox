@@ -93,6 +93,48 @@ export async function sendOrderReadyEmail(params: OrderReadyEmailParams) {
   }
 }
 
+type ManualPaymentEmailParams = {
+  ventaId: string
+  reference: string
+  total: number
+  boxSlug: string
+  quantity: number
+  buyerName: string
+  buyerEmail: string
+  buyerPhone?: string | null
+}
+
+// Alerte "el cliente dice que pagó" — le paiement Bre-B se vérifie à la main
+// dans l'app Bancolombia, puis se confirme dans le back-office (Pedidos →
+// Pagos). Best-effort : la venta reste visible dans le back-office même si
+// l'email n'arrive pas.
+export async function sendManualPaymentReportEmail(params: ManualPaymentEmailParams) {
+  const { ventaId, reference, total, boxSlug, quantity, buyerName, buyerEmail, buyerPhone } = params
+  const amount = `$${total.toLocaleString("es-CO")}`
+
+  const html = `
+    <h2>Pago por verificar</h2>
+    <p style="font-size:20px"><strong>${escapeHtml(reference)} · ${escapeHtml(amount)} COP</strong></p>
+    <p>El cliente indica que ya pagó por Bre-B. Verifica en Bancolombia que llegó el monto exacto y confirma el pago en el back-office (Pedidos → Pagos).</p>
+    <ul>
+      <li><strong>Caja:</strong> ${escapeHtml(boxSlug)} x${quantity}</li>
+      <li><strong>Comprador:</strong> ${escapeHtml(buyerName)} (${escapeHtml(buyerEmail)}${buyerPhone ? `, ${escapeHtml(buyerPhone)}` : ""})</li>
+    </ul>
+    <p style="color:#888;font-size:12px">Venta ID: ${ventaId}</p>
+  `
+
+  try {
+    await getResend().emails.send({
+      from: FROM,
+      to: NOTIFY_TO,
+      subject: `Pago por verificar — ${reference} — ${amount}`,
+      html,
+    })
+  } catch (error) {
+    console.error("MANUAL PAYMENT EMAIL ERROR:", error)
+  }
+}
+
 type PartnerLeadEmailParams = {
   leadId: string
   name: string

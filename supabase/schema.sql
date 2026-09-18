@@ -471,6 +471,10 @@ alter default privileges in schema public
 alter table ventas
   add column if not exists payment_method text
     check (payment_method is null or payment_method in ('cash', 'transfer', 'card', 'other'));
+-- Exception au "null = checkout web" ci-dessus : le paiement manuel Bre-B du
+-- checkout web (/api/checkout/manual-payment) pose 'transfer' sur une venta
+-- encore 'reserved' = "le client dit avoir payé, à vérifier dans Bancolombia".
+-- Le back-office (pedidos/por-verificar) la passe à 'paid' à la confirmation.
 
 -- =============================================================
 -- CORTESÍAS SIN ACUERDO — código regalado a un partner (agencia, aliado,

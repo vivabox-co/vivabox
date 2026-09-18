@@ -6,7 +6,9 @@ import Script from "next/script"
 import { useState, useEffect, useMemo, type ReactNode } from "react"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { formatPrice } from "@/utils/formatPrice"
+import { PAYMENT_PROVIDER, whatsappLink } from "@/services/manualPayment"
 import CheckoutProgress from "../../CheckoutProgress"
+import ManualPaymentPanel from "../../components/ManualPaymentPanel"
 import VivaboxLoader from "@/components/ui/VivaboxLoader"
 import { useMinDisplayTime } from "@/components/ui/useMinDisplayTime"
 import {
@@ -19,6 +21,7 @@ import {
   Wallet,
   QrCode,
   AlertCircle,
+  MessageCircle,
 } from "lucide-react"
 
 type PaymentMethodMeta = {
@@ -47,6 +50,10 @@ const PRIMARY_METHODS = ["CARD", "NEQUI", "PSE"]
 // error de red) — nunca reemplaza la consulta real, es la última defensa
 // para no dejar la pantalla vacía.
 const FALLBACK_METHODS = ["CARD", "NEQUI", "PSE"]
+
+// Wompi cuando NEXT_PUBLIC_PAYMENT_PROVIDER=wompi; si no, pago manual por
+// Bre-B (ver services/manualPayment.ts).
+const isWompi = PAYMENT_PROVIDER === "wompi"
 
 export default function PagoPage() {
   const router = useRouter()
@@ -83,6 +90,8 @@ export default function PagoPage() {
   // Métodos de pago realmente disponibles en nuestro comercio Wompi — nunca
   // hardcodeados como fuente principal, solo como fallback si la consulta falla.
   useEffect(() => {
+    if (!isWompi) return
+
     let cancelled = false
 
     fetch("/api/checkout/wompi/methods")
@@ -224,6 +233,53 @@ export default function PagoPage() {
     }
   }
 
+  // ======================
+  // PAGO MANUAL (Bre-B) — solo avisa al equipo; nada se activa hasta que
+  // ellos verifiquen el dinero en Bancolombia (ver /api/checkout/manual-payment).
+  // ======================
+  async function handleManualReport() {
+    if (loading) return
+
+    if (!ventaId) {
+      setError("Error interno: falta la referencia de tu pedido.")
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch("/api/checkout/manual-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ventaId, action: "report" }),
+      })
+
+      const data = await res.json()
+
+      if (!data.ok) {
+        setError("No pudimos registrar tu aviso de pago. Inténtalo de nuevo o escríbenos por WhatsApp.")
+        setLoading(false)
+        return
+      }
+
+      if (data.status === "paid") {
+        const urlDeliveryType = deliveryMethod === "digital" ? "digital" : "physical"
+        router.replace(
+          `/checkout/success?ventaId=${ventaId}&quantity=${quantity}&deliveryType=${urlDeliveryType}`
+        )
+        return
+      }
+
+      router.replace(`/checkout/pago/pendiente?ventaId=${ventaId}`)
+
+    } catch (err) {
+      console.error("Manual payment report error:", err)
+      setError("No pudimos conectar con el servidor. Revisa tu conexión e intenta de nuevo.")
+      setLoading(false)
+    }
+  }
+
   const methodRows = [...primaryMethods, ...(showAllMethods ? extraMethods : [])]
 
   // ======================
@@ -231,11 +287,13 @@ export default function PagoPage() {
   // ======================
   return (
     <>
-      <Script
-        src="https://checkout.wompi.co/widget.js"
-        strategy="afterInteractive"
-        onLoad={() => setWidgetReady(true)}
-      />
+      {isWompi && (
+        <Script
+          src="https://checkout.wompi.co/widget.js"
+          strategy="afterInteractive"
+          onLoad={() => setWidgetReady(true)}
+        />
+      )}
 
       <CheckoutProgress current="pagar" />
 
@@ -249,60 +307,66 @@ export default function PagoPage() {
               Pago seguro
             </h2>
             <span className="text-xs text-[#6B6B6B]">
-              Wompi
+              {isWompi ? "Wompi" : "Bre-B"}
             </span>
           </div>
 
-          {/* MÉTODOS — cada fila abre el mismo Widget Wompi real; Wompi no
-              permite saltar directo a un método desde su SDK, así que todas
-              llevan al mismo flujo verdadero en vez de simular una elección
-              que no existe. */}
-          <div className="space-y-2.5">
-            <p className="text-sm font-medium text-ink">¿Cómo quieres pagar?</p>
+          {isWompi ? (
+            <>
+            {/* MÉTODOS — cada fila abre el mismo Widget Wompi real; Wompi no
+                permite saltar directo a un método desde su SDK, así que todas
+                llevan al mismo flujo verdadero en vez de simular una elección
+                que no existe. */}
+            <div className="space-y-2.5">
+              <p className="text-sm font-medium text-ink">¿Cómo quieres pagar?</p>
 
-            {availableMethods === null ? (
-              <div className="space-y-2" aria-hidden="true">
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="h-[58px] rounded-[18px] bg-black/[0.04] animate-pulse" />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {methodRows.map((code) => {
-                  const meta = PAYMENT_METHOD_META[code]
-                  if (!meta) return null
+              {availableMethods === null ? (
+                <div className="space-y-2" aria-hidden="true">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="h-[58px] rounded-[18px] bg-black/[0.04] animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {methodRows.map((code) => {
+                    const meta = PAYMENT_METHOD_META[code]
+                    if (!meta) return null
 
-                  return (
-                    <button
-                      key={code}
-                      type="button"
-                      onClick={handlePayment}
-                      disabled={loading || !widgetReady}
-                      className="vb-pay-method"
-                    >
-                      <span className="vb-pay-method-icon">{meta.icon}</span>
-                      <span className="text-sm text-ink flex-1 text-left">{meta.label}</span>
-                      {loading ? (
-                        <Loader2 size={16} strokeWidth={2} className="animate-spin text-[#6B6B6B] shrink-0" />
-                      ) : (
-                        <ChevronRight size={16} strokeWidth={2} className="text-[#6B6B6B] shrink-0" />
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-            )}
+                    return (
+                      <button
+                        key={code}
+                        type="button"
+                        onClick={handlePayment}
+                        disabled={loading || !widgetReady}
+                        className="vb-pay-method"
+                      >
+                        <span className="vb-pay-method-icon">{meta.icon}</span>
+                        <span className="text-sm text-ink flex-1 text-left">{meta.label}</span>
+                        {loading ? (
+                          <Loader2 size={16} strokeWidth={2} className="animate-spin text-[#6B6B6B] shrink-0" />
+                        ) : (
+                          <ChevronRight size={16} strokeWidth={2} className="text-[#6B6B6B] shrink-0" />
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
 
-            {!showAllMethods && extraMethods.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setShowAllMethods(true)}
-                className="text-xs text-[#6B6B6B] underline block"
-              >
-                Ver más métodos
-              </button>
-            )}
-          </div>
+              {!showAllMethods && extraMethods.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllMethods(true)}
+                  className="text-xs text-[#6B6B6B] underline block"
+                >
+                  Ver más métodos
+                </button>
+              )}
+            </div>
+            </>
+          ) : (
+            <ManualPaymentPanel ventaId={ventaId} total={total} />
+          )}
 
           {/* RESUMEN */}
           <div className="pt-4 vb-divider-top space-y-3">
@@ -337,27 +401,65 @@ export default function PagoPage() {
             </div>
           )}
 
-          <button
-            onClick={handlePayment}
-            disabled={loading || !widgetReady}
-            className="vb-btn-primary w-full h-12 disabled:opacity-60"
-          >
-            {loading ? (
-              <>
-                Procesando...
-                <Loader2 size={18} strokeWidth={2} className="animate-spin" />
-              </>
-            ) : (
-              <>
-                Pagar ${formatPrice(total)}
-                <Lock size={18} strokeWidth={2} className="vb-cta-icon" />
-              </>
-            )}
-          </button>
+          {isWompi ? (
+            <>
+            <button
+              onClick={handlePayment}
+              disabled={loading || !widgetReady}
+              className="vb-btn-primary w-full h-12 disabled:opacity-60"
+            >
+              {loading ? (
+                <>
+                  Procesando...
+                  <Loader2 size={18} strokeWidth={2} className="animate-spin" />
+                </>
+              ) : (
+                <>
+                  Pagar ${formatPrice(total)}
+                  <Lock size={18} strokeWidth={2} className="vb-cta-icon" />
+                </>
+              )}
+            </button>
 
-          <p className="text-xs text-[#6B6B6B] text-center">
-            Pago seguro con Wompi
-          </p>
+            <p className="text-xs text-[#6B6B6B] text-center">
+              Pago seguro con Wompi
+            </p>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleManualReport}
+                disabled={loading}
+                className="vb-btn-primary w-full h-12 disabled:opacity-60"
+              >
+                {loading ? (
+                  <>
+                    Enviando...
+                    <Loader2 size={18} strokeWidth={2} className="animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    Ya hice el pago
+                    <Lock size={18} strokeWidth={2} className="vb-cta-icon" />
+                  </>
+                )}
+              </button>
+
+              <p className="text-xs text-[#6B6B6B] text-center">
+                Toca este botón cuando ya hayas hecho la transferencia. Confirmamos tu pago nosotros mismos.
+              </p>
+
+              <a
+                href={whatsappLink(`Hola Vivabox, necesito ayuda con mi pago (pedido ${ventaId.slice(0, 6).toUpperCase()}).`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 text-xs text-[#6B6B6B] underline underline-offset-2"
+              >
+                <MessageCircle size={14} strokeWidth={2} />
+                ¿Necesitas ayuda? Escríbenos por WhatsApp
+              </a>
+            </>
+          )}
 
           <p className="text-[11px] text-[#6B6B6B] text-center leading-relaxed">
             Al pagar aceptas los{" "}

@@ -487,6 +487,19 @@ Wompi
 
 Used as the single payment provider for the MVP.
 
+> **Temporary mode (Sept 2026) — manual Bre-B payment.** While the Wompi
+> account is not active, the payment step shows Vivabox's Bre-B llave
+> (Bancolombia, "Vivabox Colombia Sas"), the exact amount and a short
+> reference (`VB-XXXXXX`, from the venta id) instead of the Wompi widget.
+> The buyer transfers, taps "Ya hice el pago" and waits on
+> `/checkout/pago/pendiente`. Nothing is activated on the buyer's word:
+> staff verify the money in Bancolombia and click "Confirmar pago" in
+> vivabox-operativo (Pedidos → Pagos), which marks the venta paid and
+> generates the activation code; the buyer's waiting page then moves on to
+> Step 3 by itself. Config in `src/services/manualPayment.ts`. Switch back
+> to Wompi with `NEXT_PUBLIC_PAYMENT_PROVIDER=wompi` on Vercel (redeploy) —
+> the webhook/verify routes are untouched.
+
 ---
 
 Supported Methods
