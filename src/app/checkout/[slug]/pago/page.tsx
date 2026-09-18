@@ -8,12 +8,13 @@ import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { formatPrice } from "@/utils/formatPrice"
 import { PAYMENT_PROVIDER, whatsappLink } from "@/services/manualPayment"
 import CheckoutProgress from "../../CheckoutProgress"
-import ManualPaymentPanel from "../../components/ManualPaymentPanel"
+import ManualPaymentPanel, { BreBLogo } from "../../components/ManualPaymentPanel"
 import VivaboxLoader from "@/components/ui/VivaboxLoader"
 import { useMinDisplayTime } from "@/components/ui/useMinDisplayTime"
 import {
   Lock,
   Loader2,
+  ChevronDown,
   ChevronRight,
   CreditCard,
   Smartphone,
@@ -75,6 +76,13 @@ export default function PagoPage() {
   const [error, setError] = useState<string | null>(null)
   const [availableMethods, setAvailableMethods] = useState<string[] | null>(null)
   const [showAllMethods, setShowAllMethods] = useState(false)
+
+  // Pago manual: el titular de la transferencia arranca con el nombre del
+  // comprador (no se vuelve a pedir); solo se guarda lo que edite el cliente.
+  const buyerName = useCheckoutStore(s => s.buyerName)
+  const [payerNameEdit, setPayerNameEdit] = useState<string | null>(null)
+  const [receiptNumber, setReceiptNumber] = useState("")
+  const payerName = payerNameEdit ?? buyerName
 
   // ======================
   // GUARDS
@@ -252,7 +260,7 @@ export default function PagoPage() {
       const res = await fetch("/api/checkout/manual-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ventaId, action: "report" }),
+        body: JSON.stringify({ ventaId, action: "report", payerName, receiptNumber }),
       })
 
       const data = await res.json()
@@ -282,6 +290,27 @@ export default function PagoPage() {
 
   const methodRows = [...primaryMethods, ...(showAllMethods ? extraMethods : [])]
 
+  const summaryRows = (
+    <>
+      <div className="flex justify-between text-sm text-[#6B6B6B]">
+        <span>{safeBox.name} x{quantity}</span>
+        <span>${formatPrice(subtotal)}</span>
+      </div>
+
+      <div className="flex justify-between text-sm text-[#6B6B6B]">
+        <span>Envío ({getDeliveryLabel()})</span>
+        <span>
+          {delivery === 0 ? "Gratis" : `+$${formatPrice(delivery)}`}
+        </span>
+      </div>
+
+      <div className="pt-3 vb-divider-top flex justify-between font-semibold text-lg text-ink">
+        <span>Total</span>
+        <span>${formatPrice(total)}</span>
+      </div>
+    </>
+  )
+
   // ======================
   // UI
   // ======================
@@ -302,13 +331,20 @@ export default function PagoPage() {
         <div className="vb-card p-6 space-y-5 max-w-[440px] mx-auto">
 
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-ink flex items-center gap-2">
-              <Lock size={16} strokeWidth={2} className="text-primary shrink-0" />
-              Pago seguro
-            </h2>
-            <span className="text-xs text-[#6B6B6B]">
-              {isWompi ? "Wompi" : "Bre-B"}
-            </span>
+            {isWompi ? (
+              <>
+                <h2 className="font-semibold text-ink flex items-center gap-2">
+                  <Lock size={16} strokeWidth={2} className="text-primary shrink-0" />
+                  Pago seguro
+                </h2>
+                <span className="text-xs text-[#6B6B6B]">Wompi</span>
+              </>
+            ) : (
+              <>
+                <h2 className="font-semibold text-ink">Tu pago</h2>
+                <BreBLogo className="h-6" />
+              </>
+            )}
           </div>
 
           {isWompi ? (
@@ -365,34 +401,35 @@ export default function PagoPage() {
             </div>
             </>
           ) : (
-            <ManualPaymentPanel ventaId={ventaId} total={total} />
+            <ManualPaymentPanel
+              ventaId={ventaId}
+              total={total}
+              payerName={payerName}
+              onPayerNameChange={setPayerNameEdit}
+              receiptNumber={receiptNumber}
+              onReceiptNumberChange={setReceiptNumber}
+            />
           )}
 
-          {/* RESUMEN */}
-          <div className="pt-4 vb-divider-top space-y-3">
-
-            <h3 className="font-semibold text-ink text-sm">
-              Resumen
-            </h3>
-
-            <div className="flex justify-between text-sm text-[#6B6B6B]">
-              <span>{safeBox.name} x{quantity}</span>
-              <span>${formatPrice(subtotal)}</span>
+          {/* RESUMEN — en pago manual queda plegado: el monto ya está arriba y
+              así el botón "Ya hice el pago" no se va debajo del pliegue. */}
+          {isWompi ? (
+            <div className="pt-4 vb-divider-top space-y-3">
+              <h3 className="font-semibold text-ink text-sm">Resumen</h3>
+              {summaryRows}
             </div>
-
-            <div className="flex justify-between text-sm text-[#6B6B6B]">
-              <span>Envío ({getDeliveryLabel()})</span>
-              <span>
-                {delivery === 0 ? "Gratis" : `+$${formatPrice(delivery)}`}
-              </span>
-            </div>
-
-            <div className="pt-3 vb-divider-top flex justify-between font-semibold text-lg text-ink">
-              <span>Total</span>
-              <span>${formatPrice(total)}</span>
-            </div>
-
-          </div>
+          ) : (
+            <details className="pt-4 vb-divider-top group">
+              <summary className="flex items-center justify-between text-sm font-semibold text-ink cursor-pointer list-none">
+                <span>Resumen del pedido</span>
+                <span className="flex items-center gap-1.5">
+                  ${formatPrice(total)}
+                  <ChevronDown size={16} strokeWidth={2} className="text-[#6B6B6B] transition-transform group-open:rotate-180" />
+                </span>
+              </summary>
+              <div className="mt-3 space-y-3">{summaryRows}</div>
+            </details>
+          )}
 
           {error && (
             <div className="flex items-start gap-2 text-sm text-accent-red bg-accent-red/10 rounded-[14px] p-3">

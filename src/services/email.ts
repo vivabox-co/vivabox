@@ -102,6 +102,8 @@ type ManualPaymentEmailParams = {
   buyerName: string
   buyerEmail: string
   buyerPhone?: string | null
+  payerName?: string | null
+  receiptNumber?: string | null
 }
 
 // Alerte "el cliente dice que pagó" — le paiement Bre-B se vérifie à la main
@@ -109,7 +111,7 @@ type ManualPaymentEmailParams = {
 // Pagos). Best-effort : la venta reste visible dans le back-office même si
 // l'email n'arrive pas.
 export async function sendManualPaymentReportEmail(params: ManualPaymentEmailParams) {
-  const { ventaId, reference, total, boxSlug, quantity, buyerName, buyerEmail, buyerPhone } = params
+  const { ventaId, reference, total, boxSlug, quantity, buyerName, buyerEmail, buyerPhone, payerName, receiptNumber } = params
   const amount = `$${total.toLocaleString("es-CO")}`
 
   const html = `
@@ -119,6 +121,8 @@ export async function sendManualPaymentReportEmail(params: ManualPaymentEmailPar
     <ul>
       <li><strong>Caja:</strong> ${escapeHtml(boxSlug)} x${quantity}</li>
       <li><strong>Comprador:</strong> ${escapeHtml(buyerName)} (${escapeHtml(buyerEmail)}${buyerPhone ? `, ${escapeHtml(buyerPhone)}` : ""})</li>
+      <li><strong>Transferencia a nombre de:</strong> ${payerName ? escapeHtml(payerName) : "no indicado"}</li>
+      <li><strong>Nº de aprobación del comprobante:</strong> ${receiptNumber ? escapeHtml(receiptNumber) : "no indicado"}</li>
     </ul>
     <p style="color:#888;font-size:12px">Venta ID: ${ventaId}</p>
   `

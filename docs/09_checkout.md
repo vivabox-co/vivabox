@@ -496,7 +496,13 @@ Used as the single payment provider for the MVP.
 > staff verify the money in Bancolombia and click "Confirmar pago" in
 > vivabox-operativo (Pedidos → Pagos), which marks the venta paid and
 > generates the activation code; the buyer's waiting page then moves on to
-> Step 3 by itself. Config in `src/services/manualPayment.ts`. Switch back
+> Step 3 by itself. The screen is a 4-step guide (open bank app → paste
+> llave → exact amount → come back) with the Bre-B logo and a short note that
+> card/Nequi/PSE payment is being activated. At "Ya hice el pago" the buyer
+> gives the account holder's name (prefilled from the buyer name) and an
+> optional approval number; both are stored in `ventas.transfer_*` and shown in
+> the back-office so staff can match the transfer even without the reference.
+> Config in `src/services/manualPayment.ts`. Switch back
 > to Wompi with `NEXT_PUBLIC_PAYMENT_PROVIDER=wompi` on Vercel (redeploy) —
 > the webhook/verify routes are untouched.
 

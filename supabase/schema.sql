@@ -476,6 +476,17 @@ alter table ventas
 -- encore 'reserved' = "le client dit avoir payé, à vérifier dans Bancolombia".
 -- Le back-office (pedidos/por-verificar) la passe à 'paid' à la confirmation.
 
+-- Données fournies par l'acheteur quand il touche "Ya hice el pago" : de quoi
+-- rapprocher la transfert dans Bancolombia même s'il a oublié la référence
+-- VB-XXXXXX dans le message (beaucoup d'apps bancaires cachent ce champ).
+-- Toutes nullables et écrites en best-effort par /api/checkout/manual-payment :
+-- un paiement n'est jamais bloqué si ces colonnes manquent.
+-- À exécuter AVANT de déployer vivabox-operativo (qui les sélectionne).
+alter table ventas
+  add column if not exists transfer_payer_name text,
+  add column if not exists transfer_receipt_number text,
+  add column if not exists transfer_reported_at timestamptz;
+
 -- =============================================================
 -- CORTESÍAS SIN ACUERDO — código regalado a un partner (agencia, aliado,
 -- influencer...) antes de que exista un acuerdo comercial firmado.

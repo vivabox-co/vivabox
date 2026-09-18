@@ -8,6 +8,21 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const REPORT_MAX_ATTEMPTS = 3
 const REPORT_WINDOW_MINUTES = 60
 
+// Texto libre que escribe el comprador: se limpia antes de guardarlo y de
+// meterlo en el email al equipo.
+function cleanPayerName(value: unknown): string | null {
+  if (typeof value !== "string") return null
+  const cleaned = value.replace(/[\x00-\x1f\x7f]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80)
+  return cleaned || null
+}
+
+// Número de aprobación del comprobante Bre-B: solo letras, dígitos y guiones.
+function cleanReceiptNumber(value: unknown): string | null {
+  if (typeof value !== "string") return null
+  const cleaned = value.replace(/[^A-Za-z0-9-]/g, "").slice(0, 40)
+  return cleaned || null
+}
+
 // Paiement manuel Bre-B (voir services/manualPayment.ts).
 //
 // - "status" : la page d'attente demande si l'équipe a confirmé le paiement.
@@ -64,6 +79,26 @@ export async function POST(req: Request) {
       }
     }
 
+    const payerName = cleanPayerName(body.payerName)
+    const receiptNumber = cleanReceiptNumber(body.receiptNumber)
+
+    // Best-effort y aparte del update de arriba: si las columnas transfer_*
+    // aún no existen en la base (migración pendiente), el pago sigue su curso
+    // y el equipo igual recibe estos datos en el email.
+    const { error: detailsError } = await supabase
+      .from("ventas")
+      .update({
+        transfer_payer_name: payerName,
+        transfer_receipt_number: receiptNumber,
+        transfer_reported_at: new Date().toISOString(),
+      })
+      .eq("id", ventaId)
+      .in("status", ["reserved", "expired"])
+
+    if (detailsError) {
+      console.error("MANUAL PAYMENT DETAILS ERROR:", detailsError)
+    }
+
     const reference = paymentReference(venta.id)
 
     const allowed = await checkRateLimit(
@@ -84,6 +119,8 @@ export async function POST(req: Request) {
         buyerName: venta.buyer_name,
         buyerEmail: venta.buyer_email,
         buyerPhone: venta.buyer_phone,
+        payerName,
+        receiptNumber,
       })
     }
 
