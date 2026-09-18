@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
 import { sendManualPaymentReportEmail } from "@/services/email"
+import { sendBuyerEmail } from "@/services/buyerEmail"
 import { paymentReference } from "@/services/manualPayment"
 import { checkRateLimit } from "@/utils/rateLimit"
 
@@ -122,6 +123,8 @@ export async function POST(req: Request) {
         payerName,
         receiptNumber,
       })
+
+      await sendBuyerEmail(supabase, venta.id, "reported")
     }
 
     return NextResponse.json({ ok: true, status: "pending", reference })

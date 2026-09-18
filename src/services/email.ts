@@ -2,7 +2,7 @@ import { Resend } from "resend"
 
 let client: Resend | null = null
 
-function getResend(): Resend {
+export function getResend(): Resend {
   if (!client) {
     client = new Resend(process.env.RESEND_API_KEY!)
   }
@@ -49,7 +49,7 @@ function maskCode(code: string): string {
   return `${prefix}${masked}${visible}`
 }
 
-function escapeHtml(value: string) {
+export function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")

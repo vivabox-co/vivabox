@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { generateActivationCode } from "@/features/activation/generateActivationCode"
 import { normalizeCode } from "@/utils/normalizeCode"
+import { sendBuyerEmail } from "@/services/buyerEmail"
 
 const ACTIVATION_VALIDITY_DAYS = 180 // 6 meses desde la compra (docs/01_product.md)
 const MAX_CODE_ATTEMPTS = 5
@@ -83,6 +84,11 @@ export async function finalizeVentaPayment(
       console.warn(`PROMO REDEEM FAILED (no longer valid): venta=${ventaId} code=${venta.promo_code_input}`)
     }
   }
+
+  // Confirmation à l'acheteur — seulement ici, pour l'appelant qui a gagné la
+  // course (les autres retournent plus haut), donc jamais en double. Best-
+  // effort : ne bloque ni le paiement ni la création du code ci-dessous.
+  await sendBuyerEmail(supabase, ventaId, "paid")
 
   if (venta.delivery_type !== "digital") {
     return { ok: true, activationCode: null }

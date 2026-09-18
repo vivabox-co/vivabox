@@ -685,6 +685,32 @@ Ahora empieza la mejor parte.
 
 ---
 
+# Buyer emails
+
+Three automatic emails go to the **buyer** (never to the recipient), from
+`Vivabox <notificaciones@notify.vivabox.com.co>` with Reply-To
+`contact@vivabox.com.co`. Content lives in `src/services/buyerEmail.ts`.
+
+| Moment | Trigger | Subject |
+|---|---|---|
+| Payment reported (Bre-B) | "Ya hice el pago" → `/api/checkout/manual-payment` | Recibimos tu aviso de pago — VB-XXXXXX |
+| Payment confirmed | Wompi webhook / `/verify` (`finalizeVentaPayment`), or staff "Confirmar pago" in vivabox-operativo | Pago confirmado — gracias por regalar una Vivabox |
+| Box shipped | staff marks it shipped in vivabox-operativo | Tu Vivabox ya salió |
+
+- The two staff-triggered emails are requested by vivabox-operativo through
+  `POST /api/internal/buyer-email` (header `x-internal-secret`,
+  `INTERNAL_API_SECRET` in both projects; `VIVABOX_SITE_URL` in operativo).
+- Best-effort: a Resend failure never blocks checkout or back-office.
+- No duplicates: Resend idempotency key `buyer-<kind>-<ventaId>` (24 h) on top
+  of the atomic status transitions that trigger them.
+- The send only happens if the venta's real state matches the email (a "paid"
+  email never leaves for an unpaid venta).
+- The activation code is never put in an email (bearer key, see `email.ts`).
+- The root domain `vivabox.com.co` is **not** verified in Resend; only the
+  `notify.` subdomain is. Override the sender with `BUYER_EMAIL_FROM`.
+
+---
+
 # Checkout Header
 
 Simplified.
