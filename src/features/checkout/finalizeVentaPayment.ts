@@ -6,15 +6,22 @@ const ACTIVATION_VALIDITY_DAYS = 180 // 6 meses desde la compra (docs/01_product
 const MAX_CODE_ATTEMPTS = 5
 const UNIQUE_VIOLATION = "23505"
 
+// activationCode est null pour une box physique : aucun code n'est créé à la
+// vente, c'est l'équipe qui rattache un code du stock (celui du sticker de la
+// box qu'elle emballe) depuis le back-office, à l'étape "Por preparar".
 export type FinalizeResult =
-  | { ok: true; activationCode: string }
+  | { ok: true; activationCode: string | null }
   | { ok: false; error: "NOT_FOUND" | "SERVER_ERROR" }
 
 // Appelée à la fois par le webhook Wompi et par la route de vérification
 // après redirection — les deux peuvent arriver en même temps pour la même
 // venta, donc la transition 'reserved'/'expired' -> 'paid' est atomique
 // (WHERE status IN (...)) : un seul appelant "gagne" la course, l'autre
-// retombe simplement sur le code déjà généré (idempotent, jamais d'erreur).
+// retombe simplement sur l'état déjà écrit (idempotent, jamais d'erreur).
+//
+// Un code d'activation n'est créé ici que pour une livraison "digital" (pas
+// de box physique dont on puisse coller un code du stock). Pour "physical",
+// on ne crée rien : voir le commentaire de FinalizeResult.
 export async function finalizeVentaPayment(
   supabase: SupabaseClient,
   ventaId: string
@@ -24,7 +31,7 @@ export async function finalizeVentaPayment(
     .update({ status: "paid", paid_at: new Date().toISOString() })
     .eq("id", ventaId)
     .in("status", ["reserved", "expired"])
-    .select("id, promo_code_input, buyer_email")
+    .select("id, promo_code_input, buyer_email, delivery_type")
 
   if (updateError) {
     console.error("FINALIZE VENTA UPDATE ERROR:", updateError)
@@ -35,23 +42,26 @@ export async function finalizeVentaPayment(
 
   if (!wonRace) {
     // Soit la venta n'existe pas, soit un autre appelant vient déjà de la
-    // marquer payée (ou complétée) — dans ce dernier cas on renvoie le code
-    // existant au lieu d'échouer.
+    // marquer payée (ou complétée) — dans ce dernier cas on renvoie son code
+    // s'il en a un (digital, ou déjà rattaché par l'équipe), sinon null.
+    const { data: venta } = await supabase
+      .from("ventas")
+      .select("id, status")
+      .eq("id", ventaId)
+      .maybeSingle()
+
+    if (!venta) return { ok: false, error: "NOT_FOUND" }
+    if (venta.status !== "paid" && venta.status !== "completed") {
+      return { ok: false, error: "SERVER_ERROR" }
+    }
+
     const { data: existing } = await supabase
       .from("activation_codes")
       .select("code")
       .eq("venta_id", ventaId)
       .maybeSingle()
 
-    if (existing) return { ok: true, activationCode: existing.code }
-
-    const { data: venta } = await supabase
-      .from("ventas")
-      .select("id")
-      .eq("id", ventaId)
-      .maybeSingle()
-
-    return venta ? { ok: false, error: "SERVER_ERROR" } : { ok: false, error: "NOT_FOUND" }
+    return { ok: true, activationCode: existing?.code ?? null }
   }
 
   const venta = updatedRows![0]
@@ -72,6 +82,10 @@ export async function finalizeVentaPayment(
     } else if (!redeemed) {
       console.warn(`PROMO REDEEM FAILED (no longer valid): venta=${ventaId} code=${venta.promo_code_input}`)
     }
+  }
+
+  if (venta.delivery_type !== "digital") {
+    return { ok: true, activationCode: null }
   }
 
   const expiresAt = new Date(

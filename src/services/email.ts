@@ -22,7 +22,9 @@ type OrderReadyEmailParams = {
   buyerName: string
   buyerEmail: string
   deliveryType: string
-  activationCode: string
+  // null pour une box physique : l'équipe rattache un code du stock à
+  // l'emballage (Pedidos → Por preparar), il n'existe pas encore ici.
+  activationCode: string | null
   recipientName?: string | null
   recipientContact?: string | null
   address?: string | null
@@ -65,12 +67,17 @@ export async function sendOrderReadyEmail(params: OrderReadyEmailParams) {
   } = params
 
   const isPhysical = deliveryType === "physical"
-  const maskedCode = maskCode(activationCode)
+  const maskedCode = activationCode ? maskCode(activationCode) : null
+
+  const codeBlock = maskedCode
+    ? `<p style="font-size:20px"><strong>Código: ${escapeHtml(maskedCode)}</strong></p>
+    <p style="color:#888;font-size:13px">Código completo al empacar: <code>node scripts/orders.mjs pending</code></p>`
+    : `<p style="font-size:20px"><strong>Código: por asignar</strong></p>
+    <p style="color:#888;font-size:13px">Al empacar, ingresa el código del sticker de la caja en el back-office (Pedidos → Por preparar).</p>`
 
   const html = `
     <h2>Nueva Vivabox lista para preparar</h2>
-    <p style="font-size:20px"><strong>Código: ${escapeHtml(maskedCode)}</strong></p>
-    <p style="color:#888;font-size:13px">Código completo al empacar: <code>node scripts/orders.mjs pending</code></p>
+    ${codeBlock}
     <ul>
       <li><strong>Caja:</strong> ${escapeHtml(boxSlug)} x${quantity}</li>
       <li><strong>Comprador:</strong> ${escapeHtml(buyerName)} (${escapeHtml(buyerEmail)})</li>
@@ -85,7 +92,7 @@ export async function sendOrderReadyEmail(params: OrderReadyEmailParams) {
     await getResend().emails.send({
       from: FROM,
       to: NOTIFY_TO,
-      subject: `Nueva Vivabox para preparar — ${maskedCode}`,
+      subject: `Nueva Vivabox para preparar — ${maskedCode ?? "código por asignar"}`,
       html,
     })
   } catch (error) {

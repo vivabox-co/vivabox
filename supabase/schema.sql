@@ -179,12 +179,16 @@ $$;
 --   add column if not exists discount integer not null default 0;
 
 -- Code d'activation unique de chaque Vivabox physique. Deux origines :
--- (1) vente en ligne — généré au moment du paiement avec venta_id/expires_at
---     déjà renseignés (voir finalizeVentaPayment.ts) ;
--- (2) lot pré-imprimé (autocollants collés sur des box physiques avant toute
+-- (1) lot pré-imprimé (autocollants collés sur des box physiques avant toute
 --     vente) — inséré en stock avec venta_id et expires_at NULL, puis
 --     rattaché à une vente par l'app opérative (App_Operativo, hors repo)
---     au moment où la box est effectivement vendue (en ligne ou en boutique).
+--     au moment où la box est effectivement vendue : à l'emballage (Pedidos →
+--     Por preparar) pour une vente en ligne, à la création pour une vente en
+--     boutique. Une vente en ligne "physical" n'a AUCUN code à la création ni
+--     au paiement (voir finalizeVentaPayment.ts) ;
+-- (2) généré automatiquement uniquement pour une vente en ligne "digital"
+--     (aucune box physique à laquelle coller un code du stock), au paiement,
+--     avec venta_id/expires_at déjà renseignés.
 -- Le destinataire utilise le code plus tard sur la plateforme d'activation
 -- (application séparée, MÊME projet Supabase) pour débloquer le choix
 -- d'expérience.

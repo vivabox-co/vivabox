@@ -494,8 +494,9 @@ Used as the single payment provider for the MVP.
 > The buyer transfers, taps "Ya hice el pago" and waits on
 > `/checkout/pago/pendiente`. Nothing is activated on the buyer's word:
 > staff verify the money in Bancolombia and click "Confirmar pago" in
-> vivabox-operativo (Pedidos → Pagos), which marks the venta paid and
-> generates the activation code; the buyer's waiting page then moves on to
+> vivabox-operativo (Pedidos → Pagos), which marks the venta paid (no
+> activation code is created for a physical box — staff attach the sticker's
+> stock code later, at Pedidos → Por preparar); the buyer's waiting page then moves on to
 > Step 3 by itself. The screen is a 4-step guide (open bank app → paste
 > llave → exact amount → come back) with the Bre-B logo and a short note that
 > card/Nequi/PSE payment is being activated. At "Ya hice el pago" the buyer

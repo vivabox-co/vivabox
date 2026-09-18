@@ -61,30 +61,28 @@ export async function POST(req: Request) {
 
     // Notifie l'équipe pour préparer la commande — best-effort, ne bloque
     // jamais la confirmation d'achat même si Resend est indisponible.
+    // Pas de code à ce stade pour une box physique (voir finalizeVentaPayment) :
+    // l'email le signale ("por asignar") au lieu d'être sauté.
     const { data: activationCodeRow } = await supabase
       .from("activation_codes")
       .select("code")
       .eq("venta_id", ventaId)
       .maybeSingle()
 
-    if (activationCodeRow) {
-      await sendOrderReadyEmail({
-        ventaId: updatedVenta.id,
-        boxSlug: updatedVenta.box_slug,
-        quantity: updatedVenta.quantity,
-        buyerName: updatedVenta.buyer_name,
-        buyerEmail: updatedVenta.buyer_email,
-        deliveryType: updatedVenta.delivery_type,
-        activationCode: activationCodeRow.code,
-        recipientName: updatedVenta.recipient_name,
-        recipientContact: updatedVenta.recipient_contact,
-        address: updatedVenta.delivery_direccion,
-        city: updatedVenta.delivery_ciudad,
-        addressExtra: updatedVenta.delivery_detalles,
-      })
-    } else {
-      console.error("ORDER READY EMAIL SKIPPED: no activation_codes row for venta", ventaId)
-    }
+    await sendOrderReadyEmail({
+      ventaId: updatedVenta.id,
+      boxSlug: updatedVenta.box_slug,
+      quantity: updatedVenta.quantity,
+      buyerName: updatedVenta.buyer_name,
+      buyerEmail: updatedVenta.buyer_email,
+      deliveryType: updatedVenta.delivery_type,
+      activationCode: activationCodeRow?.code ?? null,
+      recipientName: updatedVenta.recipient_name,
+      recipientContact: updatedVenta.recipient_contact,
+      address: updatedVenta.delivery_direccion,
+      city: updatedVenta.delivery_ciudad,
+      addressExtra: updatedVenta.delivery_detalles,
+    })
 
     return NextResponse.json({ ok: true })
 
