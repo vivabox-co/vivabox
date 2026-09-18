@@ -16,9 +16,17 @@ const FROM = process.env.BUYER_EMAIL_FROM || "Vivabox <notificaciones@notify.viv
 const REPLY_TO = "contact@vivabox.com.co"
 
 // Les clients mail ne lisent ni le SVG ni (partout) le webp : le logo est un PNG
-// transparent servi par le site (public/images/email/), en 2x pour les écrans
-// retina. URL absolue obligatoire — l'image doit être déployée pour s'afficher.
-const LOGO_URL = "https://www.vivabox.com.co/images/email/vivabox-logo.png"
+// servi par le site (public/images/email/), en 2x pour les écrans retina. URL
+// absolue obligatoire — l'image doit être déployée pour s'afficher.
+//
+// Le logo est noir : posé à nu sur la carte, il disparaît quand Gmail passe
+// l'email en mode sombre (il inverse les fonds mais jamais les images). D'où
+// la pastille crème (#FFFCF9, comme la carte) cuite dans le PNG : invisible en
+// mode clair, elle garde le logo lisible en mode sombre. Le PNG contient le
+// logo complet (icône cadeau + "v!vabox"), 438px de large = 219px affichés.
+// Changer le nom du fichier si l'image change — Gmail met les images en cache
+// par URL.
+const LOGO_URL = "https://www.vivabox.com.co/images/email/vivabox-logo-full.png"
 
 export type BuyerEmailKind = "reported" | "paid" | "shipped"
 
@@ -122,7 +130,7 @@ function renderHtml(greeting: string, content: Content) {
   return `
     <div style="background:#FAF7F2;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
       <div style="max-width:520px;margin:0 auto;background:#FFFCF9;border-radius:20px;padding:32px 28px">
-        <img src="${LOGO_URL}" alt="Vivabox" width="144" style="display:block;border:0;width:144px;max-width:100%;height:auto;margin:0 0 28px;font-size:20px;font-weight:700;color:#FF8406">
+        <img src="${LOGO_URL}" alt="Vivabox" width="219" style="display:block;border:0;width:219px;max-width:100%;height:auto;margin:0 0 20px -13px;font-size:20px;font-weight:700;color:#FF8406">
         <h1 style="margin:0 0 16px;font-size:22px;line-height:1.3;color:#18140F">${escapeHtml(content.title)}</h1>
         <p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#1C1C1C">${escapeHtml(greeting)}</p>
         ${paragraphs}
