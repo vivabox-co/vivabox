@@ -474,11 +474,26 @@ alter default privileges in schema public
 -- séparée pour distinguer les deux origines dans /pedidos.
 alter table ventas
   add column if not exists payment_method text
-    check (payment_method is null or payment_method in ('cash', 'transfer', 'card', 'other'));
+    check (payment_method is null or payment_method in ('cash', 'transfer', 'card', 'other', 'courtesy'));
 -- Exception au "null = checkout web" ci-dessus : le paiement manuel Bre-B du
 -- checkout web (/api/checkout/manual-payment) pose 'transfer' sur une venta
 -- encore 'reserved' = "le client dit avoir payé, à vérifier dans Bancolombia".
 -- Le back-office (pedidos/por-verificar) la passe à 'paid' à la confirmation.
+-- 'courtesy' = regalo/cortesía marketing (influenceurs, salons...) : la venta
+-- existe pour faire passer un code de stock à "vendido", mais subtotal/total
+-- valent 0 pour ne pas gonfler le revenu de /contabilidad. Ne pas confondre
+-- avec requires_agreement plus bas (partenariat en cours de formalisation).
+
+-- =============================================================
+-- MIGRATION — 2026-09-22 : la contrainte payment_method n'autorisait pas
+-- 'courtesy' sur une base créée avant ce jour. Sans effet si la contrainte
+-- ci-dessus est déjà à jour (base créée depuis, ou migration déjà appliquée).
+-- =============================================================
+--
+-- alter table ventas drop constraint if exists ventas_payment_method_check;
+-- alter table ventas
+--   add constraint ventas_payment_method_check
+--   check (payment_method is null or payment_method in ('cash', 'transfer', 'card', 'other', 'courtesy'));
 
 -- Données fournies par l'acheteur quand il touche "Ya hice el pago" : de quoi
 -- rapprocher la transfert dans Bancolombia même s'il a oublié la référence
