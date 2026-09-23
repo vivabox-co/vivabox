@@ -334,6 +334,46 @@ create index booking_reschedules_booking_id_idx on booking_reschedules(booking_i
 alter table booking_reschedules enable row level security;
 -- Accès exclusif via service_role côté serveur.
 
+-- Suivi du paiement au prestador (aliado) pour une réservation — jusqu'à
+-- deux versements par expérience réalisée : l'anticipo (au moment où la
+-- réservation est confirmée) et le saldo (une fois l'expérience réalisée,
+-- parfois le jour même) — voir App_Operativo/vivabox-operativo,
+-- contabilidad/pagos-prestadores/. Une ligne par booking (pas par
+-- versement) : les deux montants/états vivent côte à côte sur la même
+-- ligne, plus simple à requêter qu'un type discriminant + 2 lignes. Le
+-- tarif de référence (tarifa_neta_vivabox) reste dans la feuille
+-- Experiencias, jamais dupliqué ici — anticipo_monto/saldo_monto ne sont
+-- que ce qui a effectivement été convenu/payé pour CETTE réservation, qui
+-- peut différer du tarif de référence au cas par cas.
+-- 'no_aplica' couvre le cas où l'anticipo (ou, plus rarement, le saldo)
+-- n'a simplement pas été négocié pour cet aliado/cette réservation — sans
+-- cette valeur, une réservation sans anticipo resterait indéfiniment
+-- "pendiente" dans la file à traiter alors qu'il n'y a rien à payer.
+create table booking_provider_payments (
+  booking_id uuid primary key references bookings(id) on delete cascade,
+
+  anticipo_monto numeric,
+  anticipo_estado text not null default 'pendiente' check (anticipo_estado in ('pendiente', 'pagado', 'no_aplica')),
+  anticipo_metodo_pago text check (anticipo_metodo_pago in ('efectivo', 'transferencia', 'nequi', 'daviplata', 'bre_b', 'otro')),
+  anticipo_fecha_pago date,
+
+  saldo_monto numeric,
+  saldo_estado text not null default 'pendiente' check (saldo_estado in ('pendiente', 'pagado', 'no_aplica')),
+  saldo_metodo_pago text check (saldo_metodo_pago in ('efectivo', 'transferencia', 'nequi', 'daviplata', 'bre_b', 'otro')),
+  saldo_fecha_pago date,
+
+  notas text,
+  updated_at timestamptz not null default now()
+);
+
+alter table booking_provider_payments enable row level security;
+-- Accès exclusif via service_role côté serveur.
+
+-- Grant explicite pour pouvoir exécuter seul ce bloc sur une base qui a déjà
+-- le reste du schéma (le bloc GRANTS plus bas ne le couvrirait que s'il est
+-- réexécuté en entier) — même pattern que partner_leads ci-dessous.
+grant select, insert, update, delete on booking_provider_payments to service_role;
+
 -- Compteur de tentatives, utilisé pour le rate limiting des endpoints
 -- d'activation. Contrairement à AppScript (qui limitait par email soumis,
 -- donc contournable en changeant d'email), on limite par IP ET par code
