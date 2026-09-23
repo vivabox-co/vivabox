@@ -572,3 +572,16 @@ alter table ventas
 --     subtotal = 0,
 --     total = 0
 -- where buyer_email = 'alejandro@masagotalent.com';
+
+-- =============================================================
+-- ALIANZAS — CLASIFICACIÓN DE PROPUESTAS — 2026-09-22 : partner_leads pasa
+-- de lista plana a un pipeline nuevo -> contactado -> aceptado/rechazado,
+-- para que el equipo pueda clasificar cada propuesta directamente en la
+-- tarjeta y el badge de la bottom nav (vivabox-operativo) deje de contar el
+-- total y cuente solo las que siguen sin clasificar ('nuevo'). Filas
+-- existentes quedan en 'nuevo' (comportamiento idéntico al de antes, todas
+-- sin clasificar). Ver vivabox-operativo/src/app/alianzas.
+-- =============================================================
+alter table partner_leads
+  add column if not exists status text not null default 'nuevo'
+    check (status in ('nuevo', 'contactado', 'aceptado', 'rechazado'));
