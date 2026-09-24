@@ -311,7 +311,10 @@ export default function WhatsIncluded() {
         </div>
 
         <p className="mt-5 md:mt-6 text-muted text-[14px] sm:text-[15px] md:text-[16px] text-center">
-          Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 50 experiencias en Bogotá y Cundinamarca.
+          <span className="block whitespace-nowrap">
+            Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 50 experiencias
+          </span>
+          <span className="block whitespace-nowrap">en Bogotá y Cundinamarca.</span>
         </p>
 
         {/* CTA — value understood first, price lives on the product page */}
