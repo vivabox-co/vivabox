@@ -65,6 +65,25 @@ export default function BoxFacesCarousel({
   const arrowClass =
     "hidden lg:flex absolute top-[calc(50%-14px)] -translate-y-1/2 z-10 w-10 h-10 items-center justify-center rounded-full bg-white/80 text-ink shadow-[0_4px_14px_rgba(24,20,15,0.12)] transition hover:bg-white disabled:opacity-0 disabled:pointer-events-none"
 
+  const dots = faces.map((face, i) => (
+    <button
+      key={face.src}
+      type="button"
+      onClick={() => goTo(i)}
+      aria-label={`Ver cara ${i + 1}`}
+      aria-current={active === i}
+      className={compact ? "p-1" : "p-1.5"}
+    >
+      <span
+        className={`block rounded-full transition-all duration-300 ${compact ? "h-1.5" : "h-2"} ${
+          active === i
+            ? `${compact ? "w-4" : "w-6"} ${isDark ? "bg-white" : "bg-ink"}`
+            : `${compact ? "w-1.5" : "w-2"} ${isDark ? "bg-white/35" : "bg-ink/25"}`
+        }`}
+      />
+    </button>
+  ))
+
   return (
     <div role="region" aria-roledescription="carrusel" aria-label="Caja Vivabox por fuera y por dentro">
 
@@ -117,6 +136,17 @@ export default function BoxFacesCarousel({
           </>
         )}
 
+        {/* Compact usage (product hero) floats the dots under the image with
+            absolute positioning instead of a normal-flow row, so they don't
+            add to the box's layout height — keeping it the same height as
+            the image itself, which is what lets it sit truly centered next
+            to the checklist beside it instead of drifting up. */}
+        {compact && (
+          <div className="absolute inset-x-0 top-full mt-2 flex justify-center gap-1.5">
+            {dots}
+          </div>
+        )}
+
       </div>
 
       {/* CAPTION — a single element synced to the active slide, not one per
@@ -137,28 +167,13 @@ export default function BoxFacesCarousel({
         </p>
       )}
 
-      {/* DOTS */}
+      {/* DOTS (normal flow — homepage usage only; compact renders them above, overlaid) */}
 
-      <div className={compact ? "mt-2 flex justify-center gap-1.5" : "mt-7 lg:mt-[52px] xl:mt-[60px] flex justify-center gap-2"}>
-        {faces.map((face, i) => (
-          <button
-            key={face.src}
-            type="button"
-            onClick={() => goTo(i)}
-            aria-label={`Ver cara ${i + 1}`}
-            aria-current={active === i}
-            className={compact ? "p-1" : "p-1.5"}
-          >
-            <span
-              className={`block rounded-full transition-all duration-300 ${compact ? "h-1.5" : "h-2"} ${
-                active === i
-                  ? `${compact ? "w-4" : "w-6"} ${isDark ? "bg-white" : "bg-ink"}`
-                  : `${compact ? "w-1.5" : "w-2"} ${isDark ? "bg-white/35" : "bg-ink/25"}`
-              }`}
-            />
-          </button>
-        ))}
-      </div>
+      {!compact && (
+        <div className="mt-7 lg:mt-[52px] xl:mt-[60px] flex justify-center gap-2">
+          {dots}
+        </div>
+      )}
 
     </div>
   )

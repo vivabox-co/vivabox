@@ -110,8 +110,10 @@ export default function BoxHero({
             ${formatPrice(price)} COP
           </p>
 
-          {/* BOX + CHECKLIST */}
-          <div className="flex items-center gap-0 sm:gap-2 mb-6">
+          {/* BOX + CHECKLIST — extra bottom margin gives the overlaid dots
+              (floated below the box image, see BoxFacesCarousel) clearance
+              from the quantity label underneath instead of nearly touching it. */}
+          <div className="flex items-center gap-0 sm:gap-2 mb-9">
 
             <div className="shrink-0 w-[190px] sm:w-[280px] md:w-[340px] -ml-6 sm:ml-0">
               <BoxFacesCarousel
