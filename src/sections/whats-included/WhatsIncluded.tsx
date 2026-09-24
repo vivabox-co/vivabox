@@ -4,6 +4,7 @@ import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 import BrandRibbon from "@/components/ui/BrandRibbon"
 import BenefitsBar from "@/components/BenefitsBar"
+import BoxFacesCarousel from "@/components/BoxFacesCarousel"
 import FitLine from "@/components/ui/FitLine"
 import { readSubtitleFontSize, SUBTITLE_FONT_SIZE_EVENT } from "@/utils/subtitleFontSize"
 import { boxes } from "@/data/boxes"
@@ -158,28 +159,6 @@ function BridgeSteps() {
   )
 }
 
-const INCLUDED_CARD_SIZES = "(min-width: 1024px) 240px, 34vw"
-
-function IncludedCard({
-  src,
-  alt,
-}: {
-  src: string
-  alt: string
-}) {
-  return (
-    <div className="group relative w-full aspect-square overflow-hidden rounded-[26px] border border-[var(--nm-border)] bg-[var(--color-card)] shadow-[6px_10px_24px_rgba(24,20,15,0.18)]">
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes={INCLUDED_CARD_SIZES}
-        className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-      />
-    </div>
-  )
-}
-
 // tipAlign keeps the tooltip bubble from overflowing the box on the two
 // edge categories -- it anchors to the icon's outer edge instead of centering.
 // size/dsize are sized per icon's own SVG aspect ratio (not a forced square)
@@ -193,8 +172,7 @@ const CATEGORIES = [
   { label: "Cultura", examples: ["tours", "talleres", "museos"], src: "/images/box-includes/cultura.svg", size: "w-[38px] h-[50px] sm:w-[51px] sm:h-[68px] md:w-[70px] md:h-[92px]", dsize: "w-[53px] h-[70px]", offset: "translate-y-2 md:translate-y-3", tipAlign: "right" },
 ] as const
 
-// The three guaranteed box contents — tapped from both the mobile illustration
-// and the desktop grid, so the copy and images live here once and feed both.
+// The three guaranteed box contents, shown in the desktop "Dentro encontrarás" grid.
 const CONTENTS = [
   {
     title: "Catálogo",
@@ -248,7 +226,7 @@ export default function WhatsIncluded() {
     setActiveContent((current) => (current === title ? null : title))
   }
 
-  // The shared caption strip (mobile + desktop) reads from whichever content
+  // The shared caption strip reads from whichever content
   // item was last tapped -- unlike the category tooltip, it's a persistent
   // line rather than a floating bubble, so it doesn't need to auto-dismiss.
   const activeContentData = CONTENTS.find((item) => item.title === activeContent) ?? null
@@ -266,7 +244,7 @@ export default function WhatsIncluded() {
 
       </div>
 
-      {/* QUÉ INCLUYE (mobile/tablet) — the box dominates, three objects rest beside it as if just lifted out. Desktop (lg+) gets its own dedicated layout below. */}
+      {/* QUÉ INCLUYE (mobile/tablet) — the box dominates, swipeable front/back/inside. Desktop (lg+) gets its own dedicated layout below. */}
 
       <div className="lg:hidden pt-10 md:pt-14 pb-2 md:pb-3">
 
@@ -301,122 +279,11 @@ export default function WhatsIncluded() {
 
         </div>
 
-        {/* PRODUCT SHOT — full-bleed breakout: box and cards read at maximum scale, the two end cards nearly touching the viewport edges */}
+        {/* BOX FACES — front, back, inside; swipe between them */}
 
-        <div className="relative w-screen left-1/2 -translate-x-1/2 px-4 sm:px-6 md:px-10 mt-3 md:mt-5">
-
-          <div className="relative w-full max-w-[1440px] mx-auto pt-0 md:pt-1">
-
-            <div className="relative w-full aspect-[10/13.5]">
-
-              {/* BOX — hero, slight 3D perspective, never frontal-flat, centered at 50%/26% */}
-
-              <div
-                className="absolute left-[12%] top-[-3.5%] w-[76%] aspect-square z-10"
-                style={{ transform: "perspective(1400px) rotateX(7deg) rotateY(-9deg) rotate(-3deg)" }}
-              >
-                <Image
-                  src="/images/box-includes/vivabox-caja-regalo.webp"
-                  alt="Caja de regalo Vivabox con catálogo de experiencias"
-                  fill
-                  sizes="76vw"
-                  className="object-contain drop-shadow-[18px_10px_14px_rgba(24,20,15,0.22)]"
-                />
-              </div>
-
-              {/* CATALOGUE — left card, nearly at the frame's left edge */}
-
-              <div
-                className="absolute left-[2%] top-[67%] w-[34%] aspect-square z-10 cursor-pointer"
-                onClick={() => toggleContent(CONTENTS[0].title)}
-              >
-                <div className="absolute inset-x-[22%] -bottom-[1.5%] h-[6%] rounded-[100%] bg-ink/20 blur-md" />
-                <div className="-rotate-3">
-                  <IncludedCard
-                    src={CONTENTS[0].src}
-                    alt={CONTENTS[0].alt}
-                  />
-                </div>
-              </div>
-
-              {/* PERSONAL MESSAGE — center card, real gaps on both sides */}
-
-              <div
-                className="absolute left-[33%] top-[68%] w-[34%] aspect-square z-20 cursor-pointer"
-                onClick={() => toggleContent(CONTENTS[1].title)}
-              >
-                <div className="absolute inset-x-[22%] -bottom-[1.5%] h-[6%] rounded-[100%] bg-ink/20 blur-md" />
-                <div className="rotate-1">
-                  <IncludedCard
-                    src={CONTENTS[1].src}
-                    alt={CONTENTS[1].alt}
-                  />
-                </div>
-              </div>
-
-              {/* ACTIVATION CARD — right card, nearly at the frame's right edge */}
-
-              <div
-                className="absolute left-[64%] top-[67.5%] w-[34%] aspect-square z-10 cursor-pointer"
-                onClick={() => toggleContent(CONTENTS[2].title)}
-              >
-                <div className="absolute inset-x-[22%] -bottom-[1.5%] h-[6%] rounded-[100%] bg-ink/20 blur-md" />
-                <div className="rotate-2">
-                  <IncludedCard
-                    src={CONTENTS[2].src}
-                    alt={CONTENTS[2].alt}
-                  />
-                </div>
-              </div>
-
-              {/* CONNECTOR ARROWS — hand-drawn curves, pulled outward past the box's edges so they clear it, pointing down to introduce "Dentro encontrará" */}
-              <div className="absolute z-30 left-[9%] top-[44%] w-[14%] aspect-[184/177] -rotate-[24deg] pointer-events-none">
-                <Image src="/images/box-includes/arrow-curv-left.webp" alt="" fill sizes="14vw" className="object-contain" aria-hidden="true" />
-              </div>
-              <div className="absolute z-30 left-[79%] top-[44%] w-[14%] aspect-[184/177] rotate-[24deg] pointer-events-none">
-                <Image src="/images/box-includes/arrow-curv-right.webp" alt="" fill sizes="14vw" className="object-contain" aria-hidden="true" />
-              </div>
-
-              {/* Dentro encontrarás — small section lead-in, centered between the box and the three cards */}
-              <p className="absolute z-40 inset-x-0 top-[49.5%] text-center text-accent-red font-hand text-[23px] sm:text-[28px] md:text-[34px] leading-snug">
-                Dentro <span className="underline">encontrará</span>:
-              </p>
-
-              {/* Titles are also tap targets — the description itself surfaces
-                  in the shared caption strip below the illustration, not in a
-                  bubble anchored to the title. */}
-              {CONTENTS.map((item, i) => (
-                <button
-                  key={item.title}
-                  type="button"
-                  onClick={() => toggleContent(item.title)}
-                  aria-pressed={activeContent === item.title}
-                  aria-label={`Ver qué es ${item.title}`}
-                  className={`absolute z-40 ${["left-[2%]", "left-[33%]", "left-[64%]"][i]} top-[59.5%] w-[34%] text-center leading-snug`}
-                >
-                  <h3 className={`font-sans font-semibold text-[17px] sm:text-[19px] md:text-[22px] tracking-tight text-ink ${activeContent === item.title ? "underline" : ""}`}>
-                    {item.title}
-                  </h3>
-                </button>
-              ))}
-
-            </div>
-
-          </div>
-
+        <div className="max-w-[560px] mx-auto px-4 sm:px-6 mt-3 md:mt-5">
+          <BoxFacesCarousel sizes="(min-width: 560px) 560px, 100vw" />
         </div>
-
-        {/* SHARED CAPTION — appears only once something's tapped; the <p> stays
-            a plain block so its spans wrap as normal inline text (flex here
-            would turn each span into its own row instead of one paragraph). */}
-        {activeContentData && (
-          <div className="max-w-[1100px] mx-auto px-6 -mt-1 mb-4 md:mb-5">
-            <p className="text-[13px] sm:text-[14px] leading-snug text-center">
-              <span className="font-semibold text-ink">{activeContentData.title}</span>
-              <span className="text-muted"> — {activeContentData.desc}</span>
-            </p>
-          </div>
-        )}
 
       </div>
 
@@ -424,7 +291,7 @@ export default function WhatsIncluded() {
 
         {/* GROUPING CONTAINER — border only, groups the categories title + grid */}
 
-        <div className="-mt-2 sm:-mt-6 md:-mt-9 border-2 border-[#3A2E22] rounded-[28px] sm:rounded-[36px] md:rounded-[48px] px-4 pt-4 pb-12 sm:px-8 sm:pt-6 sm:pb-16 md:px-12 md:pt-7 md:pb-20">
+        <div className="mt-6 md:mt-8 border-2 border-[#3A2E22] rounded-[28px] sm:rounded-[36px] md:rounded-[48px] px-4 pt-4 pb-12 sm:px-8 sm:pt-6 sm:pb-16 md:px-12 md:pt-7 md:pb-20">
 
           {/* CATALOGUE CONTINUATION — categories read as an extension of "Para elegir.", not a new section */}
 
@@ -525,17 +392,8 @@ export default function WhatsIncluded() {
 
             <div className="relative">
 
-              <div
-                className="relative w-full max-w-[440px] xl:max-w-[480px] mx-auto aspect-square"
-                style={{ transform: "perspective(1400px) rotateX(6deg) rotateY(-8deg) rotate(-2deg)" }}
-              >
-                <Image
-                  src="/images/box-includes/vivabox-caja-regalo.webp"
-                  alt="Caja de regalo Vivabox con catálogo de experiencias"
-                  fill
-                  sizes="(min-width: 1280px) 480px, 440px"
-                  className="object-contain drop-shadow-[0_30px_36px_rgba(24,20,15,0.16)]"
-                />
+              <div className="w-full max-w-[440px] xl:max-w-[480px] mx-auto">
+                <BoxFacesCarousel sizes="(min-width: 1280px) 480px, 440px" />
               </div>
 
             </div>
@@ -588,7 +446,7 @@ export default function WhatsIncluded() {
 
             </div>
 
-            {/* SHARED CAPTION — same pattern as the mobile layout: appears only
+            {/* SHARED CAPTION — appears only
                 once something's tapped, plain block so text wraps normally. */}
             {activeContentData && (
               <p className="text-center text-[15px] leading-snug mt-1 mb-8">
