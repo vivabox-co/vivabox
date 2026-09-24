@@ -165,7 +165,7 @@ export default function BoxFacesCarousel({
           every viewport. */}
 
       {showCaption && (
-        <p className={compact ? "mt-1.5 px-2 text-center text-[12px] leading-snug" : "-mt-4 sm:-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
+        <p className={compact ? "mt-1.5 px-2 text-center text-[12px] leading-snug" : "-mt-3 sm:-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
           <span className={`font-semibold ${isDark ? "text-white" : "text-ink"}`}>{faces[active].title}</span>
           <span className={isDark ? "text-white/60" : "text-ink/55"}>, {faces[active].caption}</span>
         </p>
