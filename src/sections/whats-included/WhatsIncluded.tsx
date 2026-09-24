@@ -8,6 +8,7 @@ import BoxFacesCarousel from "@/components/BoxFacesCarousel"
 import FitLine from "@/components/ui/FitLine"
 import { readSubtitleFontSize, SUBTITLE_FONT_SIZE_EVENT } from "@/utils/subtitleFontSize"
 import { boxes } from "@/data/boxes"
+import { formatPrice } from "@/utils/formatPrice"
 
 const vivabox = boxes[0]
 
@@ -317,7 +318,7 @@ export default function WhatsIncluded() {
           <span className="block whitespace-nowrap">en Bogotá y Cundinamarca.</span>
         </p>
 
-        {/* CTA — value understood first, price lives on the product page */}
+        {/* CTA — gift-first action, price shown openly right below */}
 
         <div className="mt-6 md:mt-7 flex flex-col items-center text-center">
 
@@ -325,11 +326,11 @@ export default function WhatsIncluded() {
             href={`/cajas/${vivabox.slug}`}
             className="vb-btn-primary h-[54px] px-10 text-[17px]"
           >
-            Ver precio y comprar
+            Regalar una Vivabox
           </a>
 
           <p className="mt-5 md:mt-6 mb-6 md:mb-8 text-muted text-[13px] md:text-[14px]">
-            Compra segura. Sin costos ocultos.
+            ${formatPrice(vivabox.price)} · Compra segura, sin costos ocultos.
           </p>
 
         </div>
@@ -416,11 +417,11 @@ export default function WhatsIncluded() {
                   href={`/cajas/${vivabox.slug}`}
                   className="h-[54px] px-10 rounded-xl bg-primary text-white text-[17px] font-semibold inline-flex items-center justify-center transition hover:bg-primary-hover shadow-[0_10px_35px_rgba(254,132,47,.35)]"
                 >
-                  Ver precio y comprar
+                  Regalar una Vivabox
                 </a>
 
                 <p className="mt-4 text-muted text-[14px]">
-                  Compra segura. Sin costos ocultos.
+                  ${formatPrice(vivabox.price)} · Compra segura, sin costos ocultos.
                 </p>
 
               </div>
