@@ -332,98 +332,102 @@ export default function WhatsIncluded() {
 
       {/* QUÉ INCLUYE (desktop) — editorial product-reveal layout: one focal point per stage, reading top to bottom */}
 
-      <div className="hidden lg:block pt-24 xl:pt-28 pb-20">
+      <div className="hidden lg:block pt-16 xl:pt-20 pb-20">
 
         <div className="max-w-[1200px] mx-auto px-8 xl:px-12">
 
-          {/* STAGE 1+2 — headline and the box, side by side, nothing else competing */}
+          {/* Promise → choice → purchase on the left, the box on the right: the whole story fits beside the product */}
 
-          <div className="grid grid-cols-[2fr_3fr] gap-16 xl:gap-24 items-center">
+          <div className="grid grid-cols-2 gap-12 xl:gap-20 items-center">
 
             <div>
-              <h2 className="text-ink text-[54px] xl:text-[62px] font-semibold leading-[1.05] tracking-tight mb-6">
-                Todo en una sola{" "}
-                <span className="text-primary">c</span>
-                <span className="text-accent-red">a</span>
-                <span className="text-accent-green">j</span>
-                <span className="text-accent-blue">a</span>
-                <span className="text-violet-500">.</span>
+
+              <h2 className="text-ink font-semibold leading-[1.05] tracking-tight mb-3">
+                <FitLine max={62} min={36}>
+                  Todo en una sola{" "}
+                  <span className="text-primary">c</span>
+                  <span className="text-accent-red">a</span>
+                  <span className="text-accent-green">j</span>
+                  <span className="text-accent-blue">a</span>
+                  <span className="text-violet-500">.</span>
+                </FitLine>
               </h2>
 
               <p className="text-ink/50 text-[18px] leading-relaxed max-w-[340px]">
                 Un regalo que siempre acierta.
               </p>
-            </div>
 
-            <div className="relative">
+              {/* Experience categories, same bordered grouping as the mobile version */}
 
-              <div className="w-full max-w-[440px] xl:max-w-[480px] mx-auto">
-                <BoxFacesCarousel sizes="(min-width: 1280px) 480px, 440px" />
+              <div className="mt-7 border-2 border-[#3A2E22] rounded-[32px] px-5 pt-5 pb-11 xl:px-10 text-center">
+
+                <p className="text-ink text-[20px] xl:text-[22px] whitespace-nowrap font-semibold tracking-tight mb-1">
+                  ¿Qué experiencias podrá elegir?
+                </p>
+
+                <div data-category-picker className="flex justify-between">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.label}
+                      type="button"
+                      onClick={() => toggleCategory(cat.label)}
+                      className={`relative flex flex-col items-center transition-opacity ${activeCategory === cat.label ? "z-30 opacity-100" : activeCategory ? "opacity-70" : "opacity-100"}`}
+                      aria-pressed={activeCategory === cat.label}
+                      aria-label={`Ver ejemplos de ${cat.label}`}
+                    >
+                      <div className="h-[56px] flex items-end justify-center mb-2">
+                        <div className={`relative ${cat.dsize} scale-[0.7] origin-bottom`}>
+                          <Image src={cat.src} alt="" fill sizes="70px" className="object-contain" />
+                        </div>
+                      </div>
+                      <span className={`text-[14px] font-medium ${activeCategory === cat.label ? "text-primary underline" : "text-ink"}`}>
+                        {cat.label}
+                      </span>
+                      <div
+                        className={`absolute top-full mt-2 ${TIP_ALIGN_CLASS[cat.tipAlign]} z-20 transition-opacity duration-300 ${activeCategory === cat.label ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                        aria-hidden={activeCategory !== cat.label}
+                      >
+                        <div className={`absolute bottom-full -mb-1 ${TIP_ARROW_ALIGN_CLASS[cat.tipAlign]} w-2.5 h-2.5 bg-ink rotate-45`} />
+                        <div className="bg-ink text-white text-[13px] font-medium px-3 py-1.5 rounded-xl shadow-lg whitespace-nowrap first-letter:uppercase">
+                          {cat.examples.join(", ")}…
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+              </div>
+
+              <p className="mt-3 text-muted text-[14px] text-center">
+                Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 50 experiencias en Bogotá y Cundinamarca.
+              </p>
+
+              {/* The purchase action, right after the choice is understood */}
+
+              <div className="mt-8 flex flex-col items-center text-center">
+
+                <a
+                  href={`/cajas/${vivabox.slug}`}
+                  className="h-[54px] px-10 rounded-xl bg-primary text-white text-[17px] font-semibold inline-flex items-center justify-center transition hover:bg-primary-hover shadow-[0_10px_35px_rgba(254,132,47,.35)]"
+                >
+                  Ver precio y comprar
+                </a>
+
+                <p className="mt-4 text-muted text-[14px]">
+                  Compra segura. Sin costos ocultos.
+                </p>
+
               </div>
 
             </div>
 
-          </div>
+            <div className="relative">
 
-          {/* STAGE 4 — experience categories, same bordered grouping as the mobile version */}
+              <div className="w-full max-w-[440px] mx-auto">
+                <BoxFacesCarousel sizes="440px" />
+              </div>
 
-          <div className="mt-[52px] xl:mt-[60px] max-w-[960px] mx-auto border-2 border-[#3A2E22] rounded-[48px] px-12 pt-9 pb-16 xl:px-14 xl:pt-10 xl:pb-20 text-center">
-
-            <p className="text-ink text-[30px] xl:text-[34px] font-semibold tracking-tight mb-3">
-              ¿Qué experiencias podrá elegir?
-            </p>
-
-            <div data-category-picker className="flex justify-center gap-20 xl:gap-24">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.label}
-                  type="button"
-                  onClick={() => toggleCategory(cat.label)}
-                  className={`relative flex flex-col items-center transition-opacity ${activeCategory === cat.label ? "z-30 opacity-100" : activeCategory ? "opacity-70" : "opacity-100"}`}
-                  aria-pressed={activeCategory === cat.label}
-                  aria-label={`Ver ejemplos de ${cat.label}`}
-                >
-                  <div className="h-[84px] flex items-end justify-center mb-4">
-                    <div className={`relative ${cat.dsize}`}>
-                      <Image src={cat.src} alt="" fill sizes="70px" className="object-contain" />
-                    </div>
-                  </div>
-                  <span className={`text-[16px] font-medium ${activeCategory === cat.label ? "text-primary underline" : "text-ink"}`}>
-                    {cat.label}
-                  </span>
-                  <div
-                    className={`absolute top-full mt-2 ${TIP_ALIGN_CLASS[cat.tipAlign]} z-20 transition-opacity duration-300 ${activeCategory === cat.label ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-                    aria-hidden={activeCategory !== cat.label}
-                  >
-                    <div className={`absolute bottom-full -mb-1 ${TIP_ARROW_ALIGN_CLASS[cat.tipAlign]} w-2.5 h-2.5 bg-ink rotate-45`} />
-                    <div className="bg-ink text-white text-[13px] font-medium px-3 py-1.5 rounded-xl shadow-lg whitespace-nowrap first-letter:uppercase">
-                      {cat.examples.join(", ")}…
-                    </div>
-                  </div>
-                </button>
-              ))}
             </div>
-
-          </div>
-
-          <p className="mt-4 text-muted text-[14px] text-center">
-            Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 50 experiencias en Bogotá y Cundinamarca.
-          </p>
-
-          {/* STAGE 5 — the purchase action, only after the product has been understood */}
-
-          <div className="mt-16 flex flex-col items-center text-center">
-
-            <a
-              href={`/cajas/${vivabox.slug}`}
-              className="h-[54px] px-10 rounded-xl bg-primary text-white text-[17px] font-semibold inline-flex items-center justify-center transition hover:bg-primary-hover shadow-[0_10px_35px_rgba(254,132,47,.35)]"
-            >
-              Ver precio y comprar
-            </a>
-
-            <p className="mt-6 text-muted text-[14px]">
-              Compra segura. Sin costos ocultos.
-            </p>
 
           </div>
 
