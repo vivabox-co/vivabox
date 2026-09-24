@@ -52,7 +52,7 @@ export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
           {FACES.map((face, i) => (
             <div
               key={face.src}
-              className="w-full shrink-0 snap-center"
+              className="w-full shrink-0 snap-center [scroll-snap-stop:always]"
               aria-roledescription="diapositiva"
               aria-label={`${i + 1} de ${FACES.length}`}
             >
