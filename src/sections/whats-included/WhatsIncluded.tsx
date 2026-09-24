@@ -256,7 +256,7 @@ export default function WhatsIncluded() {
 
         {/* GROUPING CONTAINER — border only, groups the categories title + grid */}
 
-        <div className="mt-6 md:mt-8 border-2 border-[#3A2E22] rounded-[28px] sm:rounded-[36px] md:rounded-[48px] px-4 pt-4 pb-12 sm:px-8 sm:pt-6 sm:pb-16 md:px-12 md:pt-7 md:pb-20">
+        <div className="mt-5 md:mt-8 border-2 border-[#3A2E22] rounded-[28px] sm:rounded-[36px] md:rounded-[48px] px-4 pt-4 pb-12 sm:px-8 sm:pt-6 sm:pb-16 md:px-12 md:pt-7 md:pb-20">
 
           {/* CATALOGUE CONTINUATION — categories read as an extension of "Para elegir.", not a new section */}
 
@@ -367,7 +367,7 @@ export default function WhatsIncluded() {
 
           {/* STAGE 4 — experience categories, same bordered grouping as the mobile version */}
 
-          <div className="mt-24 xl:mt-28 max-w-[960px] mx-auto border-2 border-[#3A2E22] rounded-[48px] px-12 pt-9 pb-16 xl:px-14 xl:pt-10 xl:pb-20 text-center">
+          <div className="mt-[52px] xl:mt-[60px] max-w-[960px] mx-auto border-2 border-[#3A2E22] rounded-[48px] px-12 pt-9 pb-16 xl:px-14 xl:pt-10 xl:pb-20 text-center">
 
             <p className="text-ink text-[30px] xl:text-[34px] font-semibold tracking-tight mb-3">
               ¿Qué experiencias podrá elegir?

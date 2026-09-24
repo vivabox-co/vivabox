@@ -98,7 +98,7 @@ export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
 
       {/* DOTS */}
 
-      <div className="mt-2 flex justify-center gap-2">
+      <div className="mt-2.5 lg:mt-[52px] xl:mt-[60px] flex justify-center gap-2">
         {FACES.map((face, i) => (
           <button
             key={face.src}
