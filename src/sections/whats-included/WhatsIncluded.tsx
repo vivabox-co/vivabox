@@ -211,7 +211,7 @@ export default function WhatsIncluded() {
 
       {/* QUÉ INCLUYE (mobile/tablet) — the box dominates, swipeable front/back/inside. Desktop (lg+) gets its own dedicated layout below. */}
 
-      <div className="lg:hidden pt-10 md:pt-14 pb-2 md:pb-3">
+      <div className="lg:hidden pt-10 md:pt-14 sm:pb-2 md:pb-3">
 
         <div className="max-w-[1100px] mx-auto px-6">
 
@@ -259,7 +259,7 @@ export default function WhatsIncluded() {
 
         {/* GROUPING CONTAINER — border only, groups the categories title + grid */}
 
-        <div className="mt-5 md:mt-8 border-2 border-[#3A2E22] rounded-[28px] sm:rounded-[36px] md:rounded-[48px] px-4 pt-4 pb-12 sm:px-8 sm:pt-6 sm:pb-16 md:px-12 md:pt-7 md:pb-20">
+        <div className="mt-3 sm:mt-5 md:mt-8 border-2 border-[#3A2E22] rounded-[28px] sm:rounded-[36px] md:rounded-[48px] px-4 pt-4 pb-12 sm:px-8 sm:pt-6 sm:pb-16 md:px-12 md:pt-7 md:pb-20">
 
           {/* CATALOGUE CONTINUATION — categories read as an extension of "Para elegir.", not a new section */}
 

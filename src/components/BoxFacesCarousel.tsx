@@ -174,7 +174,7 @@ export default function BoxFacesCarousel({
       {/* DOTS (normal flow — homepage usage only; compact renders them above, overlaid) */}
 
       {!compact && (
-        <div className="mt-7 lg:mt-[52px] xl:mt-[60px] flex justify-center gap-2">
+        <div className="mt-3 sm:mt-7 lg:mt-[52px] xl:mt-[60px] flex justify-center gap-2">
           {dots}
         </div>
       )}
