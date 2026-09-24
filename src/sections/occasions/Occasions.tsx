@@ -1,13 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const CARD_IMAGE_SIZES = "(min-width: 1280px) 16vw, (min-width: 640px) 260px, 60vw";
+const CARD_IMAGE_SIZES = "(min-width: 1024px) 272px, (min-width: 640px) 260px, 60vw";
+const SCROLL_STEP = 584; // 2 cards (272px card + 20px gap) x2
 
 export default function Occasions() {
 
   const [revealed, setRevealed] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      el.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [updateScrollState]);
+
+  const scrollByStep = (direction: "left" | "right") => {
+    scrollRef.current?.scrollBy({
+      left: direction === "left" ? -SCROLL_STEP : SCROLL_STEP,
+      behavior: "smooth",
+    });
+  };
 
   const occasions = [
     {
@@ -65,11 +96,36 @@ export default function Occasions() {
 
       </div>
 
-      {/* CAROUSEL on mobile/tablet — first card fully visible, next peeks in to invite swiping. Grid from lg up, where horizontal scroll has no discoverable affordance with a mouse */}
+      {/* CAROUSEL at every width — the next card always peeks in to invite swiping; desktop gets arrows since horizontal scroll has no discoverable affordance with a mouse */}
 
-      <div className="max-w-6xl mx-auto">
+      <div className="relative max-w-7xl mx-auto">
 
-        <div className="flex gap-4 md:gap-5 overflow-x-auto px-6 pb-2 no-scrollbar snap-x snap-mandatory scroll-smooth lg:grid lg:grid-cols-3 xl:grid-cols-6 lg:overflow-visible lg:px-6 lg:pb-0">
+        <button
+          type="button"
+          onClick={() => scrollByStep("left")}
+          aria-label="Ver ocasiones anteriores"
+          className={`vb-icon-btn hidden lg:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 transition-opacity duration-200 ${
+            canScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <ChevronLeft size={22} />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => scrollByStep("right")}
+          aria-label="Ver más ocasiones"
+          className={`vb-icon-btn hidden lg:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 transition-opacity duration-200 ${
+            canScrollRight ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <ChevronRight size={22} />
+        </button>
+
+        <div
+          ref={scrollRef}
+          className="flex gap-4 md:gap-5 overflow-x-auto px-6 scroll-px-6 pb-2 no-scrollbar snap-x snap-mandatory scroll-smooth"
+        >
 
           {occasions.map((item) => (
 
@@ -84,7 +140,7 @@ export default function Occasions() {
                   setRevealed((current) => (current === item.name ? null : item.name));
                 }
               }}
-              className="vb-card group relative shrink-0 w-[60vw] sm:w-[260px] lg:w-auto aspect-[3/4.3] overflow-hidden snap-start cursor-pointer"
+              className="vb-card group relative shrink-0 w-[60vw] sm:w-[260px] lg:w-[272px] aspect-[3/4.3] overflow-hidden snap-start cursor-pointer"
               aria-label={item.ariaLabel}
             >
 
@@ -96,9 +152,12 @@ export default function Occasions() {
                 className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
               />
 
+              {/* Scrim — text-shadow alone isn't enough on bright photos */}
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/25 to-transparent pointer-events-none" />
+
               <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5">
 
-                <h3 className="text-white text-[16px] md:text-[22px] font-semibold leading-tight truncate [text-shadow:0_1px_4px_rgba(0,0,0,.85)]">
+                <h3 className="text-white text-[16px] md:text-[22px] font-semibold leading-tight [text-shadow:0_1px_4px_rgba(0,0,0,.85)]">
                   {item.name}
                 </h3>
 
