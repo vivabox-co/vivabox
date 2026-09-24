@@ -119,6 +119,7 @@ export default function BoxHero({
                 sizes="(min-width: 768px) 340px, (min-width: 640px) 280px, 190px"
                 theme="dark"
                 compact
+                showCaption={false}
               />
             </div>
 

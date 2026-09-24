@@ -28,6 +28,9 @@ type BoxFacesCarouselProps = {
   // Drops the arrows and tightens caption/dot spacing for small containers
   // where the full-size controls would collide with neighboring content.
   compact?: boolean
+  // Hide the "Por fuera, lista para regalar." label under the image —
+  // some spots just want the swipeable photos and dots.
+  showCaption?: boolean
 }
 
 export default function BoxFacesCarousel({
@@ -35,6 +38,7 @@ export default function BoxFacesCarousel({
   faces = BOX_FACES,
   theme = "light",
   compact = false,
+  showCaption = true,
 }: BoxFacesCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
@@ -126,10 +130,12 @@ export default function BoxFacesCarousel({
           answer for, so the gap to the dots is the same on every slide and
           every viewport. */}
 
-      <p className={compact ? "mt-1.5 px-2 text-center text-[12px] leading-snug" : "-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
-        <span className={`font-semibold ${isDark ? "text-white" : "text-ink"}`}>{faces[active].title}</span>
-        <span className={isDark ? "text-white/60" : "text-ink/55"}>, {faces[active].caption}</span>
-      </p>
+      {showCaption && (
+        <p className={compact ? "mt-1.5 px-2 text-center text-[12px] leading-snug" : "-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
+          <span className={`font-semibold ${isDark ? "text-white" : "text-ink"}`}>{faces[active].title}</span>
+          <span className={isDark ? "text-white/60" : "text-ink/55"}>, {faces[active].caption}</span>
+        </p>
+      )}
 
       {/* DOTS */}
 
