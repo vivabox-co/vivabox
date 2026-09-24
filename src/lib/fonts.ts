@@ -1,4 +1,4 @@
-import { Archivo_Narrow, Caveat_Brush, Gloria_Hallelujah } from "next/font/google"
+import { Archivo_Narrow, Caveat_Brush, Gloria_Hallelujah, Homemade_Apple } from "next/font/google"
 
 export const caveatBrush = Caveat_Brush({
   subsets: ["latin"],
@@ -19,4 +19,11 @@ export const archivoNarrow = Archivo_Narrow({
   subsets: ["latin"],
   weight: ["600"],
   variable: "--font-archivo-narrow",
+})
+
+// Connected handwriting, close to the printed message card inside the box.
+// Used where a message is typeset in code rather than shown as a photo.
+export const homemadeApple = Homemade_Apple({
+  subsets: ["latin"],
+  weight: ["400"],
 })
