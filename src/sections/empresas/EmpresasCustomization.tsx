@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { FileCheck2 } from "lucide-react";
 import Reveal from "@/components/ui/Reveal";
 import BrandRibbon from "@/components/ui/BrandRibbon";
 import { homemadeApple } from "@/lib/fonts";
@@ -10,28 +9,14 @@ const WHATSAPP_URL =
     "Hola, quiero personalizar Vivabox para mi empresa.\nCantidad aproximada: \nFecha de entrega: "
   );
 
-// Numbers match the pins on the mockup.
+// Numbers match the pins on the mockup. Titles only: the mockup shows the
+// detail, and the section should read as a light optional extra.
 const ITEMS = [
-  {
-    title: "Tu logo en la caja",
-    text: "En la faja de la caja, para que se note desde el primer momento.",
-  },
-  {
-    title: "Los colores y motivos de tu marca",
-    text: "Una caja con tu identidad, según el volumen del pedido.",
-  },
-  {
-    title: "Un mensaje de tu empresa",
-    text: "Una tarjeta impresa con las palabras que quieras decir.",
-  },
-  {
-    title: "Un catálogo a tu medida",
-    text: "Todo el catálogo con tu logo y tus colores, de la portada a la última página.",
-  },
-  {
-    title: "Activación con tu marca",
-    text: "Tu logo en la pantalla cuando la persona activa su regalo.",
-  },
+  "Tu logo en la caja",
+  "Los colores y motivos de tu marca",
+  "Un mensaje de tu empresa",
+  "Un catálogo a tu medida",
+  "Activación con tu marca",
 ] as const;
 
 /* ---------------------------------------------------------------------------
@@ -143,7 +128,7 @@ function Mockup() {
     <div
       className="@container relative mx-auto aspect-[5/6] w-full max-w-[500px]"
       role="img"
-      aria-label="Vivabox personalizada para empresas: logo en la caja, colores y motivos de marca, tarjeta con mensaje, catálogo con su identidad y pantalla de activación con el logo de la empresa"
+      aria-label="Ejemplo de Vivabox personalizada para empresas: logo en la caja, colores y motivos de marca, tarjeta con mensaje, catálogo con su identidad y pantalla de activación con el logo de la empresa"
     >
 
       {/* 4 — CATÁLOGO: the whole catalogue in the company's colors —
@@ -284,11 +269,15 @@ export default function EmpresasCustomization() {
         {/* HEADER */}
         <Reveal className="md:col-start-1 md:row-start-1 md:self-end">
           <div className="text-white">
+            <p className="text-white/70 text-[13px] uppercase tracking-[0.14em] mb-4">
+              Opcional
+            </p>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-[-0.01em] mb-4">
-              Personaliza tu Vivabox
+              ¿Quieres ponerle tu sello?
             </h2>
-            <p className="text-white/70 text-lg leading-snug max-w-[440px]">
-              Un regalo con el sello de tu empresa, de la caja a la activación.
+            <p className="text-white/70 text-lg leading-snug max-w-[460px]">
+              Vivabox ya está lista para regalar tal como es. Si quieres, la
+              adaptamos a tu marca: desde un simple mensaje hasta la caja completa.
             </p>
           </div>
         </Reveal>
@@ -302,23 +291,34 @@ export default function EmpresasCustomization() {
         <Reveal className="md:col-start-1 md:row-start-2 md:self-start">
           <div className="text-white">
 
-            <ol className="space-y-4 mb-8">
+            <ol className="space-y-3 mb-8">
               {ITEMS.map((item, i) => (
-                <li key={item.title} className="flex gap-3.5">
-                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[12px] font-semibold text-white">
+                <li key={item} className="flex items-center gap-3.5">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[12px] font-semibold text-white">
                     {i + 1}
                   </span>
-                  <div>
-                    <p className="font-semibold text-[15px] leading-snug">{item.title}</p>
-                    <p className="text-white/60 text-[14px] leading-relaxed">{item.text}</p>
-                  </div>
+                  <span className="text-white/85 text-[15px] leading-snug">{item}</span>
                 </li>
               ))}
             </ol>
 
             <p className="flex items-start gap-2 text-white/70 text-[14px] leading-relaxed mb-6 max-w-[440px]">
-              <FileCheck2 size={18} strokeWidth={1.5} className="text-primary shrink-0 mt-0.5" />
-              Cada proyecto es distinto. Antes de producir, te enviamos una maqueta para validar.
+              {/* Vivabox gift mark, tinted orange via mask */}
+              <span
+                aria-hidden
+                className="h-[18px] w-[20px] shrink-0 mt-0.5 bg-primary"
+                style={{
+                  maskImage: "url(/icons/logo-only-white.svg)",
+                  WebkitMaskImage: "url(/icons/logo-only-white.svg)",
+                  maskSize: "contain",
+                  WebkitMaskSize: "contain",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskRepeat: "no-repeat",
+                  maskPosition: "center",
+                  WebkitMaskPosition: "center",
+                }}
+              />
+              Tú decides hasta dónde llegar. Te enviamos una maqueta y nos encargamos del resto.
             </p>
 
             <a
