@@ -3,13 +3,16 @@
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 
-// Front → back → inside: the order someone discovers the box in real life.
-// Images are cut out on a transparent background (shadow baked in), so they
-// sit directly on the section's surface with no frame or card around them.
+// Front → back → inside → what's inside: the order someone discovers the box
+// in real life. Images are cut out on a transparent background (shadow baked
+// in), so they sit directly on the section's surface with no frame around them.
+// Captions stay short: a bold label + a few words, read as one line.
 const FACES = [
-  { src: "/images/box-includes/vivabox-caja-frente.webp", alt: "Caja de regalo Vivabox, vista de frente" },
-  { src: "/images/box-includes/vivabox-caja-reverso.webp", alt: "Reverso de la caja Vivabox: cómo funciona el regalo" },
-  { src: "/images/box-includes/vivabox-caja-interior.webp", alt: "Interior de la caja Vivabox con el mensaje «Esto es solo el principio»" },
+  { src: "/images/box-includes/vivabox-caja-frente.webp", alt: "Caja de regalo Vivabox, vista de frente", title: "Por fuera", caption: "lista para regalar." },
+  { src: "/images/box-includes/vivabox-caja-reverso.webp", alt: "Reverso de la caja Vivabox: cómo funciona el regalo", title: "Atrás", caption: "cómo funciona, en 4 pasos." },
+  { src: "/images/box-includes/vivabox-caja-interior.webp", alt: "Interior de la caja Vivabox con el mensaje «Esto es solo el principio»", title: "Al abrirla", caption: "empieza la sorpresa." },
+  { src: "/images/box-includes/vivabox-caja-catalogo.webp", alt: "Catálogo de experiencias Vivabox", title: "El catálogo", caption: "ejemplos de experiencias para elegir." },
+  { src: "/images/box-includes/vivabox-caja-mensaje.webp", alt: "Tarjeta con mensaje personal dentro de la caja Vivabox", title: "Un mensaje", caption: "para hacerlo aún más personal." },
 ] as const
 
 export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
@@ -34,7 +37,7 @@ export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
   }
 
   const arrowClass =
-    "hidden lg:flex absolute top-1/2 -translate-y-1/2 z-10 w-10 h-10 items-center justify-center rounded-full bg-white/80 text-ink shadow-[0_4px_14px_rgba(24,20,15,0.12)] transition hover:bg-white disabled:opacity-0 disabled:pointer-events-none"
+    "hidden lg:flex absolute top-[calc(50%-14px)] -translate-y-1/2 z-10 w-10 h-10 items-center justify-center rounded-full bg-white/80 text-ink shadow-[0_4px_14px_rgba(24,20,15,0.12)] transition hover:bg-white disabled:opacity-0 disabled:pointer-events-none"
 
   return (
     <div role="region" aria-roledescription="carrusel" aria-label="Caja Vivabox por fuera y por dentro">
@@ -48,18 +51,24 @@ export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
           {FACES.map((face, i) => (
             <div
               key={face.src}
-              className="relative w-full shrink-0 snap-center aspect-square"
+              className="w-full shrink-0 snap-center"
               aria-roledescription="diapositiva"
               aria-label={`${i + 1} de ${FACES.length}`}
             >
-              <Image
-                src={face.src}
-                alt={face.alt}
-                fill
-                sizes={sizes}
-                draggable={false}
-                className="object-contain select-none"
-              />
+              <div className="relative w-full aspect-square">
+                <Image
+                  src={face.src}
+                  alt={face.alt}
+                  fill
+                  sizes={sizes}
+                  draggable={false}
+                  className="object-contain select-none"
+                />
+              </div>
+              <p className="-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug">
+                <span className="font-semibold text-ink">{face.title}</span>
+                <span className="text-ink/55">, {face.caption}</span>
+              </p>
             </div>
           ))}
         </div>
