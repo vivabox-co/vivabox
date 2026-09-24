@@ -64,6 +64,6 @@ async function fetchSheetData() {
 // has no effect there). unstable_cache is a separate cache layer that isn't
 // subject to that override, so the CSV download + parse still only happens
 // once per hour across all requests instead of on every single pageview.
-export const getSheetData = unstable_cache(fetchSheetData, ["sheet-data"], {
+export const getSheetData = unstable_cache(fetchSheetData, ["sheet-data-v2"], {
   revalidate: 3600 // refresh every hour
 })
