@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react"
 // in real life. Images are cut out on a transparent background (shadow baked
 // in), so they sit directly on the section's surface with no frame around them.
 // Captions stay short: a bold label + a few words, read as one line.
-const FACES = [
+export const BOX_FACES = [
   { src: "/images/box-includes/vivabox-caja-frente.webp", alt: "Caja de regalo Vivabox, vista de frente", title: "Por fuera", caption: "lista para regalar." },
   { src: "/images/box-includes/vivabox-caja-reverso.webp", alt: "Reverso de la caja Vivabox: cómo funciona el regalo", title: "Atrás", caption: "cómo funciona, en 4 pasos." },
   { src: "/images/box-includes/vivabox-caja-interior.webp", alt: "Interior de la caja Vivabox con el mensaje «Esto es solo el principio»", title: "Al abrirla", caption: "empieza la sorpresa." },
@@ -16,9 +16,30 @@ const FACES = [
   { src: "/images/box-includes/vivabox-caja-mensaje.webp", alt: "Tarjeta con mensaje personal dentro de la caja Vivabox", title: "Un mensaje", caption: "para hacerlo aún más personal." },
 ] as const
 
-export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
+type Face = (typeof BOX_FACES)[number]
+
+type BoxFacesCarouselProps = {
+  sizes: string
+  // Defaults to all six faces (homepage). Pass a subset — e.g. just front
+  // and back — for tighter spots like the product hero.
+  faces?: readonly Face[]
+  // "dark" swaps caption/dot colors for white text over a photo background.
+  theme?: "light" | "dark"
+  // Drops the arrows and tightens caption/dot spacing for small containers
+  // where the full-size controls would collide with neighboring content.
+  compact?: boolean
+}
+
+export default function BoxFacesCarousel({
+  sizes,
+  faces = BOX_FACES,
+  theme = "light",
+  compact = false,
+}: BoxFacesCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
+
+  const isDark = theme === "dark"
 
   // Active face derived from scroll position (one face = one track width),
   // so swipe, trackpad, dots and arrows all stay in sync with a single source.
@@ -33,7 +54,7 @@ export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
   const goTo = (index: number) => {
     const track = trackRef.current
     if (!track) return
-    const clamped = Math.max(0, Math.min(FACES.length - 1, index))
+    const clamped = Math.max(0, Math.min(faces.length - 1, index))
     track.scrollTo({ left: clamped * track.clientWidth, behavior: "smooth" })
   }
 
@@ -49,12 +70,12 @@ export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
           ref={trackRef}
           className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth"
         >
-          {FACES.map((face, i) => (
+          {faces.map((face, i) => (
             <div
               key={face.src}
               className="relative w-full aspect-square shrink-0 snap-center [scroll-snap-stop:always]"
               aria-roledescription="diapositiva"
-              aria-label={`${i + 1} de ${FACES.length}`}
+              aria-label={`${i + 1} de ${faces.length}`}
             >
               <Image
                 src={face.src}
@@ -68,25 +89,29 @@ export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
           ))}
         </div>
 
-        <button
-          type="button"
-          onClick={() => goTo(active - 1)}
-          disabled={active === 0}
-          aria-label="Cara anterior"
-          className={`${arrowClass} left-0 -translate-x-1/2`}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
-        </button>
+        {!compact && (
+          <>
+            <button
+              type="button"
+              onClick={() => goTo(active - 1)}
+              disabled={active === 0}
+              aria-label="Cara anterior"
+              className={`${arrowClass} left-0 -translate-x-1/2`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
 
-        <button
-          type="button"
-          onClick={() => goTo(active + 1)}
-          disabled={active === FACES.length - 1}
-          aria-label="Cara siguiente"
-          className={`${arrowClass} right-0 translate-x-1/2`}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
-        </button>
+            <button
+              type="button"
+              onClick={() => goTo(active + 1)}
+              disabled={active === faces.length - 1}
+              aria-label="Cara siguiente"
+              className={`${arrowClass} right-0 translate-x-1/2`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
+            </button>
+          </>
+        )}
 
       </div>
 
@@ -101,25 +126,29 @@ export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
           answer for, so the gap to the dots is the same on every slide and
           every viewport. */}
 
-      <p className="-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug">
-        <span className="font-semibold text-ink">{FACES[active].title}</span>
-        <span className="text-ink/55">, {FACES[active].caption}</span>
+      <p className={compact ? "mt-1.5 px-2 text-center text-[12px] leading-snug" : "-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
+        <span className={`font-semibold ${isDark ? "text-white" : "text-ink"}`}>{faces[active].title}</span>
+        <span className={isDark ? "text-white/60" : "text-ink/55"}>, {faces[active].caption}</span>
       </p>
 
       {/* DOTS */}
 
-      <div className="mt-7 lg:mt-[52px] xl:mt-[60px] flex justify-center gap-2">
-        {FACES.map((face, i) => (
+      <div className={compact ? "mt-2 flex justify-center gap-1.5" : "mt-7 lg:mt-[52px] xl:mt-[60px] flex justify-center gap-2"}>
+        {faces.map((face, i) => (
           <button
             key={face.src}
             type="button"
             onClick={() => goTo(i)}
             aria-label={`Ver cara ${i + 1}`}
             aria-current={active === i}
-            className="p-1.5"
+            className={compact ? "p-1" : "p-1.5"}
           >
             <span
-              className={`block h-2 rounded-full transition-all duration-300 ${active === i ? "w-6 bg-ink" : "w-2 bg-ink/25"}`}
+              className={`block rounded-full transition-all duration-300 ${compact ? "h-1.5" : "h-2"} ${
+                active === i
+                  ? `${compact ? "w-4" : "w-6"} ${isDark ? "bg-white" : "bg-ink"}`
+                  : `${compact ? "w-1.5" : "w-2"} ${isDark ? "bg-white/35" : "bg-ink/25"}`
+              }`}
             />
           </button>
         ))}

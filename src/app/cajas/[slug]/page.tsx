@@ -120,7 +120,6 @@ export default async function BoxPage({ params }: PageProps) {
           name={box.name}
           price={box.price}
           experiences={box.experiences}
-          image={box.image}
           slug={box.slug}
         />
 

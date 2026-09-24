@@ -6,12 +6,16 @@ import { formatPrice } from "@/utils/formatPrice"
 import { Check, Lock, Minus, Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
+import BoxFacesCarousel, { BOX_FACES } from "@/components/BoxFacesCarousel"
+
+// Hero only needs front + back — enough to confirm the physical product
+// without repeating the full box-opening story already told on the Homepage.
+const HERO_BOX_FACES = BOX_FACES.slice(0, 2)
 
 type BoxHeroProps = {
   name: string
   price: number
   experiences: number
-  image: string
   slug: string
 }
 
@@ -34,7 +38,6 @@ export default function BoxHero({
   name,
   price,
   experiences,
-  image,
   slug,
 }: BoxHeroProps) {
 
@@ -111,12 +114,11 @@ export default function BoxHero({
           <div className="flex items-center gap-0 sm:gap-2 mb-6">
 
             <div className="shrink-0 w-[190px] sm:w-[280px] md:w-[340px] -ml-6 sm:ml-0">
-              <Image
-                src={image}
-                alt={name}
-                width={320}
-                height={320}
-                className="w-full h-auto object-contain drop-shadow-[0_40px_50px_rgba(0,0,0,0.5)]"
+              <BoxFacesCarousel
+                faces={HERO_BOX_FACES}
+                sizes="(min-width: 768px) 340px, (min-width: 640px) 280px, 190px"
+                theme="dark"
+                compact
               />
             </div>
 
