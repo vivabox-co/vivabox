@@ -238,7 +238,7 @@ export default function WhatsIncluded() {
             </div>
           </h2>
 
-          <p className="text-ink/60 text-[15px] sm:text-[16px] md:text-[17px] max-w-[420px] mb-2 md:mb-3">
+          <p className="text-ink/60 text-[15px] sm:text-[16px] md:text-[17px] max-w-[420px] mb-1 sm:mb-2 md:mb-3">
             Un regalo que siempre acierta.
           </p>
 
@@ -246,7 +246,7 @@ export default function WhatsIncluded() {
 
         {/* BOX FACES — front, back, inside; swipe between them */}
 
-        <div className="max-w-[560px] mx-auto px-4 sm:px-6 mt-3 md:mt-5">
+        <div className="max-w-[560px] mx-auto px-4 sm:px-6 sm:mt-3 md:mt-5">
           <BoxFacesCarousel
             sizes="(min-width: 640px) 560px, 85vw"
             imageClassName="w-[85%] sm:w-full mx-auto"
