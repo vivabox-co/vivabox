@@ -31,6 +31,9 @@ type BoxFacesCarouselProps = {
   // Hide the "Por fuera, lista para regalar." label under the image —
   // some spots just want the swipeable photos and dots.
   showCaption?: boolean
+  // Extra classes on the image track only, e.g. to shrink the photos on
+  // mobile while the caption and dots keep the full container width.
+  imageClassName?: string
 }
 
 export default function BoxFacesCarousel({
@@ -39,6 +42,7 @@ export default function BoxFacesCarousel({
   theme = "light",
   compact = false,
   showCaption = true,
+  imageClassName = "",
 }: BoxFacesCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
@@ -87,7 +91,7 @@ export default function BoxFacesCarousel({
   return (
     <div role="region" aria-roledescription="carrusel" aria-label="Caja Vivabox por fuera y por dentro">
 
-      <div className="relative">
+      <div className={`relative ${imageClassName}`}>
 
         <div
           ref={trackRef}

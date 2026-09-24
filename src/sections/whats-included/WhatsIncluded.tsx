@@ -247,7 +247,10 @@ export default function WhatsIncluded() {
         {/* BOX FACES — front, back, inside; swipe between them */}
 
         <div className="max-w-[560px] mx-auto px-4 sm:px-6 mt-3 md:mt-5">
-          <BoxFacesCarousel sizes="(min-width: 560px) 560px, 100vw" />
+          <BoxFacesCarousel
+            sizes="(min-width: 640px) 560px, 85vw"
+            imageClassName="w-[85%] sm:w-full mx-auto"
+          />
         </div>
 
       </div>
