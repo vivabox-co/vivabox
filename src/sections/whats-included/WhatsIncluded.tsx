@@ -172,31 +172,6 @@ const CATEGORIES = [
   { label: "Cultura", examples: ["tours", "talleres", "museos"], src: "/images/box-includes/cultura.svg", size: "w-[38px] h-[50px] sm:w-[51px] sm:h-[68px] md:w-[70px] md:h-[92px]", dsize: "w-[53px] h-[70px]", offset: "translate-y-2 md:translate-y-3", tipAlign: "right" },
 ] as const
 
-// The three guaranteed box contents, shown in the desktop "Dentro encontrarás" grid.
-const CONTENTS = [
-  {
-    title: "Catálogo",
-    subtitle: "De experiencias.",
-    desc: "Una selección para descubrir todo lo que podría vivir.",
-    src: "/images/box-includes/vivabox-catalogo-experiencias.webp",
-    alt: "Catálogo de experiencias Vivabox",
-  },
-  {
-    title: "Mensaje",
-    subtitle: "Personal.",
-    desc: "Unas palabras tuyas para hacer el regalo aún más personal.",
-    src: "/images/box-includes/vivabox-dedicatoria-personal.webp",
-    alt: "Dedicatoria personalizada Vivabox",
-  },
-  {
-    title: "Activación",
-    subtitle: "Código único.",
-    desc: "Le da acceso a su catálogo completo de experiencias en línea.",
-    src: "/images/box-includes/vivabox-codigo-activacion.webp",
-    alt: "Código de activación Vivabox",
-  },
-] as const
-
 const TIP_ALIGN_CLASS: Record<string, string> = {
   left: "left-0",
   center: "left-1/2 -translate-x-1/2",
@@ -216,20 +191,10 @@ export default function WhatsIncluded() {
   // below, category selection never auto-dismisses -- it only changes when
   // another category (or the same one again) is clicked.
   const [activeCategory, setActiveCategory] = useState<string | null>("Bienestar")
-  const [activeContent, setActiveContent] = useState<string | null>(null)
 
   const toggleCategory = (label: string) => {
     setActiveCategory((current) => (current === label ? null : label))
   }
-
-  const toggleContent = (title: string) => {
-    setActiveContent((current) => (current === title ? null : title))
-  }
-
-  // The shared caption strip reads from whichever content
-  // item was last tapped -- unlike the category tooltip, it's a persistent
-  // line rather than a floating bubble, so it doesn't need to auto-dismiss.
-  const activeContentData = CONTENTS.find((item) => item.title === activeContent) ?? null
 
   return (
     <section className="bg-surface">
@@ -400,66 +365,9 @@ export default function WhatsIncluded() {
 
           </div>
 
-          {/* STAGE 3 — what's inside, as one clean product system: same size, same radius, same shadow, aligned on a grid */}
-
-          <div className="mt-24 xl:mt-28">
-
-            <p className="text-center text-ink/40 text-[13px] font-semibold tracking-[0.16em] uppercase mb-10">
-              Dentro encontrarás
-            </p>
-
-            <div className="grid grid-cols-3 gap-8 xl:gap-10 max-w-[760px] mx-auto">
-
-              {CONTENTS.map((item) => (
-                <div
-                  key={item.title}
-                  className="text-center cursor-pointer group"
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={activeContent === item.title}
-                  aria-label={`Ver qué es ${item.title}`}
-                  onClick={() => toggleContent(item.title)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault()
-                      toggleContent(item.title)
-                    }
-                  }}
-                >
-                  <div className="vb-card relative w-full aspect-square overflow-hidden mb-4">
-                    <Image
-                      src={item.src}
-                      alt={item.alt}
-                      fill
-                      sizes="230px"
-                      className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                    />
-                  </div>
-                  <h3 className={`font-sans font-semibold text-[18px] tracking-tight text-ink ${activeContent === item.title ? "underline" : ""}`}>
-                    {item.title}
-                  </h3>
-                  <p className="font-sans text-ink/50 text-[14px] mt-1">
-                    {item.subtitle}
-                  </p>
-                </div>
-              ))}
-
-            </div>
-
-            {/* SHARED CAPTION — appears only
-                once something's tapped, plain block so text wraps normally. */}
-            {activeContentData && (
-              <p className="text-center text-[15px] leading-snug mt-1 mb-8">
-                <span className="font-semibold text-ink">{activeContentData.title}</span>
-                <span className="text-ink/50"> — {activeContentData.desc}</span>
-              </p>
-            )}
-
-          </div>
-
           {/* STAGE 4 — experience categories, same bordered grouping as the mobile version */}
 
-          <div className="mt-28 xl:mt-32 max-w-[960px] mx-auto border-2 border-[#3A2E22] rounded-[48px] px-12 pt-9 pb-16 xl:px-14 xl:pt-10 xl:pb-20 text-center">
+          <div className="mt-24 xl:mt-28 max-w-[960px] mx-auto border-2 border-[#3A2E22] rounded-[48px] px-12 pt-9 pb-16 xl:px-14 xl:pt-10 xl:pb-20 text-center">
 
             <p className="text-ink text-[30px] xl:text-[34px] font-semibold tracking-tight mb-3">
               ¿Qué experiencias podrá elegir?
