@@ -52,24 +52,18 @@ export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
           {FACES.map((face, i) => (
             <div
               key={face.src}
-              className="w-full shrink-0 snap-center [scroll-snap-stop:always]"
+              className="relative w-full aspect-square shrink-0 snap-center [scroll-snap-stop:always]"
               aria-roledescription="diapositiva"
               aria-label={`${i + 1} de ${FACES.length}`}
             >
-              <div className="relative w-full aspect-square">
-                <Image
-                  src={face.src}
-                  alt={face.alt}
-                  fill
-                  sizes={sizes}
-                  draggable={false}
-                  className="object-contain select-none"
-                />
-              </div>
-              <p className="-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug">
-                <span className="font-semibold text-ink">{face.title}</span>
-                <span className="text-ink/55">, {face.caption}</span>
-              </p>
+              <Image
+                src={face.src}
+                alt={face.alt}
+                fill
+                sizes={sizes}
+                draggable={false}
+                className="object-contain select-none"
+              />
             </div>
           ))}
         </div>
@@ -96,9 +90,25 @@ export default function BoxFacesCarousel({ sizes }: { sizes: string }) {
 
       </div>
 
+      {/* CAPTION — a single element synced to the active slide, not one per
+          face inside the scroller. A caption-per-face used to sit inside the
+          horizontally-scrolling flex row; a flex row's height is set by its
+          tallest child even when that child is scrolled off-screen, so on
+          narrow phones the longer "El catálogo…" caption (wraps to 2 lines)
+          was inflating the row height behind whichever shorter caption was
+          actually showing, pushing the dots down by a variable, unpredictable
+          amount. A single caption outside the row has only its own height to
+          answer for, so the gap to the dots is the same on every slide and
+          every viewport. */}
+
+      <p className="-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug">
+        <span className="font-semibold text-ink">{FACES[active].title}</span>
+        <span className="text-ink/55">, {FACES[active].caption}</span>
+      </p>
+
       {/* DOTS */}
 
-      <div className="mt-2.5 lg:mt-[52px] xl:mt-[60px] flex justify-center gap-2">
+      <div className="mt-7 lg:mt-[52px] xl:mt-[60px] flex justify-center gap-2">
         {FACES.map((face, i) => (
           <button
             key={face.src}
