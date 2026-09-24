@@ -455,7 +455,10 @@ export default function WhatsIncluded() {
               src="/images/app-phone/vivabox-app-experiencias.webp"
               alt="App Vivabox mostrando experiencias disponibles en Bogotá y Cundinamarca"
               fill
-              sizes="(min-width: 1200px) 600px, 50vw"
+              // The source is only 853px wide, and at desktop sizes Next's
+              // resizing (750w at q75) plus scale-110 upscaled a re-compressed
+              // copy, so it looked blurry. Serve the original untouched.
+              unoptimized
               className="object-cover scale-110"
             />
           </div>
