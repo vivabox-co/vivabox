@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { BOX3D_ENV, BOX3D_GLB_DESKTOP, BOX3D_GLB_MOBILE, BOX3D_MOBILE_QUERY } from "./box3dAssets"
+import { prefetchMarks, BOX3D_ENV, BOX3D_GLB_DESKTOP, BOX3D_GLB_MOBILE, BOX3D_MOBILE_QUERY } from "./box3dAssets"
 
 declare module "react" {
   namespace JSX {
@@ -87,6 +87,17 @@ export default function Box3DViewer({ onLoaded }: { onLoaded?: () => void }) {
         })
       : []
     if (debug) {
+      const nav = navigator as Navigator & { deviceMemory?: number; connection?: { effectiveType?: string; downlink?: number } }
+      stamp(`clic à ${Math.round((window as Window & { __box3dClickAt?: number }).__box3dClickAt ?? 0)} ms après le chargement de la page`)
+      Object.entries(prefetchMarks).forEach(([k, v]) => stamp(`${k} à ${v} ms de page`))
+      stamp(`appareil: ${nav.hardwareConcurrency ?? "?"} coeurs, ${nav.deviceMemory ?? "?"} Go, réseau ${nav.connection?.effectiveType ?? "?"} ${nav.connection?.downlink ?? "?"} Mb/s`)
+      performance
+        .getEntriesByType("resource")
+        .filter((r) => /\.js/.test(r.name) && (r as PerformanceResourceTiming).decodedBodySize > 300000)
+        .forEach((r) => {
+          const t = r as PerformanceResourceTiming
+          stamp(`JS ${Math.round(t.decodedBodySize / 1024)} Ko (${Math.round(t.encodedBodySize / 1024)} Ko reçus): début ${Math.round(t.startTime)}, fin ${Math.round(t.responseEnd)} ms de page`)
+        })
       stamp("élément 3D créé")
       let last = -1
       const onProgress = (e: Event) => {
