@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 import Image from "next/image"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 // Client-only and lazy: model-viewer + GLB are fetched only when someone picks 3D.
 const Box3DViewer = dynamic(() => import("@/components/Box3DViewer"), { ssr: false })
@@ -55,6 +55,8 @@ export default function BoxFacesCarousel({
   const [active, setActive] = useState(0)
   const [mode, setMode] = useState<"fotos" | "3d">("fotos")
   const is3D = enable3D && mode === "3d"
+  const [ready3D, setReady3D] = useState(false)
+  const on3DLoaded = useCallback(() => setReady3D(true), [])
 
   const isDark = theme === "dark"
 
@@ -102,8 +104,19 @@ export default function BoxFacesCarousel({
 
       <div className={`relative ${imageClassName}`}>
 
+        {/* Same square as a slide, with the "Por fuera" photo held there until the 3D is ready, so the layout never jumps. */}
         {is3D && (
-          <Box3DViewer posterSrc={faces[0].src} sizes={sizes} />
+          <div className="relative w-full aspect-square">
+            <Image
+              src={faces[0].src}
+              alt=""
+              fill
+              sizes={sizes}
+              draggable={false}
+              className={`object-contain select-none transition-opacity duration-500 ${ready3D ? "opacity-0" : "opacity-100"}`}
+            />
+            <Box3DViewer onLoaded={on3DLoaded} />
+          </div>
         )}
 
         {!is3D && <div
@@ -186,6 +199,21 @@ export default function BoxFacesCarousel({
 
       {/* DOTS (normal flow — homepage usage only; compact renders them above, overlaid) */}
 
+      {is3D && (
+        <p className="-mt-3 sm:-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug text-ink/55">
+          <span className="relative">
+            Arrástrala para girarla.
+            {!ready3D && (
+              <span
+                role="status"
+                aria-label="Cargando la caja en 3D"
+                className="absolute left-full top-1/2 ml-2 h-3.5 w-3.5 -translate-y-1/2 animate-spin rounded-full border-2 border-ink/15 border-t-ink/55"
+              />
+            )}
+          </span>
+        </p>
+      )}
+
       {!compact && !is3D && (
         <div className="mt-3 sm:mt-7 lg:mt-[52px] xl:mt-[60px] flex justify-center gap-2">
           {dots}
@@ -196,13 +224,16 @@ export default function BoxFacesCarousel({
         <div
           role="group"
           aria-label="Tipo de vista"
-          className={`${is3D ? "mt-6 sm:mt-8 lg:mt-[52px] xl:mt-[60px]" : "mt-4"} mx-auto flex w-fit rounded-full bg-ink/[0.06] p-1 text-[14px]`}
+          className={`${is3D ? "mt-12 sm:mt-16 lg:mt-[88px] xl:mt-[96px]" : "mt-4"} mx-auto flex w-fit rounded-full bg-ink/[0.06] p-1 text-[14px]`}
         >
           {(["fotos", "3d"] as const).map((m) => (
             <button
               key={m}
               type="button"
-              onClick={() => setMode(m)}
+              onClick={() => {
+                setMode(m)
+                if (m === "3d" && mode !== "3d") setReady3D(false)
+              }}
               aria-pressed={mode === m}
               className={`rounded-full px-4 py-1.5 font-medium transition ${
                 mode === m ? "bg-white text-ink shadow-sm" : "text-ink/55 hover:text-ink"
