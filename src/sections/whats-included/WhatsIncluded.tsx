@@ -251,6 +251,7 @@ export default function WhatsIncluded() {
           <BoxFacesCarousel
             sizes="(min-width: 640px) 560px, 85vw"
             imageClassName="w-[85%] sm:w-full mx-auto"
+            enable3D
           />
         </div>
 
@@ -431,7 +432,7 @@ export default function WhatsIncluded() {
             <div className="relative">
 
               <div className="w-full max-w-[440px] mx-auto">
-                <BoxFacesCarousel sizes="440px" />
+                <BoxFacesCarousel sizes="440px" enable3D />
               </div>
 
             </div>

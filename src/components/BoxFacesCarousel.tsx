@@ -1,7 +1,11 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
+
+// Client-only and lazy: model-viewer + GLB are fetched only when someone picks 3D.
+const Box3DViewer = dynamic(() => import("@/components/Box3DViewer"), { ssr: false })
 
 // Front → back → inside → what's inside: the order someone discovers the box
 // in real life. Images are cut out on a transparent background (shadow baked
@@ -34,6 +38,8 @@ type BoxFacesCarouselProps = {
   // Extra classes on the image track only, e.g. to shrink the photos on
   // mobile while the caption and dots keep the full container width.
   imageClassName?: string
+  // Adds a Fotos / 3D switch under the carousel (homepage only for now).
+  enable3D?: boolean
 }
 
 export default function BoxFacesCarousel({
@@ -43,9 +49,12 @@ export default function BoxFacesCarousel({
   compact = false,
   showCaption = true,
   imageClassName = "",
+  enable3D = false,
 }: BoxFacesCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
+  const [mode, setMode] = useState<"fotos" | "3d">("fotos")
+  const is3D = enable3D && mode === "3d"
 
   const isDark = theme === "dark"
 
@@ -57,7 +66,7 @@ export default function BoxFacesCarousel({
     const update = () => setActive(Math.round(track.scrollLeft / track.clientWidth))
     track.addEventListener("scroll", update, { passive: true })
     return () => track.removeEventListener("scroll", update)
-  }, [])
+  }, [is3D])
 
   const goTo = (index: number) => {
     const track = trackRef.current
@@ -93,7 +102,11 @@ export default function BoxFacesCarousel({
 
       <div className={`relative ${imageClassName}`}>
 
-        <div
+        {is3D && (
+          <Box3DViewer posterSrc={faces[0].src} sizes={sizes} />
+        )}
+
+        {!is3D && <div
           ref={trackRef}
           className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth"
         >
@@ -114,9 +127,9 @@ export default function BoxFacesCarousel({
               />
             </div>
           ))}
-        </div>
+        </div>}
 
-        {!compact && (
+        {!compact && !is3D && (
           <>
             <button
               type="button"
@@ -164,7 +177,7 @@ export default function BoxFacesCarousel({
           answer for, so the gap to the dots is the same on every slide and
           every viewport. */}
 
-      {showCaption && (
+      {showCaption && !is3D && (
         <p className={compact ? "mt-1.5 px-2 text-center text-[12px] leading-snug" : "-mt-3 sm:-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
           <span className={`font-semibold ${isDark ? "text-white" : "text-ink"}`}>{faces[active].title}</span>
           <span className={isDark ? "text-white/60" : "text-ink/55"}>, {faces[active].caption}</span>
@@ -173,9 +186,31 @@ export default function BoxFacesCarousel({
 
       {/* DOTS (normal flow — homepage usage only; compact renders them above, overlaid) */}
 
-      {!compact && (
+      {!compact && !is3D && (
         <div className="mt-3 sm:mt-7 lg:mt-[52px] xl:mt-[60px] flex justify-center gap-2">
           {dots}
+        </div>
+      )}
+
+      {enable3D && (
+        <div
+          role="group"
+          aria-label="Tipo de vista"
+          className={`${is3D ? "mt-6 sm:mt-8 lg:mt-[52px] xl:mt-[60px]" : "mt-4"} mx-auto flex w-fit rounded-full bg-ink/[0.06] p-1 text-[14px]`}
+        >
+          {(["fotos", "3d"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              aria-pressed={mode === m}
+              className={`rounded-full px-4 py-1.5 font-medium transition ${
+                mode === m ? "bg-white text-ink shadow-sm" : "text-ink/55 hover:text-ink"
+              }`}
+            >
+              {m === "fotos" ? "Fotos" : "Ver en 3D"}
+            </button>
+          ))}
         </div>
       )}
 
