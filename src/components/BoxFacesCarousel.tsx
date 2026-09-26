@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic"
 import Image from "next/image"
+import { prefetchBox3D } from "@/components/box3dAssets"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 // Client-only and lazy: model-viewer + GLB are fetched only when someone picks 3D.
@@ -52,6 +53,7 @@ export default function BoxFacesCarousel({
   enable3D = false,
 }: BoxFacesCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
+  const regionRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const [mode, setMode] = useState<"fotos" | "3d">("fotos")
   const is3D = enable3D && mode === "3d"
@@ -69,6 +71,23 @@ export default function BoxFacesCarousel({
     track.addEventListener("scroll", update, { passive: true })
     return () => track.removeEventListener("scroll", update)
   }, [is3D])
+
+  // Warm the 3D up once the section is about to enter the screen (skipped on slow / data-saver connections).
+  useEffect(() => {
+    const region = regionRef.current
+    if (!enable3D || !region) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          prefetchBox3D()
+          io.disconnect()
+        }
+      },
+      { rootMargin: "600px" },
+    )
+    io.observe(region)
+    return () => io.disconnect()
+  }, [enable3D])
 
   const goTo = (index: number) => {
     const track = trackRef.current
@@ -100,13 +119,13 @@ export default function BoxFacesCarousel({
   ))
 
   return (
-    <div role="region" aria-roledescription="carrusel" aria-label="Caja Vivabox por fuera y por dentro">
+    <div ref={regionRef} role="region" aria-roledescription="carrusel" aria-label="Caja Vivabox por fuera y por dentro">
 
       <div className={`relative ${imageClassName}`}>
 
         {/* Same square as a slide, with the "Por fuera" photo held there until the 3D is ready, so the layout never jumps. */}
         {is3D && (
-          <div className="relative w-full aspect-square">
+          <div className="relative z-10 w-full aspect-square">
             <Image
               src={faces[0].src}
               alt=""
@@ -136,6 +155,7 @@ export default function BoxFacesCarousel({
                 fill
                 sizes={sizes}
                 draggable={false}
+                loading={i < 2 ? "eager" : undefined}
                 className="object-contain select-none"
               />
             </div>
@@ -224,7 +244,7 @@ export default function BoxFacesCarousel({
         <div
           role="group"
           aria-label="Tipo de vista"
-          className={`${is3D ? "mt-12 sm:mt-16 lg:mt-[88px] xl:mt-[96px]" : "mt-4"} mx-auto flex w-fit rounded-full bg-ink/[0.06] p-1 text-[14px]`}
+          className={`${is3D ? "mt-12 sm:mt-16 lg:mt-[88px] xl:mt-[96px]" : "mt-4"} relative z-20 mx-auto flex w-fit rounded-full bg-ink/[0.06] p-1 text-[14px]`}
         >
           {(["fotos", "3d"] as const).map((m) => (
             <button
