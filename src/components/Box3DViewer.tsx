@@ -27,7 +27,7 @@ const VIEWER_STYLE = {
 } as React.CSSProperties
 
 // Box standing on its edge, sleeve forward. No auto-rotation: drag to turn.
-// Full horizontal turn, tilt up to 45° above the horizon (never from below),
+// Full horizontal turn, tilt 45° above and 45° below the horizon,
 // light pinch zoom (90–110%). Pan and tap-to-recenter are off so the box always
 // stays on its axis; touch drags scroll the page vertically. This component is only mounted when the user asks for
 // 3D (and lazily, by the parent), so model-viewer and the GLB cost nothing for
@@ -77,7 +77,7 @@ export default function Box3DViewer({ onLoaded }: { onLoaded?: () => void }) {
       tone-mapping="neutral"
       camera-orbit="0deg 84deg 100%"
       min-camera-orbit="-Infinity 45deg 90%"
-      max-camera-orbit="Infinity 90deg 110%"
+      max-camera-orbit="Infinity 135deg 110%"
       ref={viewerRef}
       style={VIEWER_STYLE}
       className="absolute inset-0"
