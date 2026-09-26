@@ -27,7 +27,8 @@ const VIEWER_STYLE = {
 
 // Box standing on its edge, sleeve forward. No auto-rotation: drag to turn.
 // Full horizontal turn, tilt up to 45° above the horizon (never from below),
-// light zoom (90–110%). This component is only mounted when the user asks for
+// light pinch zoom (90–110%). Pan and tap-to-recenter are off so the box always
+// stays on its axis; touch drags scroll the page vertically. This component is only mounted when the user asks for
 // 3D (and lazily, by the parent), so model-viewer and the GLB cost nothing for
 // everyone else.
 export default function Box3DViewer({ posterSrc, sizes }: { posterSrc: string; sizes: string }) {
@@ -45,8 +46,14 @@ export default function Box3DViewer({ posterSrc, sizes }: { posterSrc: string; s
     const el = viewerRef.current
     if (!el) return
     const onLoad = () => setLoaded(true)
+    // The wheel scrolls the page instead of zooming, so the box never traps the scroll.
+    const onWheel = (e: Event) => e.stopImmediatePropagation()
     el.addEventListener("load", onLoad)
-    return () => el.removeEventListener("load", onLoad)
+    el.addEventListener("wheel", onWheel, { capture: true })
+    return () => {
+      el.removeEventListener("load", onLoad)
+      el.removeEventListener("wheel", onWheel, { capture: true })
+    }
   }, [ready, src])
 
   return (
@@ -65,6 +72,9 @@ export default function Box3DViewer({ posterSrc, sizes }: { posterSrc: string; s
           alt="Caja Vivabox en 3D, gírala para verla desde todos los lados"
           camera-controls=""
           interaction-prompt="none"
+          disable-pan=""
+          disable-tap=""
+          touch-action="pan-y"
           shadow-intensity="0"
           exposure="0.95"
           environment-image="/3d/env_studio.hdr"
