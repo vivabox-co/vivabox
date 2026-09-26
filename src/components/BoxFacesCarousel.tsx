@@ -252,7 +252,10 @@ export default function BoxFacesCarousel({
               type="button"
               onClick={() => {
                 setMode(m)
-                if (m === "3d" && mode !== "3d") setReady3D(false)
+                if (m === "3d" && mode !== "3d") {
+                  setReady3D(false)
+                  ;(window as Window & { __box3dClickAt?: number }).__box3dClickAt = performance.now()
+                }
               }}
               aria-pressed={mode === m}
               className={`rounded-full px-4 py-1.5 font-medium transition ${
