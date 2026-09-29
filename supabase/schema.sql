@@ -288,7 +288,27 @@ create table bookings (
   -- A1 → A2 → A3. Chaque élément : {"date": "YYYY-MM-DD", "moment":
   -- "morning"|"afternoon"|"night", "hour": "HH:MM"|null}. NULL tant
   -- qu'aucune alternative n'a été proposée.
-  proposed_alternatives jsonb
+  proposed_alternatives jsonb,
+
+  -- Personas adicionales al cupo incluido en el regalo, y su pago —
+  -- ajouté 2026-09 (voir vivabox-appben, /reservar/fechas). unit_price/
+  -- amount sont un snapshot pris à la création de la reserva (POST
+  -- vivabox-appben /api/booking) : un futur changement de tarif
+  -- n'affecte jamais une réservation déjà demandée. extra_payment_status
+  -- passe à 'pending' uniquement au moment où l'équipe confirme la
+  -- reserva (vivabox-operativo, reservas/actions.ts::confirmBooking) —
+  -- jamais avant, pour ne facturer que ce que le lugar peut vraiment
+  -- accueillir. 'paid' est posé soit par le webhook Wompi ci-dessous
+  -- (finalizeBookingSurplusPayment), soit en secours par vivabox-appben
+  -- (POST /api/booking/[bookingId]/verify-payment). Pas de colonne pour
+  -- la reference Wompi : elle est déterministe (`booking-surplus-<id>`,
+  -- voir buildSurplusReference côté vivabox-appben), inutile à stocker.
+  extra_people integer not null default 0,
+  extra_people_unit_price integer,
+  extra_people_amount integer,
+  extra_payment_status text not null default 'not_required'
+    check (extra_payment_status in ('not_required', 'pending', 'paid')),
+  extra_paid_at timestamptz
 );
 
 -- Un seul code ne peut avoir qu'une réservation active à la fois — garanti

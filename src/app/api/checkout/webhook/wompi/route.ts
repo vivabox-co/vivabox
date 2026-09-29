@@ -2,6 +2,13 @@ import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
 import { computeEventChecksum } from "@/services/wompi"
 import { finalizeVentaPayment } from "@/features/checkout/finalizeVentaPayment"
+import { finalizeBookingSurplusPayment } from "@/features/checkout/finalizeBookingSurplusPayment"
+
+// Reference des paiements de "personas extra" démarrés depuis vivabox-appben
+// (autre repo, même comercio Wompi — un seul events URL possible par
+// comercio, donc ce webhook doit distinguer les deux cas). Voir
+// vivabox-appben/lib/utils/bookingSurplusReference.ts.
+const BOOKING_SURPLUS_PREFIX = "booking-surplus-"
 
 // Certains outils (dont, semble-t-il, le formulaire "URL de Eventos" du
 // Dashboard Wompi) font un GET de vérification avant d'enregistrer l'URL —
@@ -42,19 +49,33 @@ export async function POST(req: Request) {
     }
 
     const transaction = data.transaction
-    const ventaId = transaction.reference
+    const reference = transaction.reference
 
     if (transaction.status !== "APPROVED") {
-      // DECLINED / VOIDED / ERROR / PENDING : rien à faire, la venta reste
-      // 'reserved' et peut être retentée (ou expirera via le TTL habituel).
+      // DECLINED / VOIDED / ERROR / PENDING : rien à faire pour une venta
+      // (reste 'reserved', peut être retentée / expirera via le TTL habituel)
+      // ni pour un supplément de réservation (reste 'pending', réessayable).
       return NextResponse.json({ ok: true })
     }
 
     const supabase = getSupabase()
-    const result = await finalizeVentaPayment(supabase, ventaId)
+
+    if (reference.startsWith(BOOKING_SURPLUS_PREFIX)) {
+      const bookingId = reference.slice(BOOKING_SURPLUS_PREFIX.length)
+      const result = await finalizeBookingSurplusPayment(supabase, bookingId)
+
+      if (!result.ok) {
+        console.error(`WOMPI WEBHOOK: booking surplus finalize failed for booking=${bookingId}`, result.error)
+        return NextResponse.json({ ok: false, error: result.error }, { status: 500 })
+      }
+
+      return NextResponse.json({ ok: true })
+    }
+
+    const result = await finalizeVentaPayment(supabase, reference)
 
     if (!result.ok) {
-      console.error(`WOMPI WEBHOOK: finalize failed for venta=${ventaId}`, result.error)
+      console.error(`WOMPI WEBHOOK: finalize failed for venta=${reference}`, result.error)
       return NextResponse.json({ ok: false, error: result.error }, { status: 500 })
     }
 
