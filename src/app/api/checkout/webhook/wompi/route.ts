@@ -22,7 +22,10 @@ export async function GET() {
 // Configurée dans le Dashboard Wompi comme URL d'événements du comercio.
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
+    // Body vide/non-JSON : c'est le cas d'une requête de vérification (Wompi
+    // ou autre) plutôt que d'un vrai événement — on ignore sans faire 500,
+    // sinon le Dashboard Wompi refuse d'enregistrer l'URL d'événements.
+    const body = await req.json().catch(() => null)
     const { event, data, signature, timestamp } = body || {}
 
     if (
