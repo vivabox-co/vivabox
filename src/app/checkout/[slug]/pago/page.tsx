@@ -12,6 +12,12 @@ import VivaboxLoader from "@/components/ui/VivaboxLoader"
 import { useMinDisplayTime } from "@/components/ui/useMinDisplayTime"
 import { Lock, AlertCircle, MessageCircle } from "lucide-react"
 
+// Modo "integrado": en vez del widget flotante, la página de pago alojada de
+// Wompi (checkout.wompi.co/p/) se muestra en una iframe dentro del marco del
+// checkout. Se activa con NEXT_PUBLIC_WOMPI_EMBED=true; sin ella, widget
+// flotante. La página de retorno sale de la iframe (ver pago/retorno).
+const EMBED = process.env.NEXT_PUBLIC_WOMPI_EMBED === "true"
+
 export default function PagoPage() {
   const router = useRouter()
 
@@ -32,6 +38,8 @@ export default function PagoPage() {
   const [error, setError] = useState<string | null>(null)
   // true una vez que el cliente cerró el widget sin pagar → pantalla de reintento
   const [dismissed, setDismissed] = useState(false)
+  const [embedUrl, setEmbedUrl] = useState<string | null>(null)
+  const [embedLoaded, setEmbedLoaded] = useState(false)
 
   // El widget se abre solo una vez al llegar; después solo el cliente lo reabre.
   const autoOpened = useRef(false)
@@ -59,7 +67,7 @@ export default function PagoPage() {
       return
     }
 
-    if (!widgetReady || !window.WidgetCheckout) {
+    if (!EMBED && (!widgetReady || !window.WidgetCheckout)) {
       setError("El módulo de pago todavía se está cargando, intenta de nuevo en un momento.")
       setDismissed(true)
       return
@@ -103,6 +111,28 @@ export default function PagoPage() {
 
       const { publicKey, currency, amountInCents, reference, signature, redirectUrl } = data.wompi
 
+      if (EMBED) {
+        const params = new URLSearchParams({
+          "public-key": publicKey,
+          currency,
+          "amount-in-cents": String(amountInCents),
+          reference,
+          "signature:integrity": signature,
+          "redirect-url": redirectUrl,
+        })
+        setEmbedLoaded(false)
+        setEmbedUrl(`https://checkout.wompi.co/p/?${params.toString()}`)
+        setLoading(false)
+        return
+      }
+
+      if (!window.WidgetCheckout) {
+        setError("El módulo de pago todavía se está cargando, intenta de nuevo en un momento.")
+        setLoading(false)
+        setDismissed(true)
+        return
+      }
+
       const checkout = new window.WidgetCheckout({
         currency,
         amountInCents,
@@ -138,7 +168,7 @@ export default function PagoPage() {
 
   // Abre Wompi automáticamente en cuanto todo está listo (store hidratado,
   // precio del backend y script del widget cargado).
-  const ready = hasHydrated && !!box && !!ventaId && !!pricing && widgetReady
+  const ready = hasHydrated && !!box && !!ventaId && !!pricing && (EMBED || widgetReady)
 
   useEffect(() => {
     if (!ready || autoOpened.current) return
@@ -184,18 +214,58 @@ export default function PagoPage() {
   // ======================
   return (
     <>
-      <Script
-        src="https://checkout.wompi.co/widget.js"
-        strategy="afterInteractive"
-        onLoad={() => setWidgetReady(true)}
-      />
+      {!EMBED && (
+        <Script
+          src="https://checkout.wompi.co/widget.js"
+          strategy="afterInteractive"
+          onLoad={() => setWidgetReady(true)}
+        />
+      )}
 
       <CheckoutProgress current="pagar" />
+
+      {embedUrl && (
+        <div className="py-6 checkout-container">
+          <div className="vb-card p-2 sm:p-4 max-w-[760px] mx-auto relative overflow-hidden">
+            {!embedLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <VivaboxLoader size={72} />
+              </div>
+            )}
+            <iframe
+              src={embedUrl}
+              title="Pago seguro con Wompi"
+              allow="payment *"
+              onLoad={() => setEmbedLoaded(true)}
+              className="w-full block rounded-[14px] border-0"
+              style={{ height: "min(820px, 85vh)", minHeight: 560 }}
+            />
+          </div>
+
+          <div className="max-w-[760px] mx-auto mt-4 flex flex-col items-center gap-2">
+            <Link
+              href={`/checkout/${safeBox.slug}`}
+              className="text-xs text-[#6B6B6B] underline underline-offset-2"
+            >
+              Volver a mi pedido
+            </Link>
+            <a
+              href={whatsappLink(`Hola Vivabox, necesito ayuda con mi pago (pedido ${ventaId.slice(0, 6).toUpperCase()}).`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-[#6B6B6B] underline underline-offset-2"
+            >
+              <MessageCircle size={14} strokeWidth={2} />
+              ¿Necesitas ayuda? Escríbenos por WhatsApp
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Mientras el widget Wompi se abre / está abierto, solo el loader de
           Vivabox: el widget ya muestra el monto, así que la tarjeta detrás
           sería un doble. La tarjeta solo aparece si se cierra sin pagar. */}
-      {!(dismissed && !loading) ? (
+      {embedUrl ? null : !(dismissed && !loading) ? (
         <div className="min-h-screen vb-surface-base flex items-center justify-center">
           <VivaboxLoader size={72} />
         </div>

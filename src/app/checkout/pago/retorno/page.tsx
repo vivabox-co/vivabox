@@ -36,8 +36,22 @@ function RetornoPageContent() {
   )
   const attemptsRef = useRef(0)
 
+  // Modo integrado: Wompi redirige DENTRO de la iframe del checkout. Salimos
+  // de ella para mostrar la confirmación en página completa.
+  const inFrame = typeof window !== "undefined" && window.self !== window.top
+
   useEffect(() => {
-    if (missingParams) return
+    if (inFrame) {
+      try {
+        window.top!.location.replace(window.location.href)
+      } catch {
+        window.open(window.location.href, "_top")
+      }
+    }
+  }, [inFrame])
+
+  useEffect(() => {
+    if (missingParams || inFrame) return
 
     let cancelled = false
 
@@ -91,7 +105,7 @@ function RetornoPageContent() {
     return () => {
       cancelled = true
     }
-  }, [missingParams, ventaId, transactionId, quantity, deliveryMethod, router])
+  }, [missingParams, inFrame, ventaId, transactionId, quantity, deliveryMethod, router])
 
   const pagoHref = box ? `/checkout/${box.slug}/pago` : "/cajas"
 
