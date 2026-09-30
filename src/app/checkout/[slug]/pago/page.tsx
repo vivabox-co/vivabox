@@ -236,9 +236,15 @@ export default function PagoPage() {
               src={embedUrl}
               title="Pago seguro con Wompi"
               allow="payment *"
-              onLoad={() => setEmbedLoaded(true)}
+              onLoad={() => {
+                setEmbedLoaded(true)
+                // Wompi da foco dentro de la iframe y el navegador desplaza la
+                // página hasta ella: volvemos arriba para ver la barra de pasos.
+                window.scrollTo({ top: 0 })
+                setTimeout(() => window.scrollTo({ top: 0 }), 300)
+              }}
               className="w-full block rounded-[14px] border-0"
-              style={{ height: "min(820px, 85vh)", minHeight: 560 }}
+              style={{ height: "min(760px, calc(100vh - 300px))", minHeight: 560 }}
             />
           </div>
 
