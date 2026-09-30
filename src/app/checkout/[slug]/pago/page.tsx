@@ -222,7 +222,7 @@ export default function PagoPage() {
         />
       )}
 
-      <CheckoutProgress current="pagar" />
+      <CheckoutProgress current="pagar" hrefs={{ elegir: `/checkout/${safeBox.slug}` }} />
 
       {embedUrl && (
         <div className="py-6 checkout-container">

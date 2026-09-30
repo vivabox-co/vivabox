@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Check } from "lucide-react"
 
 type Step = "elegir" | "pagar" | "enviar"
@@ -16,9 +17,12 @@ type Props = {
   // se usa en "enviar" una vez guardado el mensaje, para que los 3 pasos
   // muestren el mismo check de validación.
   completed?: boolean
+  // Destino opcional para volver a una etapa ya hecha: solo se aplica a las
+  // etapas en estado "done" (nunca a la actual ni a las futuras).
+  hrefs?: Partial<Record<Step, string>>
 }
 
-export default function CheckoutProgress({ current, completed = false }: Props) {
+export default function CheckoutProgress({ current, completed = false, hrefs }: Props) {
 
   const order: Step[] = ["elegir", "pagar", "enviar"]
 
@@ -38,16 +42,24 @@ export default function CheckoutProgress({ current, completed = false }: Props) 
               ? (completed ? "done" : "active")
               : "pending"
 
-          return (
-            <div
-              key={step.key}
-              role="listitem"
-              className={`vb-step ${state === "active" ? "is-active" : ""} ${state === "done" ? "is-done" : ""}`}
-            >
+          const href = state === "done" ? hrefs?.[step.key] : undefined
+          const className = `vb-step ${state === "active" ? "is-active" : ""} ${state === "done" ? "is-done" : ""} ${href ? "is-link" : ""}`
+          const content = (
+            <>
               <span className="vb-step-dot">
                 {state === "done" ? <Check className="w-3 h-3" strokeWidth={2} /> : index + 1}
               </span>
               {step.label}
+            </>
+          )
+
+          return href ? (
+            <Link key={step.key} href={href} role="listitem" className={className}>
+              {content}
+            </Link>
+          ) : (
+            <div key={step.key} role="listitem" className={className}>
+              {content}
             </div>
           )
         })}

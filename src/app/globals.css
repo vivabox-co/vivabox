@@ -904,6 +904,17 @@ body {
   color: var(--color-ink);
 }
 
+.vb-step.is-link {
+  cursor: pointer;
+}
+
+.vb-step.is-link:hover {
+  background: var(--color-card);
+  box-shadow:
+    2px 2px 6px var(--nm-dark),
+    -2px -2px 6px var(--nm-light);
+}
+
 .vb-sticky-bar {
   background: var(--color-card);
   border-top: 1px solid var(--nm-border);
