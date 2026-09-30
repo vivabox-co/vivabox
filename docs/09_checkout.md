@@ -526,22 +526,14 @@ No intermediate screen, no method list, no "Pagar" button to press first:
 the customer goes straight from "IR A PAGAR" to Wompi's own method selection
 (Tarjeta, Nequi, PSE...).
 
-Behind the widget, a minimal card stays visible:
-
-Step indicator
-
-Compact order summary (product × quantity, delivery, total)
-
-"Abriendo tu pago seguro..." while the widget loads
-
-Footer:
-
-Pago seguro con Wompi
+Behind the widget, only the step indicator and the Vivabox loader are shown.
+The widget already displays the amount, so no summary card is rendered behind
+it (it would duplicate what the customer sees).
 
 ---
 
-If the customer closes the widget without paying (or an error occurs), the same
-card becomes a retry screen:
+If the customer closes the widget without paying (or an error occurs), a
+card appears (compact order summary + retry):
 
 "Tu pago no se completó. Tu pedido sigue reservado."
 

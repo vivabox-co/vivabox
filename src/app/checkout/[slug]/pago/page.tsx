@@ -10,7 +10,7 @@ import { whatsappLink } from "@/utils/whatsappLink"
 import CheckoutProgress from "../../CheckoutProgress"
 import VivaboxLoader from "@/components/ui/VivaboxLoader"
 import { useMinDisplayTime } from "@/components/ui/useMinDisplayTime"
-import { Lock, Loader2, AlertCircle, MessageCircle } from "lucide-react"
+import { Lock, AlertCircle, MessageCircle } from "lucide-react"
 
 export default function PagoPage() {
   const router = useRouter()
@@ -192,6 +192,14 @@ export default function PagoPage() {
 
       <CheckoutProgress current="pagar" />
 
+      {/* Mientras el widget Wompi se abre / está abierto, solo el loader de
+          Vivabox: el widget ya muestra el monto, así que la tarjeta detrás
+          sería un doble. La tarjeta solo aparece si se cierra sin pagar. */}
+      {!(dismissed && !loading) ? (
+        <div className="min-h-screen vb-surface-base flex items-center justify-center">
+          <VivaboxLoader size={72} />
+        </div>
+      ) : (
       <div className="min-h-screen vb-surface-base py-10 checkout-container">
 
         <div className="vb-card p-6 space-y-5 max-w-[440px] mx-auto">
@@ -204,8 +212,7 @@ export default function PagoPage() {
             <span className="text-xs text-[#6B6B6B]">Wompi</span>
           </div>
 
-          {/* RESUMEN COMPACTO — visible detrás del widget para que el cliente
-              siempre vea qué y cuánto paga. */}
+          {/* RESUMEN COMPACTO */}
           <div className="space-y-3">
             <div className="flex justify-between text-sm text-[#6B6B6B]">
               <span>{safeBox.name} x{quantity}</span>
@@ -230,38 +237,29 @@ export default function PagoPage() {
             </div>
           )}
 
-          {dismissed && !loading ? (
-            <>
-              {!error && (
-                <p className="text-sm text-[#6B6B6B] text-center">
-                  Tu pago no se completó. Tu pedido sigue reservado.
-                </p>
-              )}
-
-              <button
-                onClick={handlePayment}
-                className="vb-btn-primary w-full h-12"
-              >
-                Reintentar el pago
-                <Lock size={18} strokeWidth={2} className="vb-cta-icon" />
-              </button>
-
-              <a
-                href={whatsappLink(`Hola Vivabox, necesito ayuda con mi pago (pedido ${ventaId.slice(0, 6).toUpperCase()}).`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 text-xs text-[#6B6B6B] underline underline-offset-2"
-              >
-                <MessageCircle size={14} strokeWidth={2} />
-                ¿Necesitas ayuda? Escríbenos por WhatsApp
-              </a>
-            </>
-          ) : (
-            <div className="flex items-center justify-center gap-2 text-sm text-[#6B6B6B] h-12">
-              <Loader2 size={16} strokeWidth={2} className="animate-spin" />
-              Abriendo tu pago seguro...
-            </div>
+          {!error && (
+            <p className="text-sm text-[#6B6B6B] text-center">
+              Tu pago no se completó. Tu pedido sigue reservado.
+            </p>
           )}
+
+          <button
+            onClick={handlePayment}
+            className="vb-btn-primary w-full h-12"
+          >
+            Reintentar el pago
+            <Lock size={18} strokeWidth={2} className="vb-cta-icon" />
+          </button>
+
+          <a
+            href={whatsappLink(`Hola Vivabox, necesito ayuda con mi pago (pedido ${ventaId.slice(0, 6).toUpperCase()}).`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 text-xs text-[#6B6B6B] underline underline-offset-2"
+          >
+            <MessageCircle size={14} strokeWidth={2} />
+            ¿Necesitas ayuda? Escríbenos por WhatsApp
+          </a>
 
           <p className="text-xs text-[#6B6B6B] text-center">
             Pago seguro con Wompi
@@ -282,6 +280,7 @@ export default function PagoPage() {
         </div>
 
       </div>
+      )}
     </>
   )
 }
