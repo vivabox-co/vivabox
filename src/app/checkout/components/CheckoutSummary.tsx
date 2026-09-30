@@ -1,29 +1,20 @@
 "use client"
 
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
+import { useDisplayPricing, type EstimatedPricing } from "@/features/checkout/useDisplayPricing"
 import { formatPrice } from "@/utils/formatPrice"
 import BrandDots from "@/components/ui/BrandDots"
 
-type Pricing = {
-  subtotal: number
-  delivery: number
-  total: number
-  discount?: number
-}
-
 type Props = {
-  estimatedPricing: Pricing
+  estimatedPricing: EstimatedPricing
 }
 
 export default function CheckoutSummary({ estimatedPricing }: Props) {
 
   const box = useCheckoutStore(s => s.box)
   const quantity = useCheckoutStore(s => s.quantity)
-  const deliveryMethod = useCheckoutStore(s => s.deliveryMethod)
-  const promoApplied = useCheckoutStore(s => s.promoApplied)
-  const firstPurchaseApplied = useCheckoutStore(s => s.firstPurchaseApplied)
-  const pricing = useCheckoutStore(s => s.pricing)
   const hasHydrated = useCheckoutStore(s => s.hasHydrated)
+  const { delivery, discount, displayTotal, hasBenefit } = useDisplayPricing(estimatedPricing)
 
   // ======================
   // GUARD
@@ -37,26 +28,8 @@ export default function CheckoutSummary({ estimatedPricing }: Props) {
     )
   }
 
-  // ======================
-  // SOURCE OF TRUTH (HYBRID)
-  // ======================
-
-  const finalPricing = pricing ?? estimatedPricing
-  const isEstimated = !pricing
-
-  // Avant `start` : aperçu optimiste basé sur les indicateurs client (pas
-  // encore validé serveur). Après `start` : la remise vient du backend
-  // (pricing.discount), jamais devinée — total inclut déjà la remise.
-  const hasBenefit = isEstimated
-    ? (promoApplied || firstPurchaseApplied) && deliveryMethod === "domicilio"
-    : (finalPricing.discount ?? 0) > 0
-
-  const { subtotal, delivery, total } = finalPricing
-  const discount = isEstimated ? (hasBenefit ? delivery : 0) : (finalPricing.discount ?? 0)
-  const displayTotal = isEstimated ? total - discount : total
-
   return (
-    <div className="vb-card p-4 sticky top-24 space-y-3">
+    <div className="vb-card p-4 space-y-3">
 
       <div>
         <BrandDots />

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 
 import { formatPrice } from "@/utils/formatPrice"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
+import { useDisplayPricing } from "@/features/checkout/useDisplayPricing"
 import CheckoutSummary from "@/app/checkout/components/CheckoutSummary"
 import WelcomeShippingModal from "@/app/checkout/components/WelcomeShippingModal"
 
@@ -107,6 +108,7 @@ export default function CheckoutStep({ box }: Props) {
   }
 
   const estimatedPricing = getEstimatedPricing()
+  const { displayTotal } = useDisplayPricing(estimatedPricing)
 
   // ======================
   // PROMO
@@ -525,9 +527,10 @@ export default function CheckoutStep({ box }: Props) {
 
           {/* RIGHT */}
           <div
-            className="space-y-3 animate-step"
+            className="animate-step"
             style={{ animationDelay: "240ms" }}
           >
+            <div className="sticky top-24 space-y-3">
 
             <CheckoutSummary estimatedPricing={estimatedPricing} />
 
@@ -546,6 +549,7 @@ export default function CheckoutStep({ box }: Props) {
               </span>
             </div>
 
+            </div>
           </div>
 
         </div>
@@ -557,7 +561,7 @@ export default function CheckoutStep({ box }: Props) {
         <div className="flex items-center gap-3 max-w-[1050px] mx-auto">
           <div className="flex-1 min-w-0">
             <p className="text-[11px] text-[#6B6B6B] leading-tight">Total</p>
-            <p className="font-semibold text-ink leading-tight truncate">${formatPrice(estimatedPricing.total)}</p>
+            <p className="font-semibold text-ink leading-tight truncate">${formatPrice(displayTotal)}</p>
           </div>
           <button
             onClick={handleGoToPayment}
