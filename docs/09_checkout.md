@@ -487,26 +487,6 @@ Wompi
 
 Used as the single payment provider for the MVP.
 
-> **Temporary mode (Sept 2026) — manual Bre-B payment.** While the Wompi
-> account is not active, the payment step shows Vivabox's Bre-B llave
-> (Bancolombia, "Vivabox Colombia Sas"), the exact amount and a short
-> reference (`VB-XXXXXX`, from the venta id) instead of the Wompi widget.
-> The buyer transfers, taps "Ya hice el pago" and waits on
-> `/checkout/pago/pendiente`. Nothing is activated on the buyer's word:
-> staff verify the money in Bancolombia and click "Confirmar pago" in
-> vivabox-operativo (Pedidos → Pagos), which marks the venta paid (no
-> activation code is created for a physical box — staff attach the sticker's
-> stock code later, at Pedidos → Por preparar); the buyer's waiting page then moves on to
-> Step 3 by itself. The screen is a 4-step guide (open bank app → paste
-> llave → exact amount → come back) with the Bre-B logo and a short note that
-> card/Nequi/PSE payment is being activated. At "Ya hice el pago" the buyer
-> gives the account holder's name (prefilled from the buyer name) and an
-> optional approval number; both are stored in `ventas.transfer_*` and shown in
-> the back-office so staff can match the transfer even without the reference.
-> Config in `src/services/manualPayment.ts`. Switch back
-> to Wompi with `NEXT_PUBLIC_PAYMENT_PROVIDER=wompi` on Vercel (redeploy) —
-> the webhook/verify routes are untouched.
-
 ---
 
 Supported Methods
@@ -541,27 +521,36 @@ Avoid rebuilding payment forms if Wompi widgets already provide them.
 
 Payment Screen
 
-Contains:
+The Wompi widget opens **automatically** on arrival at `/checkout/[slug]/pago`.
+No intermediate screen, no method list, no "Pagar" button to press first:
+the customer goes straight from "IR A PAGAR" to Wompi's own method selection
+(Tarjeta, Nequi, PSE...).
+
+Behind the widget, a minimal card stays visible:
 
 Step indicator
 
-Payment method selection
+Compact order summary (product × quantity, delivery, total)
 
-Compact order summary
-
-Final amount
-
-CTA
-
-Example
-
-PAGAR $200.000
+"Abriendo tu pago seguro..." while the widget loads
 
 Footer:
 
 Pago seguro con Wompi
 
 ---
+
+If the customer closes the widget without paying (or an error occurs), the same
+card becomes a retry screen:
+
+"Tu pago no se completó. Tu pedido sigue reservado."
+
+Primary CTA: Reintentar el pago
+
+Secondary: WhatsApp help link
+
+The widget is auto-opened only once per visit; reopening is always the
+customer's choice. The reservation (`ventaId`) stays alive.
 
 No long summary.
 
@@ -687,17 +676,16 @@ Ahora empieza la mejor parte.
 
 # Buyer emails
 
-Three automatic emails go to the **buyer** (never to the recipient), from
+Two automatic emails go to the **buyer** (never to the recipient), from
 `Vivabox <notificaciones@notify.vivabox.com.co>` with Reply-To
 `contact@vivabox.com.co`. Content lives in `src/services/buyerEmail.ts`.
 
 | Moment | Trigger | Subject |
 |---|---|---|
-| Payment reported (Bre-B) | "Ya hice el pago" → `/api/checkout/manual-payment` | Recibimos tu aviso de pago — VB-XXXXXX |
-| Payment confirmed | Wompi webhook / `/verify` (`finalizeVentaPayment`), or staff "Confirmar pago" in vivabox-operativo | Pago confirmado — gracias por regalar una Vivabox |
+| Payment confirmed | Wompi webhook / `/verify` (`finalizeVentaPayment`) | Pago confirmado — gracias por regalar una Vivabox |
 | Box shipped | staff marks it shipped in vivabox-operativo | Tu Vivabox ya salió |
 
-- The two staff-triggered emails are requested by vivabox-operativo through
+- The "shipped" email is requested by vivabox-operativo through
   `POST /api/internal/buyer-email` (header `x-internal-secret`,
   `INTERNAL_API_SECRET` in both projects; `VIVABOX_SITE_URL` in operativo).
 - Best-effort: a Resend failure never blocks checkout or back-office.

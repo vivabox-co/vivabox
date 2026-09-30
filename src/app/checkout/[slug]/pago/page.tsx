@@ -3,58 +3,14 @@
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Script from "next/script"
-import { useState, useEffect, useMemo, type ReactNode } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { formatPrice } from "@/utils/formatPrice"
-import { PAYMENT_PROVIDER, whatsappLink } from "@/services/manualPayment"
+import { whatsappLink } from "@/utils/whatsappLink"
 import CheckoutProgress from "../../CheckoutProgress"
-import ManualPaymentPanel, { BreBLogo } from "../../components/ManualPaymentPanel"
 import VivaboxLoader from "@/components/ui/VivaboxLoader"
 import { useMinDisplayTime } from "@/components/ui/useMinDisplayTime"
-import {
-  Lock,
-  Loader2,
-  ChevronDown,
-  ChevronRight,
-  CreditCard,
-  Smartphone,
-  Landmark,
-  Wallet,
-  QrCode,
-  AlertCircle,
-  MessageCircle,
-} from "lucide-react"
-
-type PaymentMethodMeta = {
-  label: string
-  icon: ReactNode
-}
-
-// Etiquetas/iconos para los códigos que Wompi puede devolver en
-// /merchants/:publicKey. Un código desconocido simplemente no se muestra —
-// nunca inventamos un método que no reconocemos.
-const PAYMENT_METHOD_META: Record<string, PaymentMethodMeta> = {
-  CARD: { label: "Tarjeta débito o crédito", icon: <CreditCard size={18} strokeWidth={1.75} /> },
-  NEQUI: { label: "Nequi", icon: <Smartphone size={18} strokeWidth={1.75} /> },
-  PSE: { label: "PSE", icon: <Landmark size={18} strokeWidth={1.75} /> },
-  BANCOLOMBIA_TRANSFER: { label: "Bancolombia", icon: <Landmark size={18} strokeWidth={1.75} /> },
-  BANCOLOMBIA_QR: { label: "Bancolombia QR", icon: <QrCode size={18} strokeWidth={1.75} /> },
-  BANCOLOMBIA_COLLECT: { label: "Corresponsal Bancolombia", icon: <Landmark size={18} strokeWidth={1.75} /> },
-  DAVIPLATA: { label: "Daviplata", icon: <Wallet size={18} strokeWidth={1.75} /> },
-}
-
-// Los 3 métodos que se muestran siempre primero cuando están disponibles;
-// el resto queda detrás de "Ver más métodos".
-const PRIMARY_METHODS = ["CARD", "NEQUI", "PSE"]
-
-// Solo se usa si /api/checkout/wompi/methods no responde (Wompi caído o
-// error de red) — nunca reemplaza la consulta real, es la última defensa
-// para no dejar la pantalla vacía.
-const FALLBACK_METHODS = ["CARD", "NEQUI", "PSE"]
-
-// Wompi cuando NEXT_PUBLIC_PAYMENT_PROVIDER=wompi; si no, pago manual por
-// Bre-B (ver services/manualPayment.ts).
-const isWompi = PAYMENT_PROVIDER === "wompi"
+import { Lock, Loader2, AlertCircle, MessageCircle } from "lucide-react"
 
 export default function PagoPage() {
   const router = useRouter()
@@ -74,15 +30,11 @@ export default function PagoPage() {
   const [loading, setLoading] = useState(false)
   const [widgetReady, setWidgetReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [availableMethods, setAvailableMethods] = useState<string[] | null>(null)
-  const [showAllMethods, setShowAllMethods] = useState(false)
+  // true una vez que el cliente cerró el widget sin pagar → pantalla de reintento
+  const [dismissed, setDismissed] = useState(false)
 
-  // Pago manual: el titular de la transferencia arranca con el nombre del
-  // comprador (no se vuelve a pedir); solo se guarda lo que edite el cliente.
-  const buyerName = useCheckoutStore(s => s.buyerName)
-  const [payerNameEdit, setPayerNameEdit] = useState<string | null>(null)
-  const [receiptNumber, setReceiptNumber] = useState("")
-  const payerName = payerNameEdit ?? buyerName
+  // El widget se abre solo una vez al llegar; después solo el cliente lo reabre.
+  const autoOpened = useRef(false)
 
   // ======================
   // GUARDS
@@ -95,38 +47,105 @@ export default function PagoPage() {
     }
   }, [hasHydrated, box, ventaId, router])
 
-  // Métodos de pago realmente disponibles en nuestro comercio Wompi — nunca
-  // hardcodeados como fuente principal, solo como fallback si la consulta falla.
+  // ======================
+  // PAY — abre el Widget Wompi (motor real de pago; el Widget conserva su
+  // propia UI nativa de selección de método, no la clonamos aquí)
+  // ======================
+  async function handlePayment() {
+    if (loading) return
+
+    if (!ventaId) {
+      setError("Error interno: falta la referencia de tu pedido.")
+      return
+    }
+
+    if (!widgetReady || !window.WidgetCheckout) {
+      setError("El módulo de pago todavía se está cargando, intenta de nuevo en un momento.")
+      setDismissed(true)
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    setDismissed(false)
+
+    try {
+      const res = await fetch("/api/checkout/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ventaId }),
+      })
+
+      const data = await res.json()
+
+      if (!data.ok) {
+        if (data.error === "RESERVATION_EXPIRED") {
+          setError("Tu reserva expiró. Vuelve a elegir tu Vivabox.")
+          setLoading(false)
+          setDismissed(true)
+          setTimeout(() => router.replace("/cajas"), 1500)
+          return
+        }
+
+        if (data.error === "ALREADY_PAID") {
+          const urlDeliveryType = deliveryMethod === "digital" ? "digital" : "physical"
+          router.replace(
+            `/checkout/success?ventaId=${ventaId}&quantity=${quantity}&deliveryType=${urlDeliveryType}`
+          )
+          return
+        }
+
+        setError("No pudimos procesar tu pago. Puedes intentarlo de nuevo.")
+        setLoading(false)
+        setDismissed(true)
+        return
+      }
+
+      const { publicKey, currency, amountInCents, reference, signature, redirectUrl } = data.wompi
+
+      const checkout = new window.WidgetCheckout({
+        currency,
+        amountInCents,
+        reference,
+        publicKey,
+        redirectUrl,
+        signature: { integrity: signature },
+      })
+
+      checkout.open((result) => {
+        setLoading(false)
+
+        // El usuario cerró el widget sin completar el pago (ej. Nequi/PSE
+        // en curso o abandonado) — se queda en esta pantalla para reintentar,
+        // la reserva (ventaId) sigue viva.
+        if (!result?.transaction) {
+          setDismissed(true)
+          return
+        }
+
+        router.replace(
+          `/checkout/pago/retorno?ventaId=${ventaId}&id=${result.transaction.id}`
+        )
+      })
+
+    } catch (err) {
+      console.error("Payment error:", err)
+      setError("No pudimos conectar con el servidor de pago. Revisa tu conexión e intenta de nuevo.")
+      setLoading(false)
+      setDismissed(true)
+    }
+  }
+
+  // Abre Wompi automáticamente en cuanto todo está listo (store hidratado,
+  // precio del backend y script del widget cargado).
+  const ready = hasHydrated && !!box && !!ventaId && !!pricing && widgetReady
+
   useEffect(() => {
-    if (!isWompi) return
-
-    let cancelled = false
-
-    fetch("/api/checkout/wompi/methods")
-      .then(res => res.json())
-      .then(data => {
-        if (cancelled) return
-        const methods = Array.isArray(data?.methods) ? data.methods : []
-        setAvailableMethods(methods.length > 0 ? methods : FALLBACK_METHODS)
-      })
-      .catch(() => {
-        if (!cancelled) setAvailableMethods(FALLBACK_METHODS)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  const { primaryMethods, extraMethods } = useMemo(() => {
-    const known = (availableMethods ?? []).filter(m => PAYMENT_METHOD_META[m])
-    const pool = known.length > 0 ? known : FALLBACK_METHODS
-
-    return {
-      primaryMethods: PRIMARY_METHODS.filter(m => pool.includes(m)),
-      extraMethods: pool.filter(m => !PRIMARY_METHODS.includes(m)),
-    }
-  }, [availableMethods])
+    if (!ready || autoOpened.current) return
+    autoOpened.current = true
+    handlePayment()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready])
 
   // Guarantees the loader stays mounted at least one full fill lap (~950ms)
   // even if the store hydrates almost instantly — otherwise it gets swapped
@@ -161,168 +180,15 @@ export default function PagoPage() {
   }
 
   // ======================
-  // PAY — abre el Widget Wompi (motor real de pago; el Widget conserva su
-  // propia UI nativa de selección de método, no la clonamos aquí)
-  // ======================
-  async function handlePayment() {
-    if (loading) return
-
-    if (!ventaId) {
-      setError("Error interno: falta la referencia de tu pedido.")
-      return
-    }
-
-    if (!widgetReady || !window.WidgetCheckout) {
-      setError("El módulo de pago todavía se está cargando, intenta de nuevo en un momento.")
-      return
-    }
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      const res = await fetch("/api/checkout/pay", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ventaId }),
-      })
-
-      const data = await res.json()
-
-      if (!data.ok) {
-        if (data.error === "RESERVATION_EXPIRED") {
-          setError("Tu reserva expiró. Vuelve a elegir tu Vivabox.")
-          setLoading(false)
-          setTimeout(() => router.replace("/cajas"), 1500)
-          return
-        }
-
-        if (data.error === "ALREADY_PAID") {
-          const urlDeliveryType = deliveryMethod === "digital" ? "digital" : "physical"
-          router.replace(
-            `/checkout/success?ventaId=${ventaId}&quantity=${quantity}&deliveryType=${urlDeliveryType}`
-          )
-          return
-        }
-
-        setError("No pudimos procesar tu pago. Puedes intentarlo de nuevo o elegir otro medio de pago.")
-        setLoading(false)
-        return
-      }
-
-      const { publicKey, currency, amountInCents, reference, signature, redirectUrl } = data.wompi
-
-      const checkout = new window.WidgetCheckout({
-        currency,
-        amountInCents,
-        reference,
-        publicKey,
-        redirectUrl,
-        signature: { integrity: signature },
-      })
-
-      checkout.open((result) => {
-        setLoading(false)
-
-        // El usuario cerró el widget sin completar el pago (ej. Nequi/PSE
-        // en curso o abandonado) — se queda en esta pantalla para reintentar,
-        // la reserva (ventaId) sigue viva.
-        if (!result?.transaction) return
-
-        router.replace(
-          `/checkout/pago/retorno?ventaId=${ventaId}&id=${result.transaction.id}`
-        )
-      })
-
-    } catch (err) {
-      console.error("Payment error:", err)
-      setError("No pudimos conectar con el servidor de pago. Revisa tu conexión e intenta de nuevo.")
-      setLoading(false)
-    }
-  }
-
-  // ======================
-  // PAGO MANUAL (Bre-B) — solo avisa al equipo; nada se activa hasta que
-  // ellos verifiquen el dinero en Bancolombia (ver /api/checkout/manual-payment).
-  // ======================
-  async function handleManualReport() {
-    if (loading) return
-
-    if (!ventaId) {
-      setError("Error interno: falta la referencia de tu pedido.")
-      return
-    }
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      const res = await fetch("/api/checkout/manual-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ventaId, action: "report", payerName, receiptNumber }),
-      })
-
-      const data = await res.json()
-
-      if (!data.ok) {
-        setError("No pudimos registrar tu aviso de pago. Inténtalo de nuevo o escríbenos por WhatsApp.")
-        setLoading(false)
-        return
-      }
-
-      if (data.status === "paid") {
-        const urlDeliveryType = deliveryMethod === "digital" ? "digital" : "physical"
-        router.replace(
-          `/checkout/success?ventaId=${ventaId}&quantity=${quantity}&deliveryType=${urlDeliveryType}`
-        )
-        return
-      }
-
-      router.replace(`/checkout/pago/pendiente?ventaId=${ventaId}`)
-
-    } catch (err) {
-      console.error("Manual payment report error:", err)
-      setError("No pudimos conectar con el servidor. Revisa tu conexión e intenta de nuevo.")
-      setLoading(false)
-    }
-  }
-
-  const methodRows = [...primaryMethods, ...(showAllMethods ? extraMethods : [])]
-
-  const summaryRows = (
-    <>
-      <div className="flex justify-between text-sm text-[#6B6B6B]">
-        <span>{safeBox.name} x{quantity}</span>
-        <span>${formatPrice(subtotal)}</span>
-      </div>
-
-      <div className="flex justify-between text-sm text-[#6B6B6B]">
-        <span>Envío ({getDeliveryLabel()})</span>
-        <span>
-          {delivery === 0 ? "Gratis" : `+$${formatPrice(delivery)}`}
-        </span>
-      </div>
-
-      <div className="pt-3 vb-divider-top flex justify-between font-semibold text-lg text-ink">
-        <span>Total</span>
-        <span>${formatPrice(total)}</span>
-      </div>
-    </>
-  )
-
-  // ======================
   // UI
   // ======================
   return (
     <>
-      {isWompi && (
-        <Script
-          src="https://checkout.wompi.co/widget.js"
-          strategy="afterInteractive"
-          onLoad={() => setWidgetReady(true)}
-        />
-      )}
+      <Script
+        src="https://checkout.wompi.co/widget.js"
+        strategy="afterInteractive"
+        onLoad={() => setWidgetReady(true)}
+      />
 
       <CheckoutProgress current="pagar" />
 
@@ -331,105 +197,31 @@ export default function PagoPage() {
         <div className="vb-card p-6 space-y-5 max-w-[440px] mx-auto">
 
           <div className="flex items-center justify-between">
-            {isWompi ? (
-              <>
-                <h2 className="font-semibold text-ink flex items-center gap-2">
-                  <Lock size={16} strokeWidth={2} className="text-primary shrink-0" />
-                  Pago seguro
-                </h2>
-                <span className="text-xs text-[#6B6B6B]">Wompi</span>
-              </>
-            ) : (
-              <>
-                <h2 className="font-semibold text-ink">Tu pago</h2>
-                <BreBLogo className="h-6" />
-              </>
-            )}
+            <h2 className="font-semibold text-ink flex items-center gap-2">
+              <Lock size={16} strokeWidth={2} className="text-primary shrink-0" />
+              Pago seguro
+            </h2>
+            <span className="text-xs text-[#6B6B6B]">Wompi</span>
           </div>
 
-          {isWompi ? (
-            <>
-            {/* MÉTODOS — cada fila abre el mismo Widget Wompi real; Wompi no
-                permite saltar directo a un método desde su SDK, así que todas
-                llevan al mismo flujo verdadero en vez de simular una elección
-                que no existe. */}
-            <div className="space-y-2.5">
-              <p className="text-sm font-medium text-ink">¿Cómo quieres pagar?</p>
-
-              {availableMethods === null ? (
-                <div className="space-y-2" aria-hidden="true">
-                  {[0, 1, 2].map((i) => (
-                    <div key={i} className="h-[58px] rounded-[18px] bg-black/[0.04] animate-pulse" />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {methodRows.map((code) => {
-                    const meta = PAYMENT_METHOD_META[code]
-                    if (!meta) return null
-
-                    return (
-                      <button
-                        key={code}
-                        type="button"
-                        onClick={handlePayment}
-                        disabled={loading || !widgetReady}
-                        className="vb-pay-method"
-                      >
-                        <span className="vb-pay-method-icon">{meta.icon}</span>
-                        <span className="text-sm text-ink flex-1 text-left">{meta.label}</span>
-                        {loading ? (
-                          <Loader2 size={16} strokeWidth={2} className="animate-spin text-[#6B6B6B] shrink-0" />
-                        ) : (
-                          <ChevronRight size={16} strokeWidth={2} className="text-[#6B6B6B] shrink-0" />
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-
-              {!showAllMethods && extraMethods.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllMethods(true)}
-                  className="text-xs text-[#6B6B6B] underline block"
-                >
-                  Ver más métodos
-                </button>
-              )}
+          {/* RESUMEN COMPACTO — visible detrás del widget para que el cliente
+              siempre vea qué y cuánto paga. */}
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm text-[#6B6B6B]">
+              <span>{safeBox.name} x{quantity}</span>
+              <span>${formatPrice(subtotal)}</span>
             </div>
-            </>
-          ) : (
-            <ManualPaymentPanel
-              ventaId={ventaId}
-              total={total}
-              payerName={payerName}
-              onPayerNameChange={setPayerNameEdit}
-              receiptNumber={receiptNumber}
-              onReceiptNumberChange={setReceiptNumber}
-            />
-          )}
 
-          {/* RESUMEN — en pago manual queda plegado: el monto ya está arriba y
-              así el botón "Ya hice el pago" no se va debajo del pliegue. */}
-          {isWompi ? (
-            <div className="pt-4 vb-divider-top space-y-3">
-              <h3 className="font-semibold text-ink text-sm">Resumen</h3>
-              {summaryRows}
+            <div className="flex justify-between text-sm text-[#6B6B6B]">
+              <span>Envío ({getDeliveryLabel()})</span>
+              <span>{delivery === 0 ? "Gratis" : `+$${formatPrice(delivery)}`}</span>
             </div>
-          ) : (
-            <details className="pt-4 vb-divider-top group">
-              <summary className="flex items-center justify-between text-sm font-semibold text-ink cursor-pointer list-none">
-                <span>Resumen del pedido</span>
-                <span className="flex items-center gap-1.5">
-                  ${formatPrice(total)}
-                  <ChevronDown size={16} strokeWidth={2} className="text-[#6B6B6B] transition-transform group-open:rotate-180" />
-                </span>
-              </summary>
-              <div className="mt-3 space-y-3">{summaryRows}</div>
-            </details>
-          )}
+
+            <div className="pt-3 vb-divider-top flex justify-between font-semibold text-lg text-ink">
+              <span>Total</span>
+              <span>${formatPrice(total)}</span>
+            </div>
+          </div>
 
           {error && (
             <div className="flex items-start gap-2 text-sm text-accent-red bg-accent-red/10 rounded-[14px] p-3">
@@ -438,53 +230,21 @@ export default function PagoPage() {
             </div>
           )}
 
-          {isWompi ? (
+          {dismissed && !loading ? (
             <>
-            <button
-              onClick={handlePayment}
-              disabled={loading || !widgetReady}
-              className="vb-btn-primary w-full h-12 disabled:opacity-60"
-            >
-              {loading ? (
-                <>
-                  Procesando...
-                  <Loader2 size={18} strokeWidth={2} className="animate-spin" />
-                </>
-              ) : (
-                <>
-                  Pagar ${formatPrice(total)}
-                  <Lock size={18} strokeWidth={2} className="vb-cta-icon" />
-                </>
+              {!error && (
+                <p className="text-sm text-[#6B6B6B] text-center">
+                  Tu pago no se completó. Tu pedido sigue reservado.
+                </p>
               )}
-            </button>
 
-            <p className="text-xs text-[#6B6B6B] text-center">
-              Pago seguro con Wompi
-            </p>
-            </>
-          ) : (
-            <>
               <button
-                onClick={handleManualReport}
-                disabled={loading}
-                className="vb-btn-primary w-full h-12 disabled:opacity-60"
+                onClick={handlePayment}
+                className="vb-btn-primary w-full h-12"
               >
-                {loading ? (
-                  <>
-                    Enviando...
-                    <Loader2 size={18} strokeWidth={2} className="animate-spin" />
-                  </>
-                ) : (
-                  <>
-                    Ya hice el pago
-                    <Lock size={18} strokeWidth={2} className="vb-cta-icon" />
-                  </>
-                )}
+                Reintentar el pago
+                <Lock size={18} strokeWidth={2} className="vb-cta-icon" />
               </button>
-
-              <p className="text-xs text-[#6B6B6B] text-center">
-                Toca este botón cuando ya hayas hecho la transferencia. Confirmamos tu pago nosotros mismos.
-              </p>
 
               <a
                 href={whatsappLink(`Hola Vivabox, necesito ayuda con mi pago (pedido ${ventaId.slice(0, 6).toUpperCase()}).`)}
@@ -496,7 +256,16 @@ export default function PagoPage() {
                 ¿Necesitas ayuda? Escríbenos por WhatsApp
               </a>
             </>
+          ) : (
+            <div className="flex items-center justify-center gap-2 text-sm text-[#6B6B6B] h-12">
+              <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+              Abriendo tu pago seguro...
+            </div>
           )}
+
+          <p className="text-xs text-[#6B6B6B] text-center">
+            Pago seguro con Wompi
+          </p>
 
           <p className="text-[11px] text-[#6B6B6B] text-center leading-relaxed">
             Al pagar aceptas los{" "}

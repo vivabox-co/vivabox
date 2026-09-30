@@ -1,12 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { boxes } from "@/data/boxes"
 import { escapeHtml, getResend } from "@/services/email"
-import { paymentReference, whatsappLink } from "@/services/manualPayment"
+import { whatsappLink } from "@/utils/whatsappLink"
 
 // Emails transactionnels envoyés à l'ACHETEUR (ceux de services/email.ts vont
-// à l'équipe). Trois moments du parcours :
-//   reported — l'acheteur a touché "Ya hice el pago" (paiement Bre-B à vérifier)
-//   paid     — paiement confirmé (webhook/verify Wompi, ou l'équipe en back-office)
+// à l'équipe). Deux moments du parcours :
+//   paid     — paiement confirmé (webhook/verify Wompi)
 //   shipped  — box remise au transportista (back-office)
 //
 // Envoyés depuis le sous-domaine vérifié dans Resend : le domaine racine
@@ -28,7 +27,7 @@ const REPLY_TO = "contact@vivabox.com.co"
 // par URL.
 const LOGO_URL = "https://www.vivabox.com.co/images/email/vivabox-logo-full.png"
 
-export type BuyerEmailKind = "reported" | "paid" | "shipped"
+export type BuyerEmailKind = "paid" | "shipped"
 
 type Venta = {
   id: string
@@ -57,16 +56,13 @@ function firstName(fullName: string) {
   return fullName.trim().split(/\s+/)[0] || ""
 }
 
-function summaryRows(venta: Venta, withReference: boolean): Content["rows"] {
+function summaryRows(venta: Venta): Content["rows"] {
   const box = boxes.find(b => b.slug === venta.box_slug)
-  const rows: Content["rows"] = [
+
+  return [
     ["Tu regalo", `${box?.name ?? "Vivabox"} × ${venta.quantity}`],
     ["Total", `$${venta.total.toLocaleString("es-CO")} COP`],
   ]
-
-  if (withReference) rows.push(["Referencia", paymentReference(venta.id)])
-
-  return rows
 }
 
 function buildContent(kind: BuyerEmailKind, venta: Venta): Content {
@@ -74,18 +70,6 @@ function buildContent(kind: BuyerEmailKind, venta: Venta): Content {
   const city = venta.delivery_ciudad?.trim()
   const recipient = venta.recipient_name?.trim()
   const isGift = !!recipient && recipient !== venta.buyer_name.trim()
-
-  if (kind === "reported") {
-    return {
-      subject: `Recibimos tu aviso de pago — ${paymentReference(venta.id)}`,
-      title: "Estamos verificando tu pago",
-      paragraphs: [
-        "Recibimos tu aviso de pago por Bre-B y lo estamos confirmando en el banco.",
-        "Apenas lo veamos reflejado, te confirmamos por este mismo correo. Si dejas abierta la página del pago, te llevará sola a agregar tu mensaje personal.",
-      ],
-      rows: summaryRows(venta, true),
-    }
-  }
 
   if (kind === "paid") {
     return {
@@ -97,7 +81,7 @@ function buildContent(kind: BuyerEmailKind, venta: Venta): Content {
           ? `Ahora preparamos tu Vivabox con cuidado y te escribimos por aquí cuando salga${city ? ` hacia ${city}` : ""}. Nosotros coordinamos todo.`
           : "Tu Vivabox digital quedó registrada. Nosotros coordinamos todo.",
       ],
-      rows: summaryRows(venta, false),
+      rows: summaryRows(venta),
     }
   }
 
@@ -108,7 +92,7 @@ function buildContent(kind: BuyerEmailKind, venta: Venta): Content {
       `${isGift ? `El regalo para ${recipient}` : "Tu Vivabox"} ya salió de nuestras manos${city ? ` hacia ${city}` : ""}.`,
       "Si tienes cualquier duda con la entrega, respóndenos a este correo o escríbenos por WhatsApp.",
     ],
-    rows: summaryRows(venta, false),
+    rows: summaryRows(venta),
   }
 }
 
@@ -159,7 +143,6 @@ function renderText(greeting: string, content: Content) {
 // El estado real de la venta manda: un correo "pago confirmado" nunca sale
 // para una venta que no está pagada, aunque quien llame se equivoque.
 function matchesKind(kind: BuyerEmailKind, venta: Venta) {
-  if (kind === "reported") return venta.status === "reserved" || venta.status === "expired"
   if (kind === "paid") return venta.status === "paid" || venta.status === "completed"
   return venta.shipped_at !== null
 }
