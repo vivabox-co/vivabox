@@ -8,10 +8,17 @@ import { useRouter } from "next/navigation"
 import { formatPrice } from "@/utils/formatPrice"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { deliveryPriceFor } from "@/features/checkout/delivery"
+import {
+  SAME_DAY_PRICE_COP,
+  SAME_DAY_SPEED,
+  SAME_DAY_PROMISE,
+  SAME_DAY_AVAILABILITY_HINT,
+  isSameDayAvailable,
+} from "@/features/checkout/sameDay"
 import { useDisplayPricing } from "@/features/checkout/useDisplayPricing"
 import CheckoutSummary from "@/app/checkout/components/CheckoutSummary"
 
-import { Truck, Home, Gift, ArrowRight, Lock, CheckCircle2, Loader2 } from "lucide-react"
+import { Truck, Zap, Home, Gift, ArrowRight, Lock, CheckCircle2, Loader2 } from "lucide-react"
 
 type CheckoutBox = {
   slug: string
@@ -32,6 +39,8 @@ export default function CheckoutStep({ box }: Props) {
   const [loading, setLoading] = useState(false)
   const [submitAttempted, setSubmitAttempted] = useState(false)
   const [promoOpen, setPromoOpen] = useState(false)
+  // null hasta montar: la disponibilidad depende de la hora, no se calcula en el SSR.
+  const [now, setNow] = useState<Date | null>(null)
 
   // ======================
   // STORE
@@ -62,6 +71,9 @@ export default function CheckoutStep({ box }: Props) {
   const promoApplied = useCheckoutStore(s => s.promoApplied)
   const setPromo = useCheckoutStore(s => s.setPromo)
 
+  const sameDay = useCheckoutStore(s => s.sameDay)
+  const setSameDay = useCheckoutStore(s => s.setSameDay)
+
   const setVentaId = useCheckoutStore(s => s.setVentaId)
   const setPricing = useCheckoutStore(s => s.setPricing)
 
@@ -75,23 +87,11 @@ export default function CheckoutStep({ box }: Props) {
     setDeliveryMethod("domicilio")
   }, [box, setBox, setDeliveryMethod])
 
-  // ======================
-  // ESTIMATED PRICING
-  // ======================
-
-  function getEstimatedPricing() {
-    const subtotal = box.price * quantity
-    const delivery = deliveryPriceFor(quantity)
-
-    return {
-      subtotal,
-      delivery,
-      total: subtotal + delivery,
-    }
-  }
-
-  const estimatedPricing = getEstimatedPricing()
-  const { displayTotal } = useDisplayPricing(estimatedPricing)
+  useEffect(() => {
+    setNow(new Date())
+    const id = setInterval(() => setNow(new Date()), 30_000)
+    return () => clearInterval(id)
+  }, [])
 
   // ======================
   // PROMO
@@ -155,6 +155,28 @@ export default function CheckoutStep({ box }: Props) {
   const isOutsideBogota = normalizedCity.length > 0 && !normalizedCity.includes("bogota")
   const deliveryEstimate = isOutsideBogota ? "2–4 días hábiles" : "1–2 días hábiles"
 
+  // Envío el mismo día : opción solo en Bogotá (sin ciudad escrita se asume
+  // Bogotá, como arriba) ; el servidor revalida con la ciudad real.
+  const sameDayOffered = !isOutsideBogota
+  const sameDayAvailable = sameDayOffered && now !== null && isSameDayAvailable("Bogotá", now)
+  const sameDaySelected = sameDay && sameDayAvailable
+
+  // ======================
+  // ESTIMATED PRICING
+  // ======================
+
+  // Un código ofrece el envío de base ; nunca el suplemento « mismo día ».
+  const baseDelivery = deliveryPriceFor(quantity)
+  const sameDaySurcharge = sameDaySelected ? SAME_DAY_PRICE_COP : 0
+  const subtotal = box.price * quantity
+  const estimatedPricing = {
+    subtotal,
+    delivery: baseDelivery + sameDaySurcharge,
+    total: subtotal + baseDelivery + sameDaySurcharge,
+    discount: promoApplied ? baseDelivery : 0,
+  }
+  const { displayTotal } = useDisplayPricing(estimatedPricing)
+
   const missingFields: string[] = []
   if (!buyerName) missingFields.push("tu nombre")
   if (!buyerEmail) missingFields.push("tu email")
@@ -197,7 +219,7 @@ export default function CheckoutStep({ box }: Props) {
             email: buyerEmail.trim(),
             phone: buyerPhone.trim(),
           },
-          delivery: { type: "physical", speed: null },
+          delivery: { type: "physical", speed: sameDaySelected ? SAME_DAY_SPEED : null },
           destination: deliveryDestination,
           recipient: {
             name: recipientName.trim(),
@@ -213,6 +235,13 @@ export default function CheckoutStep({ box }: Props) {
       })
 
       const data = await res.json()
+
+      if (data.error === "SAME_DAY_UNAVAILABLE") {
+        setSameDay(false)
+        alert("El envío el mismo día ya no está disponible. Puedes continuar con el envío normal.")
+        setLoading(false)
+        return
+      }
 
       if (!data.ok || !data.pricing || !data.ventaId) {
         alert("No pudimos iniciar la compra")
@@ -359,6 +388,29 @@ export default function CheckoutStep({ box }: Props) {
                   )}
                 </p>
               </div>
+
+              {sameDayOffered && (
+                <label
+                  className={`vb-choice ${sameDayAvailable ? "" : "opacity-60 cursor-not-allowed"}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={sameDaySelected}
+                    disabled={!sameDayAvailable}
+                    onChange={(e) => setSameDay(e.target.checked)}
+                  />
+                  <span className="vb-choice-icon"><Zap size={16} strokeWidth={1.75} /></span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-baseline justify-between gap-3 text-sm">
+                      <span>Envío el mismo día</span>
+                      <span className="font-medium">+${formatPrice(SAME_DAY_PRICE_COP)}</span>
+                    </span>
+                    <span className="block text-xs text-[#6B6B6B] mt-0.5">
+                      {sameDayAvailable ? SAME_DAY_PROMISE : SAME_DAY_AVAILABILITY_HINT}
+                    </span>
+                  </span>
+                </label>
+              )}
 
               <div className="pt-4 vb-divider-top space-y-3">
                 <div className="grid gap-3 sm:grid-cols-2">

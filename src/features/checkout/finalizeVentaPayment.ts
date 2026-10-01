@@ -2,6 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { generateActivationCode } from "@/features/activation/generateActivationCode"
 import { normalizeCode } from "@/utils/normalizeCode"
 import { sendBuyerEmail } from "@/services/buyerEmail"
+import { sendSameDayAlertEmail } from "@/services/email"
+import { SAME_DAY_PRICE_COP, SAME_DAY_SPEED, sameDayOutcome } from "@/features/checkout/sameDay"
 
 const ACTIVATION_VALIDITY_DAYS = 180 // 6 meses desde la compra (docs/01_product.md)
 const MAX_CODE_ATTEMPTS = 5
@@ -32,7 +34,7 @@ export async function finalizeVentaPayment(
     .update({ status: "paid", paid_at: new Date().toISOString() })
     .eq("id", ventaId)
     .in("status", ["reserved", "expired"])
-    .select("id, promo_code_input, buyer_email, delivery_type")
+    .select("id, promo_code_input, buyer_email, delivery_type, delivery_speed, paid_at, quantity, buyer_name, buyer_phone, recipient_name, recipient_contact, delivery_direccion, delivery_ciudad, delivery_detalles")
 
   if (updateError) {
     console.error("FINALIZE VENTA UPDATE ERROR:", updateError)
@@ -83,6 +85,26 @@ export async function finalizeVentaPayment(
     } else if (!redeemed) {
       console.warn(`PROMO REDEEM FAILED (no longer valid): venta=${ventaId} code=${venta.promo_code_input}`)
     }
+  }
+
+  // Alerte équipe pour un envío « mismo día » : décidée sur l'heure réelle du
+  // paiement (tolérance jusqu'à 14h30, voir sameDay.ts). Best-effort, avant le
+  // mail acheteur pour que l'équipe soit prévenue en premier.
+  if (venta.delivery_speed === SAME_DAY_SPEED) {
+    await sendSameDayAlertEmail({
+      ventaId,
+      outcome: sameDayOutcome(new Date(venta.paid_at)),
+      paidAt: venta.paid_at,
+      buyerName: venta.buyer_name,
+      buyerPhone: venta.buyer_phone,
+      recipientName: venta.recipient_name,
+      recipientContact: venta.recipient_contact,
+      address: venta.delivery_direccion,
+      city: venta.delivery_ciudad,
+      addressExtra: venta.delivery_detalles,
+      quantity: venta.quantity,
+      surcharge: SAME_DAY_PRICE_COP,
+    })
   }
 
   // Confirmation à l'acheteur — seulement ici, pour l'appelant qui a gagné la

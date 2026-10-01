@@ -228,6 +228,40 @@ Do not hardcode a delivery amount anywhere else.
 
 ---
 
+## Envío el mismo día (optional, +$10.000)
+
+A checkbox in the delivery card, shown only for Bogotá (an empty city is
+assumed to be Bogotá, like the delivery delay). Rules live in
+`src/features/checkout/sameDay.ts` (single source of truth, imported by the UI,
+`POST /api/checkout/start` and `finalizeVentaPayment`):
+
+- Monday to Saturday, excluding Colombian holidays, before **2:00 p. m.**
+  (Bogotá time). Otherwise the option stays visible but greyed out with
+  "Disponible de lunes a sábado, antes de las 2:00 p. m."
+- Promise shown to the buyer: "Llega hoy antes de las 8:00 p. m."
+- The +$10.000 is added to the total after promotions: a promo code never
+  reduces it. It is saved as `ventas.delivery_speed = 'same_day'` and included
+  in `delivery_price`.
+- `start` re-checks city and time; if the option is no longer available it
+  answers `SAME_DAY_UNAVAILABLE` and the UI unchecks it.
+
+Payment time decides what staff must do (`sameDayOutcome`, from `paid_at`):
+
+| Paid | Outcome | Staff alert |
+|---|---|---|
+| before 2:00 p. m. | `on_time` | "ENVÍO HOY" email |
+| 2:00–2:30 p. m. | `grace` — delivered today anyway | "ENVÍO HOY URGENTE" email |
+| after 2:30 p. m., Sunday or holiday | `missed` | "NO LLEGA HOY" email: staff decide (deliver anyway, or next working day + refund the $10.000) |
+
+The alert goes to `contact@vivabox.com.co` (`sendSameDayAlertEmail`), best
+effort. The buyer's "paid" email only promises "hoy" for `on_time`/`grace`; for
+`missed` it says staff will write to confirm.
+
+vivabox-operativo should show a prominent badge on any venta with
+`delivery_speed = 'same_day'` (and flag `missed` ones using `paid_at`).
+
+---
+
 Second option:
 
 Retiro

@@ -148,3 +148,79 @@ export async function sendPartnerLeadEmail(params: PartnerLeadEmailParams) {
     console.error("PARTNER LEAD EMAIL ERROR:", error)
   }
 }
+
+type SameDayAlertParams = {
+  ventaId: string
+  outcome: "on_time" | "grace" | "missed"
+  paidAt: string
+  buyerName: string
+  buyerPhone?: string | null
+  recipientName?: string | null
+  recipientContact?: string | null
+  address?: string | null
+  city?: string | null
+  addressExtra?: string | null
+  quantity: number
+  surcharge: number
+}
+
+// Alerte interne pour un envío « mismo día » payé : l'équipe doit agir tout de
+// suite (la box part dans la journée). Best-effort, comme les autres emails —
+// la commande reste de toute façon visible dans vivabox-operativo avec
+// delivery_speed = 'same_day'. Le sujet porte l'urgence pour sauter aux yeux
+// dans la boîte de réception.
+export async function sendSameDayAlertEmail(params: SameDayAlertParams) {
+  const {
+    ventaId, outcome, paidAt, buyerName, buyerPhone, recipientName, recipientContact,
+    address, city, addressExtra, quantity, surcharge,
+  } = params
+
+  const paidLabel = new Date(paidAt).toLocaleString("es-CO", {
+    timeZone: "America/Bogota",
+    weekday: "long",
+    hour: "numeric",
+    minute: "2-digit",
+  })
+
+  const headline =
+    outcome === "missed"
+      ? "NO LLEGA HOY — pago fuera de hora"
+      : outcome === "grace"
+        ? "ENVÍO HOY — URGENTE (pago pasadas las 2:00 p. m., se entrega hoy igual)"
+        : "ENVÍO HOY — entregar antes de las 8:00 p. m."
+
+  const color = outcome === "missed" ? "#B3261E" : "#E67705"
+
+  const action =
+    outcome === "missed"
+      ? `El cliente pagó fuera de la hora límite. Decidan: entregarla hoy de todas formas, o enviarla el próximo día hábil y reembolsar los $${surcharge.toLocaleString("es-CO")} del envío el mismo día. Avisen al cliente.`
+      : "Preparar la caja y entregarla al mensajero de inmediato."
+
+  const html = `
+    <div style="border:3px solid ${color};border-radius:12px;padding:16px;font-family:Arial,sans-serif">
+      <h1 style="margin:0 0 8px;font-size:22px;color:${color}">${escapeHtml(headline)}</h1>
+      <p style="margin:0 0 12px;font-size:15px"><strong>${escapeHtml(action)}</strong></p>
+      <ul style="font-size:14px;line-height:1.6">
+        <li><strong>Pagado:</strong> ${escapeHtml(paidLabel)} (hora de Bogotá)</li>
+        <li><strong>Cajas:</strong> ${quantity}</li>
+        <li><strong>Comprador:</strong> ${escapeHtml(buyerName)}${buyerPhone ? ` — ${escapeHtml(buyerPhone)}` : ""}</li>
+        <li><strong>Recibe:</strong> ${escapeHtml(recipientName || buyerName)}${recipientContact ? ` — ${escapeHtml(recipientContact)}` : ""}</li>
+        <li><strong>Dirección:</strong> ${escapeHtml(address || "—")}, ${escapeHtml(city || "—")}${addressExtra ? ` (${escapeHtml(addressExtra)})` : ""}</li>
+      </ul>
+      <p style="color:#888;font-size:12px">Venta ID: ${ventaId} · delivery_speed = same_day</p>
+    </div>
+  `
+
+  const subjectPrefix = outcome === "missed" ? "🚨 NO LLEGA HOY" : outcome === "grace" ? "🚨 ENVÍO HOY URGENTE" : "⚡ ENVÍO HOY"
+
+  try {
+    await getResend().emails.send({
+      from: FROM,
+      to: NOTIFY_TO,
+      subject: `${subjectPrefix} — ${buyerName} (${city || "Bogotá"})`,
+      html,
+    })
+  } catch (error) {
+    console.error("SAME DAY ALERT EMAIL ERROR:", error)
+  }
+}

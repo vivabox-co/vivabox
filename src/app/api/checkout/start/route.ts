@@ -4,6 +4,7 @@ import { getSupabase } from "@/services/supabase"
 import { validatePromoCode } from "@/features/promotions/validatePromoCode"
 import { isTestPriceCode, getTestTotal, TEST_PROMO_MARKER } from "@/features/promotions/testPriceCode"
 import { deliveryPriceFor } from "@/features/checkout/delivery"
+import { SAME_DAY_PRICE_COP, SAME_DAY_SPEED, isSameDayAvailable } from "@/features/checkout/sameDay"
 import { checkRateLimit, getClientIp } from "@/utils/rateLimit"
 
 const RATE_LIMIT_MAX_ATTEMPTS = 5
@@ -53,6 +54,14 @@ export async function POST(req: Request) {
       if (destination === "self" && !buyer.phone) {
         return NextResponse.json({ ok: false, error: "MISSING_BUYER_PHONE" })
       }
+    }
+
+    // Envío el mismo día : revalidado ici (ville + heure de Bogotá), jamais
+    // cru sur parole — l'UI peut avoir été ouverte avant l'heure limite.
+    const sameDay = delivery.speed === SAME_DAY_SPEED
+
+    if (sameDay && (delivery.type !== "physical" || !isSameDayAvailable(address?.city))) {
+      return NextResponse.json({ ok: false, error: "SAME_DAY_UNAVAILABLE" })
     }
 
     const box = boxes.find((b) => b.slug === boxSlug)
@@ -112,6 +121,9 @@ export async function POST(req: Request) {
       }
     }
 
+    // Le supplément « mismo día » s'ajoute après les promos : un code ne le réduit pas.
+    if (sameDay) deliveryPrice += SAME_DAY_PRICE_COP
+
     const total = chargedSubtotal + deliveryPrice
 
     const isPhysical = delivery.type === "physical"
@@ -128,7 +140,7 @@ export async function POST(req: Request) {
         buyer_phone: buyer.phone || "",
 
         delivery_type: delivery.type,
-        delivery_speed: delivery.speed || null,
+        delivery_speed: sameDay ? SAME_DAY_SPEED : null,
 
         recipient_name: isPhysical ? (isRecipient ? recipient.name : buyer.name) : "",
         recipient_contact: isPhysical ? (isRecipient ? recipient.phone : buyer.phone) : "",

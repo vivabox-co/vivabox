@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { boxes } from "@/data/boxes"
 import { escapeHtml, getResend } from "@/services/email"
 import { whatsappLink } from "@/utils/whatsappLink"
+import { SAME_DAY_SPEED, SAME_DAY_PROMISE, sameDayOutcome } from "@/features/checkout/sameDay"
 
 // Emails transactionnels envoyés à l'ACHETEUR (ceux de services/email.ts vont
 // à l'équipe). Deux moments du parcours :
@@ -41,6 +42,8 @@ type Venta = {
   recipient_name: string | null
   delivery_ciudad: string | null
   shipped_at: string | null
+  delivery_speed: string | null
+  paid_at: string | null
 }
 
 type Content = {
@@ -72,6 +75,18 @@ function buildContent(kind: BuyerEmailKind, venta: Venta): Content {
   const isGift = !!recipient && recipient !== venta.buyer_name.trim()
 
   if (kind === "paid") {
+    const sameDay = venta.delivery_speed === SAME_DAY_SPEED && venta.paid_at
+    const outcome = sameDay ? sameDayOutcome(new Date(venta.paid_at!)) : null
+
+    // Solo prometemos "hoy" si el pago entró a tiempo; si no, el equipo decide
+    // y escribe al cliente.
+    const sameDayParagraph =
+      outcome === "missed"
+        ? "Tu pago llegó después de la hora límite del envío el mismo día. Te escribimos enseguida para confirmarte la entrega."
+        : outcome
+          ? `Elegiste envío el mismo día: ${SAME_DAY_PROMISE.charAt(0).toLowerCase()}${SAME_DAY_PROMISE.slice(1)}`
+          : null
+
     return {
       subject: "Pago confirmado — gracias por regalar una Vivabox",
       title: "¡Pago confirmado!",
@@ -80,6 +95,7 @@ function buildContent(kind: BuyerEmailKind, venta: Venta): Content {
         isPhysical
           ? `Ahora preparamos tu Vivabox con cuidado y te escribimos por aquí cuando salga${city ? ` hacia ${city}` : ""}. Nosotros coordinamos todo.`
           : "Tu Vivabox digital quedó registrada. Nosotros coordinamos todo.",
+        ...(sameDayParagraph ? [sameDayParagraph] : []),
       ],
       rows: summaryRows(venta),
     }
@@ -162,7 +178,7 @@ export async function sendBuyerEmail(
   try {
     const { data: venta, error } = await supabase
       .from("ventas")
-      .select("id, status, box_slug, quantity, buyer_name, buyer_email, total, delivery_type, recipient_name, delivery_ciudad, shipped_at")
+      .select("id, status, box_slug, quantity, buyer_name, buyer_email, total, delivery_type, recipient_name, delivery_ciudad, shipped_at, delivery_speed, paid_at")
       .eq("id", ventaId)
       .maybeSingle<Venta>()
 

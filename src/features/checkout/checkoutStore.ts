@@ -41,6 +41,9 @@ type CheckoutState = {
   promoCode: string
   promoApplied: boolean
 
+  // Envío el mismo día (Bogotá) — ver sameDay.ts
+  sameDay: boolean
+
   // BACKEND DATA (SOURCE OF TRUTH)
   pricing: Pricing | null
   pricingUpdatedAt: number | null
@@ -73,6 +76,7 @@ type CheckoutState = {
   setAddressInfo: (data: { address: string; city: string; addressExtra: string }) => void
 
   setPromo: (code: string, applied: boolean) => void
+  setSameDay: (value: boolean) => void
 
   setMultiBeneficiary: (value: boolean) => void
 
@@ -112,6 +116,7 @@ export const useCheckoutStore = create<CheckoutState>()(
       promoCode: "",
       promoApplied: false,
 
+      sameDay: false,
 
       pricing: null,
       pricingUpdatedAt: null,
@@ -167,6 +172,13 @@ export const useCheckoutStore = create<CheckoutState>()(
         set({
           promoCode: code,
           promoApplied: applied,
+        }),
+
+      setSameDay: (value) =>
+        set({
+          sameDay: value,
+          pricing: null,
+          pricingUpdatedAt: null,
         }),
 
       setMultiBeneficiary: (value) =>
@@ -242,6 +254,8 @@ export const useCheckoutStore = create<CheckoutState>()(
 
           promoCode: "",
           promoApplied: false,
+
+          sameDay: false,
 
           pricing: null,
           pricingUpdatedAt: null,
