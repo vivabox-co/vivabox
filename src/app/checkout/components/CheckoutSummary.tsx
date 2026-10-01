@@ -7,9 +7,13 @@ import BrandDots from "@/components/ui/BrandDots"
 
 type Props = {
   estimatedPricing: EstimatedPricing
+  // Fila de producto + zona inferior (código, CTA) : el resumen los integra
+  // y omite entonces las líneas « Vivabox » y « Cantidad », redundantes.
+  top?: React.ReactNode
+  bottom?: React.ReactNode
 }
 
-export default function CheckoutSummary({ estimatedPricing }: Props) {
+export default function CheckoutSummary({ estimatedPricing, top, bottom }: Props) {
 
   const box = useCheckoutStore(s => s.box)
   const quantity = useCheckoutStore(s => s.quantity)
@@ -36,17 +40,23 @@ export default function CheckoutSummary({ estimatedPricing }: Props) {
         <h3 className="text-sm font-medium text-[#6B6B6B]">Resumen de compra</h3>
       </div>
 
+      {top}
+
       <div className="space-y-1.5 text-sm text-[#6B6B6B]/90">
 
-        <div className="flex justify-between">
-          <span>Vivabox</span>
-          <span>${formatPrice(box.price)}</span>
-        </div>
+        {!top && (
+          <>
+            <div className="flex justify-between">
+              <span>Vivabox</span>
+              <span>${formatPrice(box.price)}</span>
+            </div>
 
-        <div className="flex justify-between">
-          <span>Cantidad</span>
-          <span>{quantity}</span>
-        </div>
+            <div className="flex justify-between">
+              <span>Cantidad</span>
+              <span>{quantity}</span>
+            </div>
+          </>
+        )}
 
         <div className="flex justify-between">
           <span>Envío</span>
@@ -70,6 +80,8 @@ export default function CheckoutSummary({ estimatedPricing }: Props) {
         <span className="text-sm font-medium text-ink">Total</span>
         <span className="text-2xl font-semibold text-ink tracking-tight">${formatPrice(displayTotal)}</span>
       </div>
+
+      {bottom}
 
     </div>
   )

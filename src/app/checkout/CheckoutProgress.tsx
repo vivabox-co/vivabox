@@ -28,7 +28,7 @@ export default function CheckoutProgress({ current, completed = false, hrefs }: 
 
   return (
     <div className="checkout-container pt-4">
-      <div className="vb-steps max-w-[1100px] mx-auto" role="list" aria-label="Progreso de la compra">
+      <div className="vb-steps max-w-[1050px] mx-auto" role="list" aria-label="Progreso de la compra">
 
         {steps.map((step, index) => {
 
