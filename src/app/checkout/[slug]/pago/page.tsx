@@ -3,14 +3,14 @@
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Script from "next/script"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { formatPrice } from "@/utils/formatPrice"
 import { whatsappLink } from "@/utils/whatsappLink"
 import CheckoutProgress from "../../CheckoutProgress"
 import VivaboxLoader from "@/components/ui/VivaboxLoader"
 import { useMinDisplayTime } from "@/components/ui/useMinDisplayTime"
-import { Lock, AlertCircle, MessageCircle } from "lucide-react"
+import { Lock, AlertCircle, MessageCircle, QrCode, CreditCard } from "lucide-react"
 
 // Modo "integrado": en vez del widget flotante, la página de pago alojada de
 // Wompi (checkout.wompi.co/p/) se muestra en una iframe dentro del marco del
@@ -40,9 +40,6 @@ export default function PagoPage() {
   const [dismissed, setDismissed] = useState(false)
   const [embedUrl, setEmbedUrl] = useState<string | null>(null)
   const [embedLoaded, setEmbedLoaded] = useState(false)
-
-  // El widget se abre solo una vez al llegar; después solo el cliente lo reabre.
-  const autoOpened = useRef(false)
 
   // ======================
   // GUARDS
@@ -166,16 +163,8 @@ export default function PagoPage() {
     }
   }
 
-  // Abre Wompi automáticamente en cuanto todo está listo (store hidratado,
-  // precio del backend y script del widget cargado).
+  // El cliente elige cómo pagar (QR primero); ambos botones abren Wompi.
   const ready = hasHydrated && !!box && !!ventaId && !!pricing && (EMBED || widgetReady)
-
-  useEffect(() => {
-    if (!ready || autoOpened.current) return
-    autoOpened.current = true
-    handlePayment()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready])
 
   // Guarantees the loader stays mounted at least one full fill lap (~950ms)
   // even if the store hydrates almost instantly — otherwise it gets swapped
@@ -270,8 +259,9 @@ export default function PagoPage() {
 
       {/* Mientras el widget Wompi se abre / está abierto, solo el loader de
           Vivabox: el widget ya muestra el monto, así que la tarjeta detrás
-          sería un doble. La tarjeta solo aparece si se cierra sin pagar. */}
-      {embedUrl ? null : !(dismissed && !loading) ? (
+          sería un doble. La tarjeta (elección de método) aparece al llegar
+          y de nuevo si se cierra sin pagar. */}
+      {embedUrl ? null : loading ? (
         <div className="min-h-screen vb-surface-base flex items-center justify-center">
           <VivaboxLoader size={72} />
         </div>
@@ -313,19 +303,36 @@ export default function PagoPage() {
             </div>
           )}
 
-          {!error && (
+          {!error && dismissed && (
             <p className="text-sm text-[#6B6B6B] text-center">
               Tu pago no se completó. Tu pedido sigue reservado.
             </p>
           )}
 
-          <button
-            onClick={handlePayment}
-            className="vb-btn-primary w-full h-12"
-          >
-            Reintentar el pago
-            <Lock size={18} strokeWidth={2} className="vb-cta-icon" />
-          </button>
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-ink text-center">¿Cómo quieres pagar?</p>
+
+            <button
+              onClick={handlePayment}
+              disabled={!ready}
+              className="vb-btn-primary w-full h-12 relative disabled:opacity-60"
+            >
+              <QrCode size={18} strokeWidth={2} />
+              Pagar por transferencia o QR
+              <span className="absolute -top-2.5 right-3 rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-primary shadow-sm">
+                Recomendado
+              </span>
+            </button>
+
+            <button
+              onClick={handlePayment}
+              disabled={!ready}
+              className="flex w-full items-center justify-center gap-1.5 text-sm text-[#6B6B6B] underline underline-offset-2 disabled:opacity-60"
+            >
+              <CreditCard size={14} strokeWidth={2} />
+              Pagar con tarjeta u otro medio
+            </button>
+          </div>
 
           <a
             href={whatsappLink(`Hola Vivabox, necesito ayuda con mi pago (pedido ${ventaId.slice(0, 6).toUpperCase()}).`)}
