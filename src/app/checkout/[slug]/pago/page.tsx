@@ -318,7 +318,7 @@ export default function PagoPage() {
               className="vb-btn-primary w-full h-12 relative disabled:opacity-60"
             >
               <QrCode size={18} strokeWidth={2} />
-              Pagar con QR o Nequi
+              Pagar por transferencia o QR
               <span className="absolute -top-2.5 right-3 rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-primary shadow-sm">
                 Recomendado
               </span>
