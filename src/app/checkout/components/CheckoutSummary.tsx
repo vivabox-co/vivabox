@@ -52,7 +52,7 @@ export default function CheckoutSummary({ estimatedPricing }: Props) {
           <span>Envío</span>
           <span>
             {delivery === 0
-              ? "Gratis"
+              ? "Incluido"
               : `+$${formatPrice(delivery)}`}
           </span>
         </div>

@@ -18,18 +18,18 @@ export type EstimatedPricing = {
 export function useDisplayPricing(estimatedPricing: EstimatedPricing) {
   const deliveryMethod = useCheckoutStore(s => s.deliveryMethod)
   const promoApplied = useCheckoutStore(s => s.promoApplied)
-  const firstPurchaseApplied = useCheckoutStore(s => s.firstPurchaseApplied)
   const pricing = useCheckoutStore(s => s.pricing)
 
   const finalPricing = pricing ?? estimatedPricing
   const isEstimated = !pricing
 
-  const hasBenefit = isEstimated
-    ? (promoApplied || firstPurchaseApplied) && deliveryMethod === "domicilio"
-    : (finalPricing.discount ?? 0) > 0
-
   const { subtotal, delivery, total } = finalPricing
-  const discount = isEstimated ? (hasBenefit ? delivery : 0) : (finalPricing.discount ?? 0)
+  // Avant `start`, un code offre l'envoi : le bénéfice vaut le prix d'envoi, donc
+  // 0 (et aucune ligne « Beneficio ») tant que l'envoi est inclus dans la box.
+  const discount = isEstimated
+    ? (promoApplied && deliveryMethod === "domicilio" ? delivery : 0)
+    : (finalPricing.discount ?? 0)
+  const hasBenefit = discount > 0
   const displayTotal = isEstimated ? total - discount : total
 
   return { subtotal, delivery, discount, displayTotal, hasBenefit }
