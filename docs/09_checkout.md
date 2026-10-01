@@ -174,7 +174,7 @@ The homepage already sold the product.
 
 Public price:
 
-$200.000 COP
+$199.000 COP — shipping included.
 
 The physical box is INCLUDED.
 
@@ -210,32 +210,21 @@ This avoids anxiety without creating friction.
 
 ## Delivery Method
 
-Question:
+Home delivery only (MVP). The shipping price comes from a single source of
+truth, `deliveryPriceFor(quantity)` in `src/features/checkout/delivery.ts`,
+imported by both the checkout UI and `POST /api/checkout/start`.
 
-¿Cómo quieres recibirla?
+Today `DELIVERY_PRICE_COP = 0`: shipping is **included** in the box price.
+The delivery line reads:
 
-Options:
+"Envío incluido · 1–2 días hábiles" (Bogotá) / "2–4 días hábiles" (elsewhere)
 
-• Envío a domicilio
+No struck-through price, no "Gratis". The estimated delay depends on the city;
+the price never does.
 
-Shows:
-
-- delivery cost
-- estimated delivery delay
-
-Example:
-
-Envío a domicilio
-
-$15.000
-
-2–4 días hábiles
-
-↓
-
-Small reassurance:
-
-"Puedes tener el envío incluido con un código o si es tu primera compra."
+If `DELIVERY_PRICE_COP` is raised above 0, shipping is charged per order and
+becomes free from `FREE_DELIVERY_FROM_QUANTITY` boxes (ready for campaigns).
+Do not hardcode a delivery amount anywhere else.
 
 ---
 
@@ -277,10 +266,6 @@ When valid:
 
 ✓ Código aplicado
 
-↓
-
-Envío incluido
-
 Promotional codes are used for:
 
 - influencers
@@ -288,65 +273,20 @@ Promotional codes are used for:
 - campaigns
 - attribution
 
+Their only built-in benefit used to be free shipping. While shipping is
+included, a code changes no amount (the discount equals the delivery price,
+i.e. 0); it is kept for attribution and for the test-price code.
+
 Only one promotion per purchase.
 
 ---
 
 # First Purchase Benefit
 
-Displayed immediately below promotional code.
-
-Question:
-
-¿Es tu primera compra?
-
-↓
-
-Button:
-
-OBTENER ENVÍO INCLUIDO
-
-Click opens a small bottom sheet.
-
-No page navigation.
-
----
-
-Bottom Sheet
-
-Fields:
-
-Email
-
-Checkbox
-
-Consent to receive Vivabox communications.
-
-No password.
-
-No account creation.
-
-No login.
-
----
-
-After validation
-
-The bottom sheet closes automatically.
-
-The checkout updates.
-
-Example:
-
-✓ Beneficio de primera compra aplicado
-
-↓
-
-Envío incluido
-
-The email is automatically reused later.
-
-The consent checkbox is never shown again.
+Removed. Shipping is already included, and the email is collected in Screen 1B
+anyway, so the "email for free shipping" offer added nothing.
+`WelcomeShippingModal` and `/api/checkout/welcome` remain in the codebase but
+are no longer called from the checkout.
 
 ---
 
@@ -395,9 +335,7 @@ Typically:
 
 - email
 
-If the email was already entered through the first purchase benefit,
-
-it is automatically prefilled.
+The email is asked once, here.
 
 Never request information twice.
 
@@ -417,15 +355,13 @@ Box included
 
 Delivery
 
-Promotion
-
 Final total
 
-Example:
+Example (1 box):
 
 Vivabox
 
-$200.000
+$199.000
 
 Caja física
 
@@ -433,15 +369,14 @@ Incluida
 
 Envío
 
-$15.000
-
-Beneficio
-
-−$15.000
+Incluido
 
 Total
 
-$200.000
+$199.000
+
+With 2 boxes the total is $398.000. The summary and the sticky bottom bar
+share one calculation (`useDisplayPricing`), so they always show the same total.
 
 CTA
 
@@ -721,15 +656,7 @@ The customer should not leave the checkout once engaged.
 
 # Promotional Rules
 
-Only one promotion per purchase.
-
-Promotional code
-
-OR
-
-First purchase benefit
-
-Never both.
+Only one promotion per purchase (a promotional code).
 
 ---
 
@@ -739,17 +666,11 @@ Vivabox never requests information twice.
 
 Examples:
 
-Email entered in the first purchase popup
+Email entered in Screen 1B
 
 ↓
 
-Automatically reused later.
-
-Consent already given
-
-↓
-
-Never requested again.
+Reused for the payment, the receipt and the buyer emails.
 
 ---
 
@@ -803,7 +724,7 @@ Validated
 
 ✓ Promotional codes
 
-✓ First purchase benefit
+✓ Shipping included in the price
 
 ✓ No account creation
 
@@ -834,7 +755,7 @@ Still to validate in future work:
 
 - Microcopy.
 
-- Delivery pricing.
+- Delivery pricing beyond "included" (Christmas multi-box campaign: see `delivery.ts`).
 
 - Tracking page after purchase.
 

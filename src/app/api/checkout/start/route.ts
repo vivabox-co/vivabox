@@ -3,6 +3,7 @@ import { boxes } from "@/data/boxes"
 import { getSupabase } from "@/services/supabase"
 import { validatePromoCode } from "@/features/promotions/validatePromoCode"
 import { isTestPriceCode, getTestTotal, TEST_PROMO_MARKER } from "@/features/promotions/testPriceCode"
+import { deliveryPriceFor } from "@/features/checkout/delivery"
 import { checkRateLimit, getClientIp } from "@/utils/rateLimit"
 
 const RATE_LIMIT_MAX_ATTEMPTS = 5
@@ -10,9 +11,8 @@ const RATE_LIMIT_WINDOW_MINUTES = 15
 const GLOBAL_RATE_LIMIT_MAX_ATTEMPTS = 100
 const GLOBAL_RATE_LIMIT_WINDOW_MINUTES = 10
 
-function computeDelivery(type: string, speed: string | null) {
-  if (type === "physical" && speed === "outside") return 15000
-  return 0
+function computeDelivery(type: string, quantity: number) {
+  return type === "physical" ? deliveryPriceFor(quantity) : 0
 }
 
 export async function POST(req: Request) {
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     }
 
     const subtotal = box.price * quantity
-    const originalDeliveryPrice = computeDelivery(delivery.type, delivery.speed || null)
+    const originalDeliveryPrice = computeDelivery(delivery.type, quantity)
     let deliveryPrice = originalDeliveryPrice
     let discount = 0
     let chargedSubtotal = subtotal

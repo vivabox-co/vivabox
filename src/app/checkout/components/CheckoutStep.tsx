@@ -7,9 +7,9 @@ import { useRouter } from "next/navigation"
 
 import { formatPrice } from "@/utils/formatPrice"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
+import { deliveryPriceFor } from "@/features/checkout/delivery"
 import { useDisplayPricing } from "@/features/checkout/useDisplayPricing"
 import CheckoutSummary from "@/app/checkout/components/CheckoutSummary"
-import WelcomeShippingModal from "@/app/checkout/components/WelcomeShippingModal"
 
 import { Truck, Home, Gift, ArrowRight, Lock, CheckCircle2, Loader2 } from "lucide-react"
 
@@ -24,11 +24,8 @@ type Props = {
   box: CheckoutBox
 }
 
-const DELIVERY_PRICE = 15000
-
 export default function CheckoutStep({ box }: Props) {
   const router = useRouter()
-  const [welcomeOpen, setWelcomeOpen] = useState(false)
   const [promoInput, setPromoInput] = useState("")
   const [promoChecking, setPromoChecking] = useState(false)
   const [promoError, setPromoError] = useState("")
@@ -65,12 +62,6 @@ export default function CheckoutStep({ box }: Props) {
   const promoApplied = useCheckoutStore(s => s.promoApplied)
   const setPromo = useCheckoutStore(s => s.setPromo)
 
-  const firstPurchaseEmail = useCheckoutStore(s => s.firstPurchaseEmail)
-  const firstPurchaseApplied = useCheckoutStore(s => s.firstPurchaseApplied)
-  const setFirstPurchase = useCheckoutStore(s => s.setFirstPurchase)
-  const codes = useCheckoutStore(s => s.codes)
-  const setCodes = useCheckoutStore(s => s.setCodes)
-
   const setVentaId = useCheckoutStore(s => s.setVentaId)
   const setPricing = useCheckoutStore(s => s.setPricing)
 
@@ -84,21 +75,13 @@ export default function CheckoutStep({ box }: Props) {
     setDeliveryMethod("domicilio")
   }, [box, setBox, setDeliveryMethod])
 
-  // Prefill buyer email from first-purchase benefit, only once
-  useEffect(() => {
-    if (firstPurchaseApplied && firstPurchaseEmail && !buyerEmail) {
-      setBuyer({ name: buyerName, email: firstPurchaseEmail, phone: "" })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firstPurchaseApplied, firstPurchaseEmail])
-
   // ======================
   // ESTIMATED PRICING
   // ======================
 
   function getEstimatedPricing() {
     const subtotal = box.price * quantity
-    const delivery = DELIVERY_PRICE
+    const delivery = deliveryPriceFor(quantity)
 
     return {
       subtotal,
@@ -154,18 +137,13 @@ export default function CheckoutStep({ box }: Props) {
     }
   }
 
-  function handleWelcomeSuccess(email: string, code: string) {
-    setFirstPurchase(email, true)
-    setCodes([code])
-  }
-
   // ======================
   // SUBMIT
   // ======================
 
   const needsAddress = true // MVP: domicilio única opción
 
-  const hasDiscount = promoApplied || firstPurchaseApplied
+  const deliveryIncluded = deliveryPriceFor(quantity) === 0
 
   const normalizedCity = city
     .trim()
@@ -194,10 +172,7 @@ export default function CheckoutStep({ box }: Props) {
 
   const canSubmit = missingFields.length === 0
 
-  // Une seule promo à la fois : le code tapé à la main a priorité, sinon le
-  // code du bénéfice première commande (les deux sont mutuellement
-  // exclusifs dans le store, voir setPromo/setFirstPurchase).
-  const activePromoCode = promoApplied ? promoCode : (firstPurchaseApplied ? codes[0] : null)
+  const activePromoCode = promoApplied ? promoCode : null
 
   async function handleGoToPayment() {
     if (loading) return
@@ -222,7 +197,7 @@ export default function CheckoutStep({ box }: Props) {
             email: buyerEmail.trim(),
             phone: buyerPhone.trim(),
           },
-          delivery: { type: "physical", speed: "outside" },
+          delivery: { type: "physical", speed: null },
           destination: deliveryDestination,
           recipient: {
             name: recipientName.trim(),
@@ -250,7 +225,6 @@ export default function CheckoutStep({ box }: Props) {
       // qu'une remise s'applique.
       if (activePromoCode && !data.promoApplied) {
         setPromo("", false)
-        setFirstPurchase("", false)
         alert("Tu código ya no es válido — continuamos sin el descuento.")
       }
 
@@ -320,72 +294,45 @@ export default function CheckoutStep({ box }: Props) {
           <div className="pt-4 vb-divider-top">
             {promoApplied ? (
               <div className="text-xs text-green-700">
-                ✓ Código aplicado — Envío incluido
+                ✓ Código aplicado
               </div>
-            ) : firstPurchaseApplied ? (
-              <div className="text-xs text-green-700">
-                ✓ Beneficio de primera compra aplicado — Envío incluido
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="vb-well p-4 space-y-2.5">
-                  <div className="flex items-center gap-2">
-                    <Gift size={16} strokeWidth={2} className="text-primary shrink-0" />
-                    <p className="text-sm font-semibold text-ink">
-                      Ahorra ${formatPrice(DELIVERY_PRICE)} en tu primera compra
-                    </p>
-                  </div>
-                  <p className="text-xs text-[#6B6B6B]">
-                    Envío gratis solo por ser nueva/o en Vivabox. Sin tarjeta ni contraseña, solo tu email.
-                  </p>
+            ) : promoOpen ? (
+              <div>
+                <p className="text-xs font-medium text-[#6B6B6B] mb-2">
+                  ¿Tienes un código? Escríbelo aquí.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Código"
+                    value={promoInput}
+                    onChange={(e) => {
+                      setPromoInput(e.target.value)
+                      if (promoError) setPromoError("")
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" && handleApplyPromo()}
+                    className="vb-input flex-1 text-sm"
+                    autoFocus
+                  />
                   <button
-                    onClick={() => setWelcomeOpen(true)}
-                    className="vb-btn-secondary w-full h-10 text-sm"
+                    onClick={handleApplyPromo}
+                    disabled={promoChecking || !promoInput.trim()}
+                    className="vb-btn-soft px-4 text-sm"
                   >
-                    Obtener envío incluido
-                    <Truck size={16} strokeWidth={2} className="vb-cta-icon" />
+                    {promoChecking ? "..." : "Aplicar"}
                   </button>
                 </div>
-
-                {promoOpen ? (
-                  <div>
-                    <p className="text-xs font-medium text-[#6B6B6B] mb-2">
-                      ¿Tienes un código? Obtén el envío gratis (−${formatPrice(DELIVERY_PRICE)}).
-                    </p>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="Código"
-                        value={promoInput}
-                        onChange={(e) => {
-                          setPromoInput(e.target.value)
-                          if (promoError) setPromoError("")
-                        }}
-                        onKeyDown={(e) => e.key === "Enter" && handleApplyPromo()}
-                        className="vb-input flex-1 text-sm"
-                        autoFocus
-                      />
-                      <button
-                        onClick={handleApplyPromo}
-                        disabled={promoChecking || !promoInput.trim()}
-                        className="vb-btn-soft px-4 text-sm"
-                      >
-                        {promoChecking ? "..." : "Aplicar"}
-                      </button>
-                    </div>
-                    {promoError && (
-                      <p className="text-xs text-accent-red mt-1.5">{promoError}</p>
-                    )}
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setPromoOpen(true)}
-                    className="text-xs text-[#6B6B6B] underline block mx-auto"
-                  >
-                    ¿Tienes un código promocional?
-                  </button>
+                {promoError && (
+                  <p className="text-xs text-accent-red mt-1.5">{promoError}</p>
                 )}
               </div>
+            ) : (
+              <button
+                onClick={() => setPromoOpen(true)}
+                className="text-xs text-[#6B6B6B] underline block mx-auto"
+              >
+                ¿Tienes un código promocional?
+              </button>
             )}
           </div>
         </div>
@@ -405,14 +352,10 @@ export default function CheckoutStep({ box }: Props) {
                 <p className="font-semibold text-ink text-sm">¿Dónde la enviamos?</p>
                 <p className="flex items-center gap-1.5 text-xs text-[#6B6B6B] mt-1">
                   <Truck size={14} strokeWidth={1.75} className="text-primary shrink-0" />
-                  {hasDiscount ? (
-                    <>
-                      Envío a domicilio ·{" "}
-                      <span className="line-through opacity-60">${formatPrice(DELIVERY_PRICE)}</span>{" "}
-                      <span className="text-green-700 font-medium">Gratis</span> · {deliveryEstimate}
-                    </>
+                  {deliveryIncluded ? (
+                    <>Envío incluido · {deliveryEstimate}</>
                   ) : (
-                    <>Envío a domicilio · ${formatPrice(DELIVERY_PRICE)} · {deliveryEstimate}</>
+                    <>Envío a domicilio · ${formatPrice(deliveryPriceFor(quantity))} · {deliveryEstimate}</>
                   )}
                 </p>
               </div>
@@ -587,13 +530,6 @@ export default function CheckoutStep({ box }: Props) {
           </p>
         )}
       </div>
-
-      {welcomeOpen && (
-        <WelcomeShippingModal
-          onClose={() => setWelcomeOpen(false)}
-          onSuccess={handleWelcomeSuccess}
-        />
-      )}
 
     </section>
   )
