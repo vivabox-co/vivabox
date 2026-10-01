@@ -41,16 +41,12 @@ type CheckoutState = {
   promoCode: string
   promoApplied: boolean
 
-  firstPurchaseEmail: string
-  firstPurchaseApplied: boolean
-
   // BACKEND DATA (SOURCE OF TRUTH)
   pricing: Pricing | null
   pricingUpdatedAt: number | null
   isPricingLoading: boolean
 
   // SYSTEM
-  codes: string[]
   ventaId: string | null
 
   // HYDRATION
@@ -77,11 +73,9 @@ type CheckoutState = {
   setAddressInfo: (data: { address: string; city: string; addressExtra: string }) => void
 
   setPromo: (code: string, applied: boolean) => void
-  setFirstPurchase: (email: string, applied: boolean) => void
 
   setMultiBeneficiary: (value: boolean) => void
 
-  setCodes: (codes: string[]) => void
   setVentaId: (id: string | null) => void
 
   setPricing: (pricing: Pricing | null) => void
@@ -118,14 +112,11 @@ export const useCheckoutStore = create<CheckoutState>()(
       promoCode: "",
       promoApplied: false,
 
-      firstPurchaseEmail: "",
-      firstPurchaseApplied: false,
 
       pricing: null,
       pricingUpdatedAt: null,
       isPricingLoading: false,
 
-      codes: [],
       ventaId: null,
 
       hasHydrated: false,
@@ -176,14 +167,6 @@ export const useCheckoutStore = create<CheckoutState>()(
         set({
           promoCode: code,
           promoApplied: applied,
-          firstPurchaseApplied: applied ? false : get().firstPurchaseApplied,
-        }),
-
-      setFirstPurchase: (email, applied) =>
-        set({
-          firstPurchaseEmail: email,
-          firstPurchaseApplied: applied,
-          promoApplied: applied ? false : get().promoApplied,
         }),
 
       setMultiBeneficiary: (value) =>
@@ -191,8 +174,6 @@ export const useCheckoutStore = create<CheckoutState>()(
 
       setHasHydrated: (value) =>
         set({ hasHydrated: value }),
-
-      setCodes: (codes) => set({ codes }),
 
       setVentaId: (ventaId) => set({ ventaId }),
 
@@ -262,14 +243,10 @@ export const useCheckoutStore = create<CheckoutState>()(
           promoCode: "",
           promoApplied: false,
 
-          firstPurchaseEmail: "",
-          firstPurchaseApplied: false,
-
           pricing: null,
           pricingUpdatedAt: null,
           isPricingLoading: false,
 
-          codes: [],
           ventaId: null,
 
           hasHydrated: false,
