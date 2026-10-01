@@ -845,28 +845,22 @@ body {
 }
 
 .vb-steps {
-  display: flex;
-  gap: 6px;
-  padding: 6px;
-  border-radius: 18px;
-  background: var(--color-base);
-  box-shadow:
-    inset 2px 2px 6px var(--nm-dark),
-    inset -2px -2px 6px var(--nm-light);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .vb-step {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 8px;
-  border-radius: 13px;
+  padding: 4px 8px 12px;
+  border-bottom: 2px solid var(--nm-border);
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-muted);
-  transition: box-shadow 0.2s ease, color 0.2s ease, background 0.2s ease;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .vb-step .vb-step-dot {
@@ -883,11 +877,8 @@ body {
 }
 
 .vb-step.is-active {
-  background: var(--color-card);
+  border-bottom-color: var(--color-primary);
   color: var(--color-primary);
-  box-shadow:
-    3px 3px 8px var(--nm-dark),
-    -3px -3px 8px var(--nm-light);
 }
 
 .vb-step.is-active .vb-step-dot {
@@ -895,13 +886,14 @@ body {
   color: #fff;
 }
 
+.vb-step.is-done {
+  border-bottom-color: var(--color-accent-green);
+  color: var(--color-ink);
+}
+
 .vb-step.is-done .vb-step-dot {
   background: var(--color-accent-green);
   color: #fff;
-}
-
-.vb-step.is-done {
-  color: var(--color-ink);
 }
 
 .vb-step.is-link {
@@ -909,10 +901,7 @@ body {
 }
 
 .vb-step.is-link:hover {
-  background: var(--color-card);
-  box-shadow:
-    2px 2px 6px var(--nm-dark),
-    -2px -2px 6px var(--nm-light);
+  color: var(--color-primary);
 }
 
 .vb-sticky-bar {

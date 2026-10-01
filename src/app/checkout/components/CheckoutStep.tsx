@@ -273,110 +273,108 @@ export default function CheckoutStep({ box }: Props) {
   // UI
   // ======================
 
-  return (
-    <section className="pt-2 pb-28">
-      <div className="checkout-container">
+  const productRow = (
+    <div className="flex items-center gap-3">
+      {box.image && (
+        <span className="vb-thumb shrink-0">
+          <Image
+            src={box.image}
+            alt={box.name}
+            width={48}
+            height={48}
+            className="rounded-xl object-contain"
+          />
+        </span>
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="font-semibold text-ink text-sm">Vivabox × {quantity}</p>
+          <span className="font-medium text-ink/80 text-sm shrink-0">${formatPrice(box.price * quantity)}</span>
+        </div>
+        <div className="flex items-center justify-between gap-3 mt-0.5">
+          <p className="text-xs text-[#6B6B6B]">Caja física incluida</p>
+          <Link href={`/cajas/${box.slug}`} className="text-xs text-[#6B6B6B] underline shrink-0">
+            Modificar
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
 
-        <Link href={`/cajas/${box.slug}`} className="text-sm text-[#6B6B6B] mb-3 inline-block">
+  const promoBlock = promoApplied ? (
+    <div className="text-xs text-green-700">✓ Código aplicado</div>
+  ) : promoOpen ? (
+    <div>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          placeholder="Código"
+          value={promoInput}
+          onChange={(e) => {
+            setPromoInput(e.target.value)
+            if (promoError) setPromoError("")
+          }}
+          onKeyDown={(e) => e.key === "Enter" && handleApplyPromo()}
+          className="vb-input flex-1 text-sm"
+          autoFocus
+        />
+        <button
+          onClick={handleApplyPromo}
+          disabled={promoChecking || !promoInput.trim()}
+          className="vb-btn-soft px-4 text-sm"
+        >
+          {promoChecking ? "..." : "Aplicar"}
+        </button>
+      </div>
+      {promoError && <p className="text-xs text-accent-red mt-1.5">{promoError}</p>}
+    </div>
+  ) : (
+    <button
+      onClick={() => setPromoOpen(true)}
+      className="text-xs text-[#6B6B6B] underline block"
+    >
+      ¿Tienes un código promocional?
+    </button>
+  )
+
+  const missingMessage = submitAttempted && missingFields.length > 0 && (
+    <p className="text-[11px] text-accent-red text-center mt-1.5">
+      Falta completar: {missingFields.join(", ")}.
+    </p>
+  )
+
+  const payLabel = loading ? (
+    <>
+      Procesando...
+      <Loader2 size={18} strokeWidth={2} className="animate-spin" />
+    </>
+  ) : (
+    <>
+      Ir a pagar
+      <ArrowRight size={18} strokeWidth={2} className="vb-cta-icon" />
+    </>
+  )
+
+  return (
+    <section className="pt-2 pb-28 lg:pb-12">
+      <div className="checkout-container">
+        <div className="max-w-[1050px] mx-auto">
+
+        <Link href={`/cajas/${box.slug}`} className="text-sm text-[#6B6B6B] mb-4 inline-block">
           ← Volver
         </Link>
 
-        {/* PRODUCT + PROMOTIONS — same frame */}
-        <div
-          className="vb-card p-4 mb-5 space-y-4 animate-step"
-          style={{ animationDelay: "0ms" }}
-        >
-          <div className="flex items-center gap-4">
-
-            {box.image && (
-              <span className="vb-thumb shrink-0">
-                <Image
-                  src={box.image}
-                  alt={box.name}
-                  width={56}
-                  height={56}
-                  className="rounded-xl object-contain"
-                />
-              </span>
-            )}
-
-            <div className="min-w-0 flex-1">
-              <div className="flex items-baseline justify-between gap-3">
-                <h1 className="font-semibold text-ink truncate">Vivabox</h1>
-                <span className="font-medium text-ink/80 shrink-0">${formatPrice(box.price)}</span>
-              </div>
-
-              <div className="flex items-center justify-between gap-3 mt-0.5">
-                <p className="text-xs text-[#6B6B6B]">Caja física incluida</p>
-
-                <p className="text-xs text-[#6B6B6B] shrink-0">
-                  {quantity} Vivabox ·{" "}
-                  <Link href={`/cajas/${box.slug}`} className="underline">
-                    Modificar
-                  </Link>
-                </p>
-              </div>
-            </div>
-
-          </div>
-
-          <div className="pt-4 vb-divider-top">
-            {promoApplied ? (
-              <div className="text-xs text-green-700">
-                ✓ Código aplicado
-              </div>
-            ) : promoOpen ? (
-              <div>
-                <p className="text-xs font-medium text-[#6B6B6B] mb-2">
-                  ¿Tienes un código? Escríbelo aquí.
-                </p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Código"
-                    value={promoInput}
-                    onChange={(e) => {
-                      setPromoInput(e.target.value)
-                      if (promoError) setPromoError("")
-                    }}
-                    onKeyDown={(e) => e.key === "Enter" && handleApplyPromo()}
-                    className="vb-input flex-1 text-sm"
-                    autoFocus
-                  />
-                  <button
-                    onClick={handleApplyPromo}
-                    disabled={promoChecking || !promoInput.trim()}
-                    className="vb-btn-soft px-4 text-sm"
-                  >
-                    {promoChecking ? "..." : "Aplicar"}
-                  </button>
-                </div>
-                {promoError && (
-                  <p className="text-xs text-accent-red mt-1.5">{promoError}</p>
-                )}
-              </div>
-            ) : (
-              <button
-                onClick={() => setPromoOpen(true)}
-                className="text-xs text-[#6B6B6B] underline block mx-auto"
-              >
-                ¿Tienes un código promocional?
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* GRID */}
-        <div className="grid lg:grid-cols-[1fr_360px] gap-6 max-w-[1050px] mx-auto">
+        {/* GRID — una sola cuadrícula: formulario | resumen */}
+        <div className="grid lg:grid-cols-[minmax(0,1fr)_360px] gap-6 items-start">
 
           {/* LEFT */}
-          <div className="space-y-4">
+          <div
+            className="vb-card p-5 sm:p-6 space-y-6 animate-step"
+            style={{ animationDelay: "60ms" }}
+          >
 
-            {/* DELIVERY + DESTINATION */}
-            <div
-              className="vb-card p-5 space-y-4 animate-step"
-              style={{ animationDelay: "60ms" }}
-            >
+            {/* ENTREGA */}
+            <div className="space-y-4">
               <div>
                 <p className="font-semibold text-ink text-sm">¿Dónde la enviamos?</p>
                 <p className="flex items-center gap-1.5 text-xs text-[#6B6B6B] mt-1">
@@ -412,56 +410,56 @@ export default function CheckoutStep({ box }: Props) {
                 </label>
               )}
 
-              <div className="pt-4 vb-divider-top space-y-3">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="vb-choice">
-                    <input
-                      type="radio"
-                      checked={deliveryDestination === "self"}
-                      onChange={() => setDestination("self")}
-                    />
-                    <span className="vb-choice-icon"><Home size={16} strokeWidth={1.75} /></span>
-                    <span className="text-sm">En mi dirección</span>
-                  </label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="vb-choice">
+                  <input
+                    type="radio"
+                    checked={deliveryDestination === "self"}
+                    onChange={() => setDestination("self")}
+                  />
+                  <span className="vb-choice-icon"><Home size={16} strokeWidth={1.75} /></span>
+                  <span className="text-sm">En mi dirección</span>
+                </label>
 
-                  <label className="vb-choice">
-                    <input
-                      type="radio"
-                      checked={deliveryDestination === "recipient"}
-                      onChange={() => setDestination("recipient")}
-                    />
-                    <span className="vb-choice-icon"><Gift size={16} strokeWidth={1.75} /></span>
-                    <span className="text-sm">Directamente a quien la recibe</span>
-                  </label>
-                </div>
+                <label className="vb-choice">
+                  <input
+                    type="radio"
+                    checked={deliveryDestination === "recipient"}
+                    onChange={() => setDestination("recipient")}
+                  />
+                  <span className="vb-choice-icon"><Gift size={16} strokeWidth={1.75} /></span>
+                  <span className="text-sm">A quien la recibe</span>
+                </label>
+              </div>
 
-                {/* ANIMATED EXPAND — CSS grid-rows accordion, no JS height calc needed */}
-                <div
-                  className={`grid transition-[grid-template-rows] duration-300 ease-out ${
-                    deliveryDestination ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-                  }`}
-                >
-                  <div className="overflow-hidden">
-                    <div className="pt-4 vb-divider-top space-y-3">
-                      {deliveryDestination === "recipient" && (
-                        <>
-                          <input
-                            type="text"
-                            placeholder="Nombre"
-                            value={recipientName}
-                            onChange={(e) => setRecipientInfo({ name: e.target.value, phone: recipientPhone })}
-                            className="vb-input"
-                          />
-                          <input
-                            type="text"
-                            placeholder="WhatsApp"
-                            value={recipientPhone}
-                            onChange={(e) => setRecipientInfo({ name: recipientName, phone: e.target.value })}
-                            className="vb-input"
-                          />
-                        </>
-                      )}
+              {/* ANIMATED EXPAND — CSS grid-rows accordion, no JS height calc needed */}
+              <div
+                className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                  deliveryDestination ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <div className="space-y-3">
+                    {deliveryDestination === "recipient" && (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <input
+                          type="text"
+                          placeholder="Nombre de quien la recibe"
+                          value={recipientName}
+                          onChange={(e) => setRecipientInfo({ name: e.target.value, phone: recipientPhone })}
+                          className="vb-input"
+                        />
+                        <input
+                          type="text"
+                          placeholder="WhatsApp de quien la recibe"
+                          value={recipientPhone}
+                          onChange={(e) => setRecipientInfo({ name: recipientName, phone: e.target.value })}
+                          className="vb-input"
+                        />
+                      </div>
+                    )}
 
+                    <div className="grid gap-3 sm:grid-cols-2">
                       <input
                         type="text"
                         placeholder="Dirección"
@@ -476,22 +474,24 @@ export default function CheckoutStep({ box }: Props) {
                         onChange={(e) => setAddressInfo({ address, city: e.target.value, addressExtra })}
                         className="vb-input"
                       />
-                      <input
-                        type="text"
-                        placeholder="Detalles adicionales (opcional)"
-                        value={addressExtra}
-                        onChange={(e) => setAddressInfo({ address, city, addressExtra: e.target.value })}
-                        className="vb-input"
-                      />
                     </div>
+                    <input
+                      type="text"
+                      placeholder="Detalles adicionales (opcional)"
+                      value={addressExtra}
+                      onChange={(e) => setAddressInfo({ address, city, addressExtra: e.target.value })}
+                      className="vb-input"
+                    />
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* BUYER — merged into the same card */}
-              <div className="pt-4 vb-divider-top space-y-3">
-                <p className="font-semibold text-ink text-sm">Tus datos de contacto</p>
+            {/* TUS DATOS */}
+            <div className="pt-6 vb-divider-top space-y-3">
+              <p className="font-semibold text-ink text-sm">Tus datos de contacto</p>
 
+              <div className="grid gap-3 sm:grid-cols-2">
                 <input
                   type="text"
                   placeholder="Nombre completo"
@@ -499,15 +499,6 @@ export default function CheckoutStep({ box }: Props) {
                   onChange={(e) => setBuyer({ name: e.target.value, email: buyerEmail, phone: buyerPhone })}
                   className="vb-input"
                 />
-
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={buyerEmail}
-                  onChange={(e) => setBuyer({ name: buyerName, email: e.target.value, phone: buyerPhone })}
-                  className="vb-input"
-                />
-
                 <input
                   type="text"
                   placeholder="WhatsApp"
@@ -516,18 +507,42 @@ export default function CheckoutStep({ box }: Props) {
                   className="vb-input"
                 />
               </div>
+
+              <input
+                type="email"
+                placeholder="Email"
+                value={buyerEmail}
+                onChange={(e) => setBuyer({ name: buyerName, email: e.target.value, phone: buyerPhone })}
+                className="vb-input"
+              />
             </div>
 
           </div>
 
-          {/* RIGHT */}
+          {/* RIGHT — resumen con producto, código y CTA */}
           <div
-            className="animate-step"
+            className="animate-step lg:sticky lg:top-24 space-y-3"
             style={{ animationDelay: "240ms" }}
           >
-            <div className="sticky top-24 space-y-3">
-
-            <CheckoutSummary estimatedPricing={estimatedPricing} />
+            <CheckoutSummary
+              estimatedPricing={estimatedPricing}
+              top={productRow}
+              bottom={
+                <div className="space-y-3">
+                  <div className="pt-3 vb-divider-top">{promoBlock}</div>
+                  <div className="hidden lg:block">
+                    <button
+                      onClick={handleGoToPayment}
+                      disabled={loading}
+                      className="vb-btn-primary h-12 w-full disabled:opacity-60"
+                    >
+                      {payLabel}
+                    </button>
+                    {missingMessage}
+                  </div>
+                </div>
+              }
+            />
 
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs font-medium text-ink/75">
               <span className="inline-flex items-center gap-1.5">
@@ -543,17 +558,15 @@ export default function CheckoutStep({ box }: Props) {
                 Tu mensaje, después
               </span>
             </div>
-
-            </div>
           </div>
 
         </div>
-
+        </div>
       </div>
 
-      {/* STICKY CTA — total + pay button always reachable without scrolling, on every breakpoint */}
-      <div className="fixed bottom-0 inset-x-0 z-40 vb-sticky-bar px-4 pt-3" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
-        <div className="flex items-center gap-3 max-w-[1050px] mx-auto">
+      {/* STICKY CTA — solo móvil ; en escritorio el botón vive en el resumen */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 vb-sticky-bar px-4 pt-3" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
+        <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-[11px] text-[#6B6B6B] leading-tight">Total</p>
             <p className="font-semibold text-ink leading-tight truncate">${formatPrice(displayTotal)}</p>
@@ -563,28 +576,12 @@ export default function CheckoutStep({ box }: Props) {
             disabled={loading}
             className="vb-btn-primary h-12 px-8 shrink-0 disabled:opacity-60"
           >
-            {loading ? (
-              <>
-                Procesando...
-                <Loader2 size={18} strokeWidth={2} className="animate-spin" />
-              </>
-            ) : (
-              <>
-                Ir a pagar
-                <ArrowRight size={18} strokeWidth={2} className="vb-cta-icon" />
-              </>
-            )}
+            {payLabel}
           </button>
         </div>
-        {submitAttempted && missingFields.length > 0 && (
-          <p className="text-[11px] text-accent-red text-center mt-1.5 max-w-[1050px] mx-auto">
-            Falta completar: {missingFields.join(", ")}.
-          </p>
-        )}
+        {missingMessage}
       </div>
 
     </section>
   )
 }
-
-
