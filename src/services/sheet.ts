@@ -1,5 +1,7 @@
 import Papa from "papaparse"
 import { unstable_cache } from "next/cache"
+import { fetchCatalogRows } from "./catalog"
+import { getSupabase } from "./supabase"
 
 const SHEET_URL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vS0wvZlSud-v8_n6IWeI6_qfWgmuViBjkp1-yHP-RJ90VlxhistJE2MuV0k_jc88cUeyOngtBI3ZdWM/pub?gid=1700161859&single=true&output=csv"
@@ -40,7 +42,28 @@ function translateRow(row: Record<string, string>) {
   return translated
 }
 
+// Source principale: tables Supabase (experiences + providers), voir catalog.ts.
+// Le CSV publié reste un repli tant qu'il n'est pas coupé: si Supabase est
+// injoignable (ou renvoie 0 ligne), on retombe dessus au lieu d'afficher un
+// catalogue vide.
+async function fetchFromSupabase() {
+  const rows = await fetchCatalogRows(getSupabase(), "public")
+  return rows
+    .map(translateRow)
+    .filter((row) =>
+      row.codigo_interno && PUBLISHED_STATES.has((row.estado || "").trim().toLowerCase())
+    )
+}
+
 async function fetchSheetData() {
+
+  try {
+    const rows = await fetchFromSupabase()
+    if (rows.length > 0) return rows
+    console.warn("[catalog] Supabase a renvoyé 0 expérience, repli sur le CSV publié")
+  } catch (error) {
+    console.warn("[catalog] Supabase indisponible, repli sur le CSV publié :", error)
+  }
 
   const res = await fetch(SHEET_URL)
 
