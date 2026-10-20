@@ -48,7 +48,7 @@ export const boxes: Vivabox[] = [
     signatureColor: "#ff8406",
 
     price: 199000,
-    experiences: 20,
+    experiences: 60,
 
     validityMonths: 6,
 
@@ -77,7 +77,7 @@ export const boxes: Vivabox[] = [
     ],
 
     description:
-      "Un regalo que deja elegir entre más de 50 experiencias en Bogotá y Cundinamarca.",
+      "Un regalo que deja elegir entre más de 60 experiencias en Bogotá y Cundinamarca.",
 
     image: "/images/box-includes/vivabox-caja-frente.webp",
   },

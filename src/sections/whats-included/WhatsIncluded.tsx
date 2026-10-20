@@ -314,7 +314,7 @@ export default function WhatsIncluded() {
 
         <p className="mt-5 md:mt-6 text-muted text-[14px] sm:text-[15px] md:text-[16px] text-center">
           <span className="block whitespace-nowrap">
-            Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 50 experiencias
+            Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 60 experiencias
           </span>
           <span className="block whitespace-nowrap">en Bogotá y Cundinamarca.</span>
         </p>
@@ -407,7 +407,7 @@ export default function WhatsIncluded() {
               </div>
 
               <p className="mt-3 text-muted text-[14px] text-center">
-                Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 50 experiencias en Bogotá y Cundinamarca.
+                Se elige <span className="underline decoration-2 underline-offset-2 font-semibold text-primary">1</span> entre más de 60 experiencias en Bogotá y Cundinamarca.
               </p>
 
               {/* The purchase action, right after the choice is understood */}
