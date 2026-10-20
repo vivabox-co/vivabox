@@ -3,6 +3,7 @@ import { generateActivationCode } from "@/features/activation/generateActivation
 import { normalizeCode } from "@/utils/normalizeCode"
 import { sendBuyerEmail } from "@/services/buyerEmail"
 import { sendSameDayAlertEmail } from "@/services/email"
+import { completeVenta } from "@/features/checkout/completeVenta"
 import { SAME_DAY_PRICE_COP, SAME_DAY_SPEED, sameDayOutcome } from "@/features/checkout/sameDay"
 
 const ACTIVATION_VALIDITY_DAYS = 180 // 6 meses desde la compra (docs/01_product.md)
@@ -113,6 +114,9 @@ export async function finalizeVentaPayment(
   await sendBuyerEmail(supabase, ventaId, "paid")
 
   if (venta.delivery_type !== "digital") {
+    // Plus d'étape "Continuar" à attendre du client : la venta passe tout de
+    // suite en 'completed', ce qui prévient l'équipe (Por preparar + push).
+    await completeVenta(supabase, ventaId)
     return { ok: true, activationCode: null }
   }
 
@@ -133,6 +137,7 @@ export async function finalizeVentaPayment(
       })
 
     if (!codeError) {
+      await completeVenta(supabase, ventaId)
       return { ok: true, activationCode: code }
     }
 
