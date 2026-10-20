@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Package, CheckCircle2, Truck, Mail, Sparkles, Loader2, ArrowRight, PenLine } from "lucide-react"
+import { Package, CheckCircle2, Truck, Mail, Sparkles, Loader2, ArrowRight, MessageCircle } from "lucide-react"
 import CheckoutProgress from "../CheckoutProgress"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { formatPrice } from "@/utils/formatPrice"
@@ -45,10 +45,6 @@ function SuccessPageContent() {
 
   const [step, setStep] = useState<"message" | "done">("message")
 
-  const [para, setPara] = useState("")
-  const [de, setDe] = useState("")
-  const [mensaje, setMensaje] = useState("")
-
   // Snapshot for the confirmation recap — taken right before the store is
   // reset, so the nav cart badge clears once the order is actually placed.
   const [orderSummary, setOrderSummary] = useState<{
@@ -60,24 +56,10 @@ function SuccessPageContent() {
 
   const reset = useCheckoutStore(s => s.reset)
 
-  // El store se hidrata de forma asíncrona (persist) — prellenar "De" una
-  // vez que el nombre del comprador esté disponible.
-  useEffect(() => {
-    if (hasHydrated && buyerName && !de) setDe(buyerName)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasHydrated, buyerName])
-
-  // Cuando el envío es directo al destinatario, ya recogimos su nombre en
-  // "Elegir" — prellenar "Para" con ese dato en vez de dejarlo vacío.
-  useEffect(() => {
-    if (hasHydrated && isGift && recipientName && !para) setPara(recipientName)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasHydrated, isGift, recipientName])
-
   const [loading, setLoading] = useState(false)
   const isSubmittingRef = useRef(false)
 
-  async function handleComplete(withMessage: boolean) {
+  async function handleComplete() {
     if (isSubmittingRef.current || !ventaId) return
 
     isSubmittingRef.current = true
@@ -87,10 +69,7 @@ function SuccessPageContent() {
       const res = await fetch("/api/checkout/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ventaId,
-          message: withMessage ? { para, de, mensaje } : undefined,
-        }),
+        body: JSON.stringify({ ventaId }),
       })
 
       const data = await res.json()
@@ -147,50 +126,14 @@ function SuccessPageContent() {
               )}
             </div>
 
-            {/* PERSONAL MESSAGE — only makes sense when it's a gift */}
-            {isGift && (
-              <div className="vb-well p-5 space-y-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="shrink-0 w-9 h-9 rounded-full bg-white/70 flex items-center justify-center">
-                    <PenLine size={17} strokeWidth={2} className="text-primary" />
-                  </span>
-                  <p className="font-semibold text-ink">Ahora dale tu toque personal</p>
-                </div>
-                <p className="text-sm text-[#6B6B6B]">Lo verá cuando abra su Vivabox. Es opcional.</p>
-
-                <input
-                  placeholder="Para"
-                  value={para}
-                  onChange={(e) => setPara(e.target.value)}
-                  className="vb-input"
-                />
-
-                <input
-                  placeholder="De"
-                  value={de}
-                  onChange={(e) => setDe(e.target.value)}
-                  className="vb-input"
-                />
-
-                <textarea
-                  placeholder="Escribe tu mensaje"
-                  value={mensaje}
-                  onChange={(e) => setMensaje(e.target.value)}
-                  maxLength={200}
-                  rows={3}
-                  className="vb-input"
-                />
-              </div>
-            )}
-
-            {/* STICKY CTA — "Guardar mensaje" siempre alcanzable, pegado abajo */}
+            {/* STICKY CTA — "Continuar" siempre alcanzable, pegado abajo */}
             <div
               className="fixed bottom-0 inset-x-0 z-40 vb-sticky-bar px-4 pt-3"
               style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
             >
               <div className="max-w-[520px] mx-auto space-y-1">
                 <button
-                  onClick={() => handleComplete(true)}
+                  onClick={() => handleComplete()}
                   disabled={loading || !ventaId}
                   className="vb-btn-primary w-full h-12 disabled:opacity-60"
                 >
@@ -201,21 +144,12 @@ function SuccessPageContent() {
                     </>
                   ) : (
                     <>
-                      {isGift ? "Guardar mensaje" : "Continuar"}
+                      Continuar
                       <ArrowRight size={18} strokeWidth={2} className="vb-cta-icon" />
                     </>
                   )}
                 </button>
 
-                {isGift && (
-                  <button
-                    onClick={() => handleComplete(false)}
-                    disabled={loading || !ventaId}
-                    className="w-full text-sm text-[#6B6B6B] py-1.5 hover:text-ink transition"
-                  >
-                    Continuar sin mensaje
-                  </button>
-                )}
               </div>
             </div>
           </>
@@ -242,6 +176,20 @@ function SuccessPageContent() {
                 </div>
               )}
             </div>
+
+            {isGift && (
+              <div className="vb-well p-5 space-y-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="shrink-0 w-9 h-9 rounded-full bg-white/70 flex items-center justify-center">
+                    <MessageCircle size={17} strokeWidth={2} className="text-primary" />
+                  </span>
+                  <p className="font-semibold text-ink">Tu mensaje personal</p>
+                </div>
+                <p className="text-sm text-[#6B6B6B]">
+                  Ya quedó todo listo. Te escribiremos por WhatsApp en las próximas 24 horas para saber qué mensaje quieres enviarle.
+                </p>
+              </div>
+            )}
 
             {orderSummary && (
               <div className="vb-card p-5 space-y-2">
