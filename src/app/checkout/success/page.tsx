@@ -177,19 +177,17 @@ function SuccessPageContent() {
               )}
             </div>
 
-            {isGift && (
-              <div className="vb-well p-5 space-y-2">
-                <div className="flex items-center gap-2.5">
-                  <span className="shrink-0 w-9 h-9 rounded-full bg-white/70 flex items-center justify-center">
-                    <MessageCircle size={17} strokeWidth={2} className="text-primary" />
-                  </span>
-                  <p className="font-semibold text-ink">Tu mensaje personal</p>
-                </div>
-                <p className="text-sm text-[#6B6B6B]">
-                  Ya quedó todo listo. Te escribiremos por WhatsApp en las próximas 24 horas para saber qué mensaje quieres enviarle.
-                </p>
+            <div className="vb-well p-5 space-y-2">
+              <div className="flex items-center gap-2.5">
+                <span className="shrink-0 w-9 h-9 rounded-full bg-white/70 flex items-center justify-center">
+                  <MessageCircle size={17} strokeWidth={2} className="text-primary" />
+                </span>
+                <p className="font-semibold text-ink">Tu mensaje personal</p>
               </div>
-            )}
+              <p className="text-sm text-[#6B6B6B]">
+                Ya quedó todo listo. Te escribiremos por WhatsApp en las próximas 24 horas para saber qué mensaje quieres enviarle.
+              </p>
+            </div>
 
             {orderSummary && (
               <div className="vb-card p-5 space-y-2">
