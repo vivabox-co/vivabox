@@ -10,7 +10,8 @@ import { whatsappLink } from "@/utils/whatsappLink"
 import CheckoutProgress from "../../CheckoutProgress"
 import VivaboxLoader from "@/components/ui/VivaboxLoader"
 import { useMinDisplayTime } from "@/components/ui/useMinDisplayTime"
-import { Lock, AlertCircle, MessageCircle, QrCode, CreditCard } from "lucide-react"
+import ManualPaymentPanel from "../../components/ManualPaymentPanel"
+import { Lock, AlertCircle, MessageCircle, QrCode, CreditCard, ArrowLeft } from "lucide-react"
 
 // Modo "integrado": en vez del widget flotante, la página de pago alojada de
 // Wompi (checkout.wompi.co/p/) se muestra en una iframe dentro del marco del
@@ -40,6 +41,9 @@ export default function PagoPage() {
   const [dismissed, setDismissed] = useState(false)
   const [embedUrl, setEmbedUrl] = useState<string | null>(null)
   const [embedLoaded, setEmbedLoaded] = useState(false)
+  // Pago directo por QR / llave Bre-B (sin Wompi): el equipo lo verifica a mano.
+  const [qrOpen, setQrOpen] = useState(false)
+  const [reporting, setReporting] = useState(false)
 
   // ======================
   // GUARDS
@@ -51,6 +55,37 @@ export default function PagoPage() {
       router.replace("/cajas")
     }
   }, [hasHydrated, box, ventaId, router])
+
+  // ======================
+  // QR DIRECTO — el cliente avisa que ya pagó; el equipo verifica en Bancolombia
+  // ======================
+  async function handleReportQrPayment() {
+    if (reporting || !ventaId) return
+
+    setReporting(true)
+    setError(null)
+
+    try {
+      const res = await fetch("/api/checkout/manual-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ventaId, action: "report" }),
+      })
+
+      const data = await res.json()
+
+      if (!data.ok) {
+        setError("No pudimos registrar tu aviso. Inténtalo de nuevo o escríbenos por WhatsApp.")
+        setReporting(false)
+        return
+      }
+
+      router.push(`/checkout/pago/pendiente?ventaId=${ventaId}`)
+    } catch {
+      setError("No pudimos conectar con el servidor. Revisa tu conexión e intenta de nuevo.")
+      setReporting(false)
+    }
+  }
 
   // ======================
   // PAY — abre el Widget Wompi (motor real de pago; el Widget conserva su
@@ -163,7 +198,7 @@ export default function PagoPage() {
     }
   }
 
-  // El cliente elige cómo pagar (QR primero); ambos botones abren Wompi.
+  // El cliente elige cómo pagar: QR directo (Bre-B, sin Wompi) o Wompi (tarjeta, Nequi, PSE).
   const ready = hasHydrated && !!box && !!ventaId && !!pricing && (EMBED || widgetReady)
 
   // Guarantees the loader stays mounted at least one full fill lap (~950ms)
@@ -309,16 +344,36 @@ export default function PagoPage() {
             </p>
           )}
 
+          {qrOpen ? (
+            <div className="space-y-4">
+              <ManualPaymentPanel ventaId={ventaId} total={total} />
+
+              <button
+                onClick={handleReportQrPayment}
+                disabled={reporting}
+                className="vb-btn-primary w-full h-12 disabled:opacity-60"
+              >
+                {reporting ? "Enviando..." : "Ya hice el pago"}
+              </button>
+
+              <button
+                onClick={() => setQrOpen(false)}
+                className="flex w-full items-center justify-center gap-1.5 text-sm text-[#6B6B6B] underline underline-offset-2"
+              >
+                <ArrowLeft size={14} strokeWidth={2} />
+                Elegir otro medio de pago
+              </button>
+            </div>
+          ) : (
           <div className="space-y-3">
             <p className="text-sm font-medium text-ink text-center">¿Cómo quieres pagar?</p>
 
             <button
-              onClick={handlePayment}
-              disabled={!ready}
-              className="vb-btn-primary w-full h-12 relative disabled:opacity-60"
+              onClick={() => { setError(null); setQrOpen(true) }}
+              className="vb-btn-primary w-full h-12 relative"
             >
               <QrCode size={18} strokeWidth={2} />
-              Pagar por transferencia o QR
+              Pagar por QR o Bre-B
               <span className="absolute -top-2.5 right-3 rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-primary shadow-sm">
                 Recomendado
               </span>
@@ -330,9 +385,10 @@ export default function PagoPage() {
               className="flex w-full items-center justify-center gap-1.5 text-sm text-[#6B6B6B] underline underline-offset-2 disabled:opacity-60"
             >
               <CreditCard size={14} strokeWidth={2} />
-              Pagar con tarjeta u otro medio
+              Pagar con tarjeta, Nequi o PSE
             </button>
           </div>
+          )}
 
           <a
             href={whatsappLink(`Hola Vivabox, necesito ayuda con mi pago (pedido ${ventaId.slice(0, 6).toUpperCase()}).`)}
@@ -344,9 +400,11 @@ export default function PagoPage() {
             ¿Necesitas ayuda? Escríbenos por WhatsApp
           </a>
 
-          <p className="text-xs text-[#6B6B6B] text-center">
-            Pago seguro con Wompi
-          </p>
+          {!qrOpen && (
+            <p className="text-xs text-[#6B6B6B] text-center">
+              Pago seguro con Wompi
+            </p>
+          )}
 
           <p className="text-[11px] text-[#6B6B6B] text-center leading-relaxed">
             Al pagar aceptas los{" "}
