@@ -26,6 +26,13 @@ export async function POST(req: Request) {
     const ip = getClientIp(req)
     const normalized = code.trim().toUpperCase()
 
+    // Le code "prix test" correct n'est jamais limité : le compteur par code
+    // est partagé entre tous les appareils et bloquait les vrais tests.
+    // Les mauvais codes (devinettes) restent limités plus bas.
+    if (isTestPriceCode(code)) {
+      return NextResponse.json({ ok: true })
+    }
+
     const [ipAllowed, codeAllowed, globalAllowed] = await Promise.all([
       checkRateLimit(supabase, `ip:${ip}`, "promo", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),
       checkRateLimit(supabase, `code:${normalized}`, "promo", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),

@@ -88,11 +88,16 @@ export async function POST(req: Request) {
       const normalizedPromo = promoCode.trim().toUpperCase()
       const ip = getClientIp(req)
 
-      const [ipAllowed, codeAllowed, globalAllowed] = await Promise.all([
-        checkRateLimit(supabase, `ip:${ip}`, "promo", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),
-        checkRateLimit(supabase, `code:${normalizedPromo}`, "promo", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),
-        checkRateLimit(supabase, "global", "promo", GLOBAL_RATE_LIMIT_MAX_ATTEMPTS, GLOBAL_RATE_LIMIT_WINDOW_MINUTES),
-      ])
+      // Le code "prix test" correct échappe à la limite (voir promo/validate).
+      const isTestCode = isTestPriceCode(normalizedPromo)
+
+      const [ipAllowed, codeAllowed, globalAllowed] = isTestCode
+        ? [true, true, true]
+        : await Promise.all([
+            checkRateLimit(supabase, `ip:${ip}`, "promo", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),
+            checkRateLimit(supabase, `code:${normalizedPromo}`, "promo", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),
+            checkRateLimit(supabase, "global", "promo", GLOBAL_RATE_LIMIT_MAX_ATTEMPTS, GLOBAL_RATE_LIMIT_WINDOW_MINUTES),
+          ])
 
       if (!ipAllowed || !codeAllowed || !globalAllowed) {
         promoWarning = "TOO_MANY_ATTEMPTS"
