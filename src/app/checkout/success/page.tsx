@@ -7,6 +7,8 @@ import { Package, CheckCircle2, Truck, Mail, Sparkles, Loader2, ArrowRight, Mess
 import CheckoutProgress from "../CheckoutProgress"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { formatPrice } from "@/utils/formatPrice"
+import { HEART, SIGNATURE_MAX_LENGTH } from "@/features/checkout/personalMessage"
+import PersonalMessageForm from "../components/PersonalMessageForm"
 
 export default function SuccessPage() {
   return (
@@ -59,13 +61,46 @@ function SuccessPageContent() {
   const [loading, setLoading] = useState(false)
   const isSubmittingRef = useRef(false)
 
-  async function handleComplete() {
+  const [mensaje, setMensaje] = useState("")
+  const [firma, setFirma] = useState("")
+  const [corazon, setCorazon] = useState(false)
+  const [messageSaved, setMessageSaved] = useState(false)
+
+  // El store se hidrata de forma asíncrona (persist) — prellenar la firma
+  // una vez que el nombre del comprador esté disponible.
+  useEffect(() => {
+    if (hasHydrated && buyerName && !firma) setFirma(buyerName.slice(0, SIGNATURE_MAX_LENGTH))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasHydrated, buyerName])
+
+  async function handleComplete(withMessage: boolean) {
     if (isSubmittingRef.current || !ventaId) return
 
     isSubmittingRef.current = true
     setLoading(true)
 
     try {
+      // El mensaje solo se puede escribir ahora: se guarda una sola vez. Sin
+      // mensaje también se envía (vacío) para cerrar la posibilidad.
+      if (isGift) {
+        const text = withMessage ? mensaje.trim() : ""
+        const signature = text ? `${firma.trim()}${corazon ? ` ${HEART}` : ""}`.trim() : ""
+
+        const messageRes = await fetch("/api/checkout/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ventaId, mensaje: text, de: signature }),
+        })
+        const messageData = await messageRes.json()
+
+        if (!messageData.ok && messageData.error !== "ALREADY_SET") {
+          alert(messageData.error || "Error")
+          return
+        }
+
+        setMessageSaved(text.length > 0)
+      }
+
       const res = await fetch("/api/checkout/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -126,14 +161,26 @@ function SuccessPageContent() {
               )}
             </div>
 
-            {/* STICKY CTA — "Continuar" siempre alcanzable, pegado abajo */}
+            {/* PERSONAL MESSAGE — only makes sense when it's a gift */}
+            {isGift && (
+              <PersonalMessageForm
+                mensaje={mensaje}
+                firma={firma}
+                corazon={corazon}
+                onMensajeChange={setMensaje}
+                onFirmaChange={setFirma}
+                onCorazonChange={setCorazon}
+              />
+            )}
+
+            {/* STICKY CTA — siempre alcanzable, pegado abajo */}
             <div
               className="fixed bottom-0 inset-x-0 z-40 vb-sticky-bar px-4 pt-3"
               style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
             >
               <div className="max-w-[520px] mx-auto space-y-1">
                 <button
-                  onClick={() => handleComplete()}
+                  onClick={() => handleComplete(true)}
                   disabled={loading || !ventaId}
                   className="vb-btn-primary w-full h-12 disabled:opacity-60"
                 >
@@ -144,12 +191,21 @@ function SuccessPageContent() {
                     </>
                   ) : (
                     <>
-                      Continuar
+                      {isGift ? "Guardar mensaje" : "Continuar"}
                       <ArrowRight size={18} strokeWidth={2} className="vb-cta-icon" />
                     </>
                   )}
                 </button>
 
+                {isGift && (
+                  <button
+                    onClick={() => handleComplete(false)}
+                    disabled={loading || !ventaId}
+                    className="w-full text-sm text-[#6B6B6B] py-1.5 hover:text-ink transition"
+                  >
+                    Continuar sin mensaje
+                  </button>
+                )}
               </div>
             </div>
           </>
@@ -177,17 +233,19 @@ function SuccessPageContent() {
               )}
             </div>
 
-            <div className="vb-well p-5 space-y-2">
-              <div className="flex items-center gap-2.5">
-                <span className="shrink-0 w-9 h-9 rounded-full bg-white/70 flex items-center justify-center">
-                  <MessageCircle size={17} strokeWidth={2} className="text-primary" />
-                </span>
-                <p className="font-semibold text-ink">Tu mensaje personal</p>
+            {isGift && messageSaved && (
+              <div className="vb-well p-5 space-y-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="shrink-0 w-9 h-9 rounded-full bg-white/70 flex items-center justify-center">
+                    <MessageCircle size={17} strokeWidth={2} className="text-primary" />
+                  </span>
+                  <p className="font-semibold text-ink">Tu mensaje personal</p>
+                </div>
+                <p className="text-sm text-[#6B6B6B]">
+                  Quedó guardado. Lo imprimiremos en la tarjeta que va dentro de la caja.
+                </p>
               </div>
-              <p className="text-sm text-[#6B6B6B]">
-                Ya quedó todo listo. Te escribiremos por WhatsApp en las próximas 24 horas para saber qué mensaje quieres enviarle.
-              </p>
-            </div>
+            )}
 
             {orderSummary && (
               <div className="vb-card p-5 space-y-2">
