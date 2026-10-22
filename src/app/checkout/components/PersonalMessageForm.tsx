@@ -30,10 +30,10 @@ export default function PersonalMessageForm({
           <span className="shrink-0 w-9 h-9 rounded-full bg-white/70 flex items-center justify-center">
             <PenLine size={17} strokeWidth={2} className="text-primary" />
           </span>
-          <p className="font-semibold text-ink">Ahora dale tu toque personal</p>
+          <p className="font-semibold text-ink">Dale tu toque personal</p>
         </div>
         <p className="text-sm text-[#6B6B6B]">
-          Lo verá cuando abra su Vivabox. Este es el único momento para escribirlo.
+          Escribe un mensaje para la tarjeta que va dentro de la caja. Este es el único momento para escribirlo.
         </p>
       </div>
 
