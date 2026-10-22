@@ -6,7 +6,6 @@ import Link from "next/link"
 import { Package, CheckCircle2, Truck, Mail, Sparkles, Loader2, ArrowRight, MessageCircle } from "lucide-react"
 import CheckoutProgress from "../CheckoutProgress"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
-import { formatPrice } from "@/utils/formatPrice"
 import { HEART, SIGNATURE_MAX_LENGTH } from "@/features/checkout/personalMessage"
 import PersonalMessageForm from "../components/PersonalMessageForm"
 import MessageCardPreview from "../components/MessageCardPreview"
@@ -18,10 +17,6 @@ type OrderSnapshot = {
   destinationContact: string
   address: string
   city: string
-  boxName: string
-  quantity: number
-  subtotal: number
-  total: number | null
 }
 
 // writing: form open · saved / already: message locked in · skipped: left empty
@@ -72,10 +67,6 @@ function SuccessPageContent() {
       destinationContact: isGift ? s.recipientPhone : s.buyerPhone,
       address: s.address,
       city: s.city,
-      boxName: s.box?.name ?? "",
-      quantity: s.quantity,
-      subtotal: s.pricing?.subtotal ?? 0,
-      total: s.pricing?.total ?? null,
     })
     setFirma((s.buyerName || "").slice(0, SIGNATURE_MAX_LENGTH))
 
@@ -169,70 +160,58 @@ function SuccessPageContent() {
 
       <div className={`${showCard ? "max-w-[1040px]" : "max-w-[520px]"} mx-auto py-8 px-4 space-y-6 ${writing ? "pb-32 lg:pb-12" : "pb-12"}`}>
 
-        {/* HEADER + ORDER RECAP (top right on desktop) */}
-        <div className="flex flex-col items-center gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="flex flex-col items-center gap-3 text-center lg:flex-row lg:gap-4 lg:text-left">
-            <div className="w-14 h-14 shrink-0 rounded-full bg-green-50 flex items-center justify-center animate-check-pop">
-              <CheckCircle2 size={30} strokeWidth={2} className="text-green-700" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-green-700 font-semibold uppercase tracking-wide">Pago confirmado</p>
-              <h1 className="text-2xl font-semibold text-ink flex items-center justify-center lg:justify-start gap-2">
-                <Package size={20} strokeWidth={1.75} className="text-primary" />
-                {isGift ? "Tu regalo está listo" : "Tu Vivabox está lista"}
-              </h1>
-            </div>
+        {/* HEADER */}
+        <div className="text-center space-y-3">
+          <div className="mx-auto w-14 h-14 rounded-full bg-green-50 flex items-center justify-center animate-check-pop">
+            <CheckCircle2 size={30} strokeWidth={2} className="text-green-700" />
           </div>
-
-          {order && order.boxName && (
-            <div className="vb-card px-5 py-4 space-y-1.5 w-full max-w-[520px] lg:w-[300px] lg:shrink-0">
-              <div className="flex justify-between gap-6 text-sm text-[#6B6B6B]">
-                <span>{order.boxName} × {order.quantity}</span>
-                <span>{order.subtotal ? `$${formatPrice(order.subtotal)}` : ""}</span>
-              </div>
-              {order.total !== null && (
-                <div className="pt-1.5 vb-divider-top flex justify-between gap-6 text-sm font-semibold text-ink">
-                  <span>Total pagado</span>
-                  <span>${formatPrice(order.total)}</span>
-                </div>
-              )}
-            </div>
-          )}
+          <div className="space-y-1">
+            <p className="text-sm text-green-700 font-semibold uppercase tracking-wide">Pago confirmado</p>
+            <h1 className="text-2xl font-semibold text-ink flex items-center justify-center gap-2">
+              <Package size={20} strokeWidth={1.75} className="text-primary" />
+              {isGift ? "Tu regalo está listo" : "Tu Vivabox está lista"}
+            </h1>
+          </div>
         </div>
 
-        <div className={showCard ? "space-y-6 lg:space-y-0 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:gap-8 lg:items-start" : "space-y-6"}>
+        {/* Desktop: rows share the same two columns, so each left block has its
+            right-hand neighbour at the same level (cards stretch to equal height). */}
+        <div className={`grid gap-6 ${showCard ? "lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:gap-8" : ""}`}>
 
-          {/* LEFT: confirmation, destination, message form */}
-          <div className="space-y-6">
-            <div className="vb-card p-5 space-y-3">
-              <div className="flex items-center gap-2 text-sm text-ink/80">
-                <Mail size={16} strokeWidth={2} className="text-primary shrink-0" />
-                Te enviamos la confirmación por correo
-              </div>
-              <div className="flex items-center gap-2 text-sm text-ink/80">
-                <Sparkles size={16} strokeWidth={2} className="text-primary shrink-0" />
-                Estamos preparando tu Vivabox
-              </div>
-              {order?.isPhysical && (
-                <div className="flex items-center gap-2 text-sm text-ink/80">
-                  <Truck size={16} strokeWidth={2} className="text-primary shrink-0" />
-                  Te avisaremos con las novedades del envío
-                </div>
-              )}
+          {/* ROW 1 — confirmation | destination */}
+          <div className="vb-card p-5 space-y-3">
+            <div className="flex items-center gap-2 text-sm text-ink/80">
+              <Mail size={16} strokeWidth={2} className="text-primary shrink-0" />
+              Te enviamos la confirmación por correo
             </div>
-
-            {order && order.destinationName && (
-              <div className="vb-card p-5 space-y-1.5">
-                <p className="font-semibold text-sm text-ink">Se envía a</p>
-                <p className="text-sm text-[#6B6B6B]">
-                  {order.destinationName}{order.destinationContact ? ` · ${order.destinationContact}` : ""}
-                </p>
-                {order.isPhysical && (
-                  <p className="text-sm text-[#6B6B6B]">{order.address}{order.city ? `, ${order.city}` : ""}</p>
-                )}
+            <div className="flex items-center gap-2 text-sm text-ink/80">
+              <Sparkles size={16} strokeWidth={2} className="text-primary shrink-0" />
+              Estamos preparando tu Vivabox
+            </div>
+            {order?.isPhysical && (
+              <div className="flex items-center gap-2 text-sm text-ink/80">
+                <Truck size={16} strokeWidth={2} className="text-primary shrink-0" />
+                Te avisaremos con las novedades del envío
               </div>
             )}
+          </div>
 
+          {order && order.destinationName ? (
+            <div className="vb-card p-5 space-y-1.5">
+              <p className="font-semibold text-sm text-ink">Se envía a</p>
+              <p className="text-sm text-[#6B6B6B]">
+                {order.destinationName}{order.destinationContact ? ` · ${order.destinationContact}` : ""}
+              </p>
+              {order.isPhysical && (
+                <p className="text-sm text-[#6B6B6B]">{order.address}{order.city ? `, ${order.city}` : ""}</p>
+              )}
+            </div>
+          ) : (
+            <div className="hidden lg:block" />
+          )}
+
+          {/* ROW 2 — message form | card preview */}
+          <div className="space-y-6">
             {writing && (
               <>
                 <PersonalMessageForm
@@ -277,22 +256,18 @@ function SuccessPageContent() {
             )}
           </div>
 
-          {/* RIGHT: card preview, stays in view while writing */}
           {showCard && (
-            <div className="space-y-2 lg:sticky lg:top-24">
-              <p className="text-[13px] text-[#6B6B6B] text-center">
-                {writing ? "Así se verá tu tarjeta" : "Tu tarjeta"}
-              </p>
+            <div className="space-y-3 self-start">
               <MessageCardPreview
                 mensaje={writing ? mensaje : savedCard?.mensaje ?? ""}
                 firma={writing ? firma : savedCard?.firma ?? ""}
                 corazon={writing ? corazon : savedCard?.corazon ?? false}
               />
-              {writing && (
-                <p className="text-xs text-[#6B6B6B] text-center">
-                  Vista aproximada. La letra se ajusta al largo de tu mensaje.
-                </p>
-              )}
+              <p className="text-xs text-[#6B6B6B] text-center">
+                {writing
+                  ? "Así se verá tu tarjeta. Vista aproximada: la letra se ajusta al largo de tu mensaje."
+                  : "Tu tarjeta"}
+              </p>
             </div>
           )}
         </div>
