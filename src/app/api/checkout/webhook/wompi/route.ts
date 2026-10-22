@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
 import { computeEventChecksum } from "@/services/wompi"
 import { finalizeVentaPayment } from "@/features/checkout/finalizeVentaPayment"
+import { sendPaymentFailedAlertEmail } from "@/services/email"
 import { finalizeBookingSurplusPayment } from "@/features/checkout/finalizeBookingSurplusPayment"
 
 // Reference des paiements de "personas extra" démarrés depuis vivabox-appben
@@ -58,6 +59,19 @@ export async function POST(req: Request) {
       // DECLINED / VOIDED / ERROR / PENDING : rien à faire pour une venta
       // (reste 'reserved', peut être retentée / expirera via le TTL habituel)
       // ni pour un supplément de réservation (reste 'pending', réessayable).
+      // On alerte quand même l'équipe pour les échecs définitifs (pas PENDING,
+      // qui passe souvent à APPROVED ensuite).
+      if (transaction.status === "DECLINED" || transaction.status === "ERROR") {
+        await sendPaymentFailedAlertEmail({
+          reference,
+          status: transaction.status,
+          statusMessage: transaction.status_message,
+          amountInCents: transaction.amount_in_cents,
+          buyerEmail: transaction.customer_email,
+          paymentMethod: transaction.payment_method_type,
+          transactionId: transaction.id,
+        })
+      }
       return NextResponse.json({ ok: true })
     }
 

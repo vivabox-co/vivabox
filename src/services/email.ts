@@ -270,3 +270,45 @@ export async function sendSameDayAlertEmail(params: SameDayAlertParams) {
     console.error("SAME DAY ALERT EMAIL ERROR:", error)
   }
 }
+
+type PaymentFailedAlertParams = {
+  reference: string
+  status: string
+  statusMessage?: string | null
+  amountInCents: number
+  buyerEmail?: string | null
+  paymentMethod?: string | null
+  transactionId?: string | null
+}
+
+// Alerte interne quand Wompi signale un paiement refusé/en erreur : l'acheteur
+// a voulu payer mais ça n'a pas marché, l'équipe peut le relancer. Best-effort,
+// comme les autres emails — le webhook ne doit jamais échouer à cause de ça.
+export async function sendPaymentFailedAlertEmail(params: PaymentFailedAlertParams) {
+  const { reference, status, statusMessage, amountInCents, buyerEmail, paymentMethod, transactionId } = params
+  const amount = `$${Math.round(amountInCents / 100).toLocaleString("es-CO")}`
+
+  const html = `
+    <h2>Pago no completado</h2>
+    <p style="font-size:20px"><strong>${escapeHtml(reference)} · ${escapeHtml(amount)} COP</strong></p>
+    <p>Un cliente intentó pagar con Wompi y no funcionó. Puede que ya lo haya reintentado; revisa si la venta quedó pagada, y si no, escríbele.</p>
+    <ul>
+      <li><strong>Estado:</strong> ${escapeHtml(status)}</li>
+      ${statusMessage ? `<li><strong>Motivo:</strong> ${escapeHtml(statusMessage)}</li>` : ""}
+      <li><strong>Comprador:</strong> ${buyerEmail ? escapeHtml(buyerEmail) : "no indicado"}</li>
+      ${paymentMethod ? `<li><strong>Medio de pago:</strong> ${escapeHtml(paymentMethod)}</li>` : ""}
+    </ul>
+    <p style="color:#888;font-size:12px">Transacción Wompi: ${transactionId ? escapeHtml(transactionId) : "—"}</p>
+  `
+
+  try {
+    await getResend().emails.send({
+      from: FROM,
+      to: NOTIFY_TO,
+      subject: `Pago ${status === "DECLINED" ? "rechazado" : "con error"} — ${reference} — ${amount}`,
+      html,
+    })
+  } catch (error) {
+    console.error("PAYMENT FAILED EMAIL ERROR:", error)
+  }
+}
