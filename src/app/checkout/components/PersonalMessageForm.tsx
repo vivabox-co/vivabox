@@ -2,7 +2,6 @@
 
 import { PenLine } from "lucide-react"
 import { MESSAGE_MAX_LENGTH, SIGNATURE_MAX_LENGTH } from "@/features/checkout/personalMessage"
-import MessageCardPreview from "./MessageCardPreview"
 
 type Props = {
   mensaje: string
@@ -74,12 +73,6 @@ export default function PersonalMessageForm({
         />
         Añadir un corazón junto a tu firma
       </label>
-
-      <div className="space-y-2 pt-2">
-        <p className="text-[13px] text-[#6B6B6B] text-center">Así se verá tu tarjeta</p>
-        <MessageCardPreview mensaje={mensaje} firma={firma} corazon={corazon} />
-        <p className="text-xs text-[#6B6B6B] text-center">Vista aproximada. La letra se ajusta al largo de tu mensaje.</p>
-      </div>
     </div>
   )
 }

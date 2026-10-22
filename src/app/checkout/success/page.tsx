@@ -131,152 +131,180 @@ function SuccessPageContent() {
 
   const isGift = order?.isGift ?? false
   const writing = phase === "writing" && !!ventaId
+  const showCard = writing || savedCard !== null
+
+  const messageActions = (
+    <div className="space-y-1">
+      <button
+        onClick={() => handleMessage(true)}
+        disabled={loading || !mensaje.trim()}
+        className="vb-btn-primary w-full h-12 disabled:opacity-60"
+      >
+        {loading ? (
+          <>
+            Guardando...
+            <Loader2 size={18} strokeWidth={2} className="animate-spin" />
+          </>
+        ) : (
+          <>
+            Guardar mensaje
+            <ArrowRight size={18} strokeWidth={2} className="vb-cta-icon" />
+          </>
+        )}
+      </button>
+
+      <button
+        onClick={() => handleMessage(false)}
+        disabled={loading}
+        className="w-full text-sm text-[#6B6B6B] py-1.5 hover:text-ink transition"
+      >
+        Continuar sin mensaje
+      </button>
+    </div>
+  )
 
   return (
     <>
       <CheckoutProgress current="enviar" completed={!writing} />
 
-      <div className={`max-w-[520px] mx-auto py-8 px-4 space-y-6 ${writing ? "pb-32" : "pb-12"}`}>
+      <div className={`${showCard ? "max-w-[1040px]" : "max-w-[520px]"} mx-auto py-8 px-4 space-y-6 ${writing ? "pb-32 lg:pb-12" : "pb-12"}`}>
 
-        {/* HEADER */}
-        <div className="text-center space-y-3">
-          <div className="mx-auto w-14 h-14 rounded-full bg-green-50 flex items-center justify-center animate-check-pop">
-            <CheckCircle2 size={30} strokeWidth={2} className="text-green-700" />
+        {/* HEADER + ORDER RECAP (top right on desktop) */}
+        <div className="flex flex-col items-center gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex flex-col items-center gap-3 text-center lg:flex-row lg:gap-4 lg:text-left">
+            <div className="w-14 h-14 shrink-0 rounded-full bg-green-50 flex items-center justify-center animate-check-pop">
+              <CheckCircle2 size={30} strokeWidth={2} className="text-green-700" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-green-700 font-semibold uppercase tracking-wide">Pago confirmado</p>
+              <h1 className="text-2xl font-semibold text-ink flex items-center justify-center lg:justify-start gap-2">
+                <Package size={20} strokeWidth={1.75} className="text-primary" />
+                {isGift ? "Tu regalo está listo" : "Tu Vivabox está lista"}
+              </h1>
+            </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-sm text-green-700 font-semibold uppercase tracking-wide">Pago confirmado</p>
-            <h1 className="text-2xl font-semibold text-ink flex items-center justify-center gap-2">
-              <Package size={20} strokeWidth={1.75} className="text-primary" />
-              {isGift ? "Tu regalo está listo" : "Tu Vivabox está lista"}
-            </h1>
-          </div>
-        </div>
 
-        {/* CONFIRMATION */}
-        <div className="vb-card p-5 space-y-3">
-          <div className="flex items-center gap-2 text-sm text-ink/80">
-            <Mail size={16} strokeWidth={2} className="text-primary shrink-0" />
-            Te enviamos la confirmación por correo
-          </div>
-          <div className="flex items-center gap-2 text-sm text-ink/80">
-            <Sparkles size={16} strokeWidth={2} className="text-primary shrink-0" />
-            Estamos preparando tu Vivabox
-          </div>
-          {order?.isPhysical && (
-            <div className="flex items-center gap-2 text-sm text-ink/80">
-              <Truck size={16} strokeWidth={2} className="text-primary shrink-0" />
-              Te avisaremos con las novedades del envío
+          {order && order.boxName && (
+            <div className="vb-card px-5 py-4 space-y-1.5 w-full max-w-[520px] lg:w-[300px] lg:shrink-0">
+              <div className="flex justify-between gap-6 text-sm text-[#6B6B6B]">
+                <span>{order.boxName} × {order.quantity}</span>
+                <span>{order.subtotal ? `$${formatPrice(order.subtotal)}` : ""}</span>
+              </div>
+              {order.total !== null && (
+                <div className="pt-1.5 vb-divider-top flex justify-between gap-6 text-sm font-semibold text-ink">
+                  <span>Total pagado</span>
+                  <span>${formatPrice(order.total)}</span>
+                </div>
+              )}
             </div>
           )}
         </div>
 
-        {/* DESTINATION RECAP — read-only, already collected in "Elegir" */}
-        {order && order.destinationName && (
-          <div className="vb-card p-5 space-y-1.5">
-            <p className="font-semibold text-sm text-ink">Se envía a</p>
-            <p className="text-sm text-[#6B6B6B]">
-              {order.destinationName}{order.destinationContact ? ` · ${order.destinationContact}` : ""}
-            </p>
-            {order.isPhysical && (
-              <p className="text-sm text-[#6B6B6B]">{order.address}{order.city ? `, ${order.city}` : ""}</p>
-            )}
-          </div>
-        )}
+        <div className={showCard ? "space-y-6 lg:space-y-0 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:gap-8 lg:items-start" : "space-y-6"}>
 
-        {/* PERSONAL MESSAGE */}
-        {writing && (
-          <PersonalMessageForm
-            mensaje={mensaje}
-            firma={firma}
-            corazon={corazon}
-            onMensajeChange={setMensaje}
-            onFirmaChange={setFirma}
-            onCorazonChange={setCorazon}
-          />
-        )}
-
-        {(phase === "saved" || phase === "already") && (
-          <div className="vb-well p-5 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <span className="shrink-0 w-9 h-9 rounded-full bg-white/70 flex items-center justify-center">
-                <MessageCircle size={17} strokeWidth={2} className="text-primary" />
-              </span>
-              <p className="font-semibold text-ink">Tu mensaje personal</p>
+          {/* LEFT: confirmation, destination, message form */}
+          <div className="space-y-6">
+            <div className="vb-card p-5 space-y-3">
+              <div className="flex items-center gap-2 text-sm text-ink/80">
+                <Mail size={16} strokeWidth={2} className="text-primary shrink-0" />
+                Te enviamos la confirmación por correo
+              </div>
+              <div className="flex items-center gap-2 text-sm text-ink/80">
+                <Sparkles size={16} strokeWidth={2} className="text-primary shrink-0" />
+                Estamos preparando tu Vivabox
+              </div>
+              {order?.isPhysical && (
+                <div className="flex items-center gap-2 text-sm text-ink/80">
+                  <Truck size={16} strokeWidth={2} className="text-primary shrink-0" />
+                  Te avisaremos con las novedades del envío
+                </div>
+              )}
             </div>
-            <p className="text-sm text-[#6B6B6B]">
-              {phase === "saved"
-                ? "Quedó guardado. Lo imprimiremos en la tarjeta que va dentro de la caja."
-                : "Tu mensaje ya estaba guardado. Lo imprimiremos en la tarjeta que va dentro de la caja."}
-            </p>
-            {savedCard && (
-              <MessageCardPreview mensaje={savedCard.mensaje} firma={savedCard.firma} corazon={savedCard.corazon} />
-            )}
-          </div>
-        )}
 
-        {/* ORDER SUMMARY */}
-        {order && order.boxName && (
-          <div className="vb-card p-5 space-y-2">
-            <div className="flex justify-between text-sm text-[#6B6B6B]">
-              <span>{order.boxName} × {order.quantity}</span>
-              <span>{order.subtotal ? `$${formatPrice(order.subtotal)}` : ""}</span>
-            </div>
-            {order.total !== null && (
-              <div className="pt-2 vb-divider-top flex justify-between text-sm font-semibold text-ink">
-                <span>Total pagado</span>
-                <span>${formatPrice(order.total)}</span>
+            {order && order.destinationName && (
+              <div className="vb-card p-5 space-y-1.5">
+                <p className="font-semibold text-sm text-ink">Se envía a</p>
+                <p className="text-sm text-[#6B6B6B]">
+                  {order.destinationName}{order.destinationContact ? ` · ${order.destinationContact}` : ""}
+                </p>
+                {order.isPhysical && (
+                  <p className="text-sm text-[#6B6B6B]">{order.address}{order.city ? `, ${order.city}` : ""}</p>
+                )}
               </div>
             )}
+
+            {writing && (
+              <>
+                <PersonalMessageForm
+                  mensaje={mensaje}
+                  firma={firma}
+                  corazon={corazon}
+                  onMensajeChange={setMensaje}
+                  onFirmaChange={setFirma}
+                  onCorazonChange={setCorazon}
+                />
+                <div className="hidden lg:block">{messageActions}</div>
+              </>
+            )}
+
+            {(phase === "saved" || phase === "already") && (
+              <div className="vb-well p-5 space-y-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="shrink-0 w-9 h-9 rounded-full bg-white/70 flex items-center justify-center">
+                    <MessageCircle size={17} strokeWidth={2} className="text-primary" />
+                  </span>
+                  <p className="font-semibold text-ink">Tu mensaje personal</p>
+                </div>
+                <p className="text-sm text-[#6B6B6B]">
+                  {phase === "saved"
+                    ? "Quedó guardado. Lo imprimiremos en la tarjeta que va dentro de la caja."
+                    : "Tu mensaje ya estaba guardado. Lo imprimiremos en la tarjeta que va dentro de la caja."}
+                </p>
+              </div>
+            )}
+
+            {!writing && (
+              <>
+                <p className="text-center text-sm text-[#6B6B6B]">
+                  Gracias por elegir Vivabox. Ahora empieza la mejor parte.
+                </p>
+
+                <Link href="/" className="vb-btn-primary w-full h-12">
+                  Seguir comprando
+                  <ArrowRight size={18} strokeWidth={2} className="vb-cta-icon" />
+                </Link>
+              </>
+            )}
           </div>
-        )}
 
-        {!writing && (
-          <>
-            <p className="text-center text-sm text-[#6B6B6B]">
-              Gracias por elegir Vivabox. Ahora empieza la mejor parte.
-            </p>
-
-            <Link href="/" className="vb-btn-primary w-full h-12">
-              Seguir comprando
-              <ArrowRight size={18} strokeWidth={2} className="vb-cta-icon" />
-            </Link>
-          </>
-        )}
+          {/* RIGHT: card preview, stays in view while writing */}
+          {showCard && (
+            <div className="space-y-2 lg:sticky lg:top-24">
+              <p className="text-[13px] text-[#6B6B6B] text-center">
+                {writing ? "Así se verá tu tarjeta" : "Tu tarjeta"}
+              </p>
+              <MessageCardPreview
+                mensaje={writing ? mensaje : savedCard?.mensaje ?? ""}
+                firma={writing ? firma : savedCard?.firma ?? ""}
+                corazon={writing ? corazon : savedCard?.corazon ?? false}
+              />
+              {writing && (
+                <p className="text-xs text-[#6B6B6B] text-center">
+                  Vista aproximada. La letra se ajusta al largo de tu mensaje.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* STICKY CTA — siempre alcanzable mientras el mensaje está abierto */}
+      {/* STICKY CTA (mobile) — siempre alcanzable mientras el mensaje está abierto */}
       {writing && (
         <div
-          className="fixed bottom-0 inset-x-0 z-40 vb-sticky-bar px-4 pt-3"
+          className="lg:hidden fixed bottom-0 inset-x-0 z-40 vb-sticky-bar px-4 pt-3"
           style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
         >
-          <div className="max-w-[520px] mx-auto space-y-1">
-            <button
-              onClick={() => handleMessage(true)}
-              disabled={loading || !mensaje.trim()}
-              className="vb-btn-primary w-full h-12 disabled:opacity-60"
-            >
-              {loading ? (
-                <>
-                  Guardando...
-                  <Loader2 size={18} strokeWidth={2} className="animate-spin" />
-                </>
-              ) : (
-                <>
-                  Guardar mensaje
-                  <ArrowRight size={18} strokeWidth={2} className="vb-cta-icon" />
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={() => handleMessage(false)}
-              disabled={loading}
-              className="w-full text-sm text-[#6B6B6B] py-1.5 hover:text-ink transition"
-            >
-              Continuar sin mensaje
-            </button>
-          </div>
+          <div className="max-w-[520px] mx-auto">{messageActions}</div>
         </div>
       )}
     </>
