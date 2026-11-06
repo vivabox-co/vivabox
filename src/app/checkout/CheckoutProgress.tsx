@@ -6,9 +6,9 @@ import { Check } from "lucide-react"
 type Step = "elegir" | "pagar" | "enviar"
 
 const steps: { key: Step; label: string }[] = [
-  { key: "elegir", label: "Elegir" },
-  { key: "pagar", label: "Pagar" },
-  { key: "enviar", label: "Enviar" },
+  { key: "elegir", label: "Tu pedido" },
+  { key: "pagar", label: "Pago" },
+  { key: "enviar", label: "Tu mensaje" },
 ]
 
 type Props = {

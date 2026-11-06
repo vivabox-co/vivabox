@@ -16,9 +16,8 @@ import {
   isSameDayAvailable,
 } from "@/features/checkout/sameDay"
 import { useDisplayPricing } from "@/features/checkout/useDisplayPricing"
-import CheckoutSummary from "@/app/checkout/components/CheckoutSummary"
 
-import { Truck, Zap, Home, Gift, ArrowRight, Lock, CheckCircle2, Loader2 } from "lucide-react"
+import { Truck, Zap, Home, Gift, ArrowRight, Lock, Check, CheckCircle2, Loader2, Pencil } from "lucide-react"
 
 type CheckoutBox = {
   slug: string
@@ -29,6 +28,37 @@ type CheckoutBox = {
 
 type Props = {
   box: CheckoutBox
+}
+
+// ======================
+// SMALL UI PIECES
+// ======================
+
+function Field({
+  label,
+  className = "",
+  ...input
+}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <label className={`flex flex-col gap-1.5 text-[13px] font-semibold text-ink/80 min-w-0 ${className}`}>
+      {label}
+      <input className="vb-input font-normal" {...input} />
+    </label>
+  )
+}
+
+function GroupLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#6A5A48]">{children}</p>
+  )
+}
+
+function TileRadio() {
+  return (
+    <span className="vb-tile-radio">
+      <Check size={13} strokeWidth={3} />
+    </span>
+  )
 }
 
 export default function CheckoutStep({ box }: Props) {
@@ -175,13 +205,13 @@ export default function CheckoutStep({ box }: Props) {
     total: subtotal + baseDelivery + sameDaySurcharge,
     discount: promoApplied ? baseDelivery : 0,
   }
-  const { displayTotal } = useDisplayPricing(estimatedPricing)
+  const { delivery, discount, displayTotal, hasBenefit } = useDisplayPricing(estimatedPricing)
 
   const missingFields: string[] = []
   if (!buyerName) missingFields.push("tu nombre")
   if (!buyerEmail) missingFields.push("tu email")
   if (needsAddress) {
-    if (!deliveryDestination) missingFields.push("cómo quieres recibirla")
+    if (!deliveryDestination) missingFields.push("dónde la enviamos")
     if (!address) missingFields.push("la dirección")
     if (!city) missingFields.push("la ciudad")
     if (deliveryDestination === "recipient") {
@@ -273,32 +303,41 @@ export default function CheckoutStep({ box }: Props) {
   // UI
   // ======================
 
-  const productRow = (
-    <div className="flex items-center gap-3">
-      {box.image && (
-        <span className="vb-thumb shrink-0">
-          <Image
-            src={box.image}
-            alt={box.name}
-            width={48}
-            height={48}
-            className="rounded-xl object-contain"
-          />
-        </span>
-      )}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-baseline justify-between gap-3">
-          <p className="font-semibold text-ink text-sm">Vivabox × {quantity}</p>
-          <span className="font-medium text-ink/80 text-sm shrink-0">${formatPrice(box.price * quantity)}</span>
-        </div>
-        <div className="flex items-center justify-between gap-3 mt-0.5">
-          <p className="text-xs text-[#6B6B6B]">Caja física incluida</p>
-          <Link href={`/cajas/${box.slug}`} className="text-xs text-[#6B6B6B] underline shrink-0">
-            Modificar
-          </Link>
-        </div>
+  const setBuyerField = (patch: Partial<{ name: string; email: string; phone: string }>) =>
+    setBuyer({ name: buyerName, email: buyerEmail, phone: buyerPhone, ...patch })
+  const setRecipientField = (patch: Partial<{ name: string; phone: string }>) =>
+    setRecipientInfo({ name: recipientName, phone: recipientPhone, ...patch })
+  const setAddressField = (patch: Partial<{ address: string; city: string; addressExtra: string }>) =>
+    setAddressInfo({ address, city, addressExtra, ...patch })
+
+  const cityField = (
+    <Field
+      label="Ciudad"
+      placeholder="Bogotá"
+      autoComplete="address-level2"
+      value={city}
+      onChange={(e) => setAddressField({ city: e.target.value })}
+    />
+  )
+  const addressFields = (
+    <>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {cityField}
+        <Field
+          label="Dirección"
+          placeholder="Calle, número, apto"
+          autoComplete="street-address"
+          value={address}
+          onChange={(e) => setAddressField({ address: e.target.value })}
+        />
       </div>
-    </div>
+      <Field
+        label="Detalles (opcional)"
+        placeholder="Torre, portería, horario"
+        value={addressExtra}
+        onChange={(e) => setAddressField({ addressExtra: e.target.value })}
+      />
+    </>
   )
 
   const promoBlock = promoApplied ? (
@@ -360,75 +399,82 @@ export default function CheckoutStep({ box }: Props) {
       <div className="checkout-container">
         <div className="max-w-[1050px] mx-auto">
 
-        <Link href={`/cajas/${box.slug}`} className="text-sm text-[#6B6B6B] mb-4 inline-block">
+        <Link href={`/cajas/${box.slug}`} className="text-sm text-[#6B6B6B] mb-3 inline-block">
           ← Volver
         </Link>
 
-        {/* GRID — una sola cuadrícula: formulario | resumen */}
-        <div className="grid lg:grid-cols-[minmax(0,1fr)_360px] gap-6 items-start">
+        <div className="grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-4 lg:gap-8 items-start">
 
-          {/* LEFT */}
-          <div
-            className="vb-card p-5 sm:p-6 space-y-6 animate-step"
-            style={{ animationDelay: "60ms" }}
-          >
+          {/* LEFT — la caja primero */}
+          <div className="space-y-4 lg:space-y-6 lg:sticky lg:top-24 animate-step">
 
-            {/* ENTREGA */}
-            <div className="space-y-4">
-              <div>
-                <p className="font-semibold text-ink text-sm">¿Dónde la enviamos?</p>
-                <p className="flex items-center gap-1.5 text-xs text-[#6B6B6B] mt-1">
-                  <Truck size={14} strokeWidth={1.75} className="text-primary shrink-0" />
-                  {deliveryIncluded ? (
-                    <>Envío incluido · {deliveryEstimate}</>
-                  ) : (
-                    <>Envío a domicilio · ${formatPrice(deliveryPriceFor(quantity))} · {deliveryEstimate}</>
-                  )}
-                </p>
-              </div>
-
-              {sameDayOffered && (
-                <label
-                  className={`vb-choice ${sameDayAvailable ? "" : "opacity-60 cursor-not-allowed"}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={sameDaySelected}
-                    disabled={!sameDayAvailable}
-                    onChange={(e) => setSameDay(e.target.checked)}
-                  />
-                  <span className="vb-choice-icon"><Zap size={16} strokeWidth={1.75} /></span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-baseline justify-between gap-3 text-sm">
-                      <span>Envío el mismo día</span>
-                      <span className="font-medium">+${formatPrice(SAME_DAY_PRICE_COP)}</span>
-                    </span>
-                    <span className="block text-xs text-[#6B6B6B] mt-0.5">
-                      {sameDayAvailable ? SAME_DAY_PROMISE : SAME_DAY_AVAILABILITY_HINT}
-                    </span>
-                  </span>
-                </label>
+            <div className="flex items-center gap-3 lg:flex-col lg:items-start lg:gap-6">
+              {box.image && (
+                <Image
+                  src={box.image}
+                  alt="Caja Vivabox"
+                  width={420}
+                  height={420}
+                  priority
+                  className="w-[132px] h-[132px] sm:w-[160px] sm:h-[160px] lg:w-full lg:h-auto lg:max-w-[360px] lg:self-center object-contain shrink-0 -rotate-3 drop-shadow-[6px_10px_14px_rgba(24,20,15,0.2)]"
+                />
               )}
+              <div className="min-w-0 space-y-2 lg:space-y-3">
+                <h1 className="text-[26px] lg:text-[40px] leading-[1.05] font-extrabold tracking-tight text-ink">
+                  Tu Vivabox
+                </h1>
+                <p className="text-sm lg:text-base leading-snug text-ink/75">
+                  Una caja de regalo. Quien la recibe elige su experiencia.
+                </p>
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                  {deliveryIncluded && (
+                    <span className="vb-pill"><Truck size={14} strokeWidth={2} />Envío incluido</span>
+                  )}
+                  <span className="vb-pill"><Pencil size={14} strokeWidth={2} />Tu mensaje, después</span>
+                </div>
+              </div>
+            </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="vb-choice">
+            <div className="vb-card px-5 py-4 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-bold text-ink">Vivabox × {quantity}</p>
+                <Link href={`/cajas/${box.slug}`} className="text-xs text-[#6B6B6B] underline">
+                  Modificar cantidad
+                </Link>
+              </div>
+              <span className="text-[22px] lg:text-[26px] font-extrabold tracking-tight text-ink shrink-0">
+                ${formatPrice(subtotal)}
+              </span>
+            </div>
+          </div>
+
+          {/* RIGHT — una sola página : dónde, tipo de envío, total */}
+          <div className="space-y-4 animate-step" style={{ animationDelay: "120ms" }}>
+
+            {/* ¿DÓNDE LA ENVIAMOS? */}
+            <div className="vb-card p-4 sm:p-5 space-y-3">
+              <h2 className="text-lg font-bold text-ink tracking-tight px-0.5">¿Dónde la enviamos?</h2>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                <label className="vb-tile">
                   <input
                     type="radio"
+                    name="destination"
                     checked={deliveryDestination === "self"}
                     onChange={() => setDestination("self")}
                   />
-                  <span className="vb-choice-icon"><Home size={16} strokeWidth={1.75} /></span>
-                  <span className="text-sm">En mi dirección</span>
+                  <span className="vb-tile-icon"><Home size={17} strokeWidth={1.85} /></span>
+                  <span className="text-sm font-bold text-ink leading-tight">En mi dirección</span>
                 </label>
-
-                <label className="vb-choice">
+                <label className="vb-tile">
                   <input
                     type="radio"
+                    name="destination"
                     checked={deliveryDestination === "recipient"}
                     onChange={() => setDestination("recipient")}
                   />
-                  <span className="vb-choice-icon"><Gift size={16} strokeWidth={1.75} /></span>
-                  <span className="text-sm">A quien la recibe</span>
+                  <span className="vb-tile-icon"><Gift size={17} strokeWidth={1.85} /></span>
+                  <span className="text-sm font-bold text-ink leading-tight">A quien la recibe</span>
                 </label>
               </div>
 
@@ -439,110 +485,170 @@ export default function CheckoutStep({ box }: Props) {
                 }`}
               >
                 <div className="overflow-hidden">
-                  <div className="space-y-3">
-                    {deliveryDestination === "recipient" && (
+                  {deliveryDestination === "self" && (
+                    <div className="vb-panel space-y-3">
+                      <GroupLabel>Tus datos</GroupLabel>
+                      <Field
+                        label="Nombre completo"
+                        placeholder="Tu nombre"
+                        autoComplete="name"
+                        value={buyerName}
+                        onChange={(e) => setBuyerField({ name: e.target.value })}
+                      />
                       <div className="grid gap-3 sm:grid-cols-2">
-                        <input
-                          type="text"
-                          placeholder="Nombre de quien la recibe"
-                          value={recipientName}
-                          onChange={(e) => setRecipientInfo({ name: e.target.value, phone: recipientPhone })}
-                          className="vb-input"
+                        <Field
+                          label="WhatsApp"
+                          type="tel"
+                          placeholder="300 123 4567"
+                          autoComplete="tel"
+                          value={buyerPhone}
+                          onChange={(e) => setBuyerField({ phone: e.target.value })}
                         />
-                        <input
-                          type="text"
-                          placeholder="WhatsApp de quien la recibe"
-                          value={recipientPhone}
-                          onChange={(e) => setRecipientInfo({ name: recipientName, phone: e.target.value })}
-                          className="vb-input"
+                        <Field
+                          label="Email"
+                          type="email"
+                          placeholder="tu@email.com"
+                          autoComplete="email"
+                          value={buyerEmail}
+                          onChange={(e) => setBuyerField({ email: e.target.value })}
                         />
                       </div>
-                    )}
-
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <input
-                        type="text"
-                        placeholder="Dirección"
-                        value={address}
-                        onChange={(e) => setAddressInfo({ address: e.target.value, city, addressExtra })}
-                        className="vb-input"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Ciudad"
-                        value={city}
-                        onChange={(e) => setAddressInfo({ address, city: e.target.value, addressExtra })}
-                        className="vb-input"
-                      />
+                      <div className="pt-2"><GroupLabel>Dirección de entrega</GroupLabel></div>
+                      {addressFields}
                     </div>
-                    <input
-                      type="text"
-                      placeholder="Detalles adicionales (opcional)"
-                      value={addressExtra}
-                      onChange={(e) => setAddressInfo({ address, city, addressExtra: e.target.value })}
-                      className="vb-input"
-                    />
-                  </div>
+                  )}
+
+                  {deliveryDestination === "recipient" && (
+                    <div className="vb-panel space-y-3">
+                      <GroupLabel>Quien la recibe</GroupLabel>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Field
+                          label="Su nombre"
+                          placeholder="Nombre"
+                          value={recipientName}
+                          onChange={(e) => setRecipientField({ name: e.target.value })}
+                        />
+                        <Field
+                          label="Su WhatsApp"
+                          type="tel"
+                          placeholder="300 123 4567"
+                          value={recipientPhone}
+                          onChange={(e) => setRecipientField({ phone: e.target.value })}
+                        />
+                      </div>
+                      {addressFields}
+                      <p className="text-xs text-[#6B6B6B] leading-relaxed">
+                        Su WhatsApp es solo para coordinar la entrega. No le contamos nada de la sorpresa.
+                      </p>
+
+                      <div className="pt-2"><GroupLabel>Tus datos</GroupLabel></div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Field
+                          label="Tu nombre"
+                          placeholder="Nombre completo"
+                          autoComplete="name"
+                          value={buyerName}
+                          onChange={(e) => setBuyerField({ name: e.target.value })}
+                        />
+                        <Field
+                          label="Tu email"
+                          type="email"
+                          placeholder="tu@email.com"
+                          autoComplete="email"
+                          value={buyerEmail}
+                          onChange={(e) => setBuyerField({ email: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* TUS DATOS */}
-            <div className="pt-6 vb-divider-top space-y-3">
-              <p className="font-semibold text-ink text-sm">Tus datos de contacto</p>
+            {/* TIPO DE ENVÍO */}
+            <div className="vb-card p-4 sm:p-5 space-y-2.5">
+              <h2 className="text-lg font-bold text-ink tracking-tight px-0.5 pb-0.5">Tipo de envío</h2>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <label className="vb-tile">
                 <input
-                  type="text"
-                  placeholder="Nombre completo"
-                  value={buyerName}
-                  onChange={(e) => setBuyer({ name: e.target.value, email: buyerEmail, phone: buyerPhone })}
-                  className="vb-input"
+                  type="radio"
+                  name="speed"
+                  checked={!sameDaySelected}
+                  onChange={() => setSameDay(false)}
                 />
-                <input
-                  type="text"
-                  placeholder="WhatsApp"
-                  value={buyerPhone}
-                  onChange={(e) => setBuyer({ name: buyerName, email: buyerEmail, phone: e.target.value })}
-                  className="vb-input"
-                />
-              </div>
+                <span className="vb-tile-icon"><Truck size={17} strokeWidth={1.85} /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold text-ink">Envío estándar</span>
+                  <span className="block text-xs text-[#6B6B6B] mt-0.5">
+                    {deliveryEstimate} · {deliveryIncluded ? "Incluido" : `$${formatPrice(baseDelivery)}`}
+                  </span>
+                </span>
+                <TileRadio />
+              </label>
 
-              <input
-                type="email"
-                placeholder="Email"
-                value={buyerEmail}
-                onChange={(e) => setBuyer({ name: buyerName, email: e.target.value, phone: buyerPhone })}
-                className="vb-input"
-              />
+              {sameDayOffered ? (
+                <label className="vb-tile">
+                  <input
+                    type="radio"
+                    name="speed"
+                    checked={sameDaySelected}
+                    disabled={!sameDayAvailable}
+                    onChange={() => setSameDay(true)}
+                  />
+                  <span className="vb-tile-icon"><Zap size={17} strokeWidth={1.85} /></span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-bold text-ink">Envío el mismo día</span>
+                    <span className="block text-xs text-[#6B6B6B] mt-0.5">
+                      {sameDayAvailable ? SAME_DAY_PROMISE : SAME_DAY_AVAILABILITY_HINT}
+                    </span>
+                  </span>
+                  <span className="text-sm font-bold text-ink shrink-0">+${formatPrice(SAME_DAY_PRICE_COP)}</span>
+                  <TileRadio />
+                </label>
+              ) : (
+                <p className="text-xs text-[#6B6B6B] px-1">
+                  El envío el mismo día solo está disponible en Bogotá.
+                </p>
+              )}
             </div>
 
-          </div>
-
-          {/* RIGHT — resumen con producto, código y CTA */}
-          <div
-            className="animate-step lg:sticky lg:top-24 space-y-3"
-            style={{ animationDelay: "240ms" }}
-          >
-            <CheckoutSummary
-              estimatedPricing={estimatedPricing}
-              top={productRow}
-              bottom={
-                <div className="space-y-3">
-                  <div className="pt-3 vb-divider-top">{promoBlock}</div>
-                  <div className="hidden lg:block">
-                    <button
-                      onClick={handleGoToPayment}
-                      disabled={loading}
-                      className="vb-btn-primary h-12 w-full disabled:opacity-60"
-                    >
-                      {payLabel}
-                    </button>
-                    {missingMessage}
-                  </div>
+            {/* TOTAL */}
+            <div className="vb-card p-4 sm:p-5 space-y-3">
+              <div className="space-y-1.5 text-sm text-[#6B6B6B]">
+                <div className="flex justify-between">
+                  <span>Vivabox × {quantity}</span>
+                  <span>${formatPrice(subtotal)}</span>
                 </div>
-              }
-            />
+                <div className="flex justify-between">
+                  <span>{sameDaySelected ? "Envío el mismo día" : "Envío"}</span>
+                  <span>{delivery === 0 ? "Incluido" : `+$${formatPrice(delivery)}`}</span>
+                </div>
+                {hasBenefit && (
+                  <div className="flex justify-between text-green-700">
+                    <span>Beneficio</span>
+                    <span>−${formatPrice(discount)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="vb-well px-4 py-3 flex items-center justify-between">
+                <span className="text-sm font-medium text-ink">Total</span>
+                <span className="text-2xl font-semibold text-ink tracking-tight">${formatPrice(displayTotal)}</span>
+              </div>
+
+              {promoBlock}
+
+              <div className="hidden lg:block pt-1">
+                <button
+                  onClick={handleGoToPayment}
+                  disabled={loading}
+                  className="vb-btn-primary h-12 w-full disabled:opacity-60"
+                >
+                  {payLabel}
+                </button>
+                {missingMessage}
+              </div>
+            </div>
 
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs font-medium text-ink/75">
               <span className="inline-flex items-center gap-1.5">
@@ -553,10 +659,6 @@ export default function CheckoutStep({ box }: Props) {
                 <CheckCircle2 size={13} strokeWidth={2} className="text-green-700 shrink-0" />
                 Entrega garantizada
               </span>
-              <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 size={13} strokeWidth={2} className="text-green-700 shrink-0" />
-                Tu mensaje, después
-              </span>
             </div>
           </div>
 
@@ -564,7 +666,7 @@ export default function CheckoutStep({ box }: Props) {
         </div>
       </div>
 
-      {/* STICKY CTA — solo móvil ; en escritorio el botón vive en el resumen */}
+      {/* STICKY CTA — solo móvil ; en escritorio el botón vive en la tarjeta del total */}
       <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 vb-sticky-bar px-4 pt-3" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
