@@ -107,7 +107,7 @@ export default function BoxHero({
           </p>
 
           {/* BOX + CHECKLIST — all six faces + caption + Fotos / 3D switch under the image. */}
-          <div className="flex items-center gap-0 sm:gap-2 mb-8">
+          <div className="flex items-start gap-0 sm:gap-2 mb-8">
 
             <div className="shrink-0 w-[190px] sm:w-[280px] md:w-[340px] -ml-6 sm:ml-0">
               <BoxFacesCarousel
@@ -119,7 +119,8 @@ export default function BoxHero({
               />
             </div>
 
-            <div className="min-w-0 flex-1 text-[13px] sm:text-[15px] text-white/80">
+            {/* Same height as the (square) box image, so the checklist is centered on the photo, not on caption + dots + switch below it. */}
+            <div className="min-w-0 flex-1 flex flex-col justify-center h-[190px] sm:h-[280px] md:h-[340px] text-[13px] sm:text-[15px] text-white/80">
               <div className="flex items-center gap-2 py-2 border-b border-white/10 whitespace-nowrap">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md border-2 border-primary/80 shrink-0">
                   <Check size={11} strokeWidth={3} className="text-primary" />

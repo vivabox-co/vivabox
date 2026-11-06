@@ -11,14 +11,15 @@ const Box3DViewer = dynamic(() => import("@/components/Box3DViewer"), { ssr: fal
 // Front → back → inside → what's inside: the order someone discovers the box
 // in real life. Images are cut out on a transparent background (shadow baked
 // in), so they sit directly on the section's surface with no frame around them.
+// `short` is the one-line caption used on narrow compact spots (product hero).
 // Captions stay short: a bold label + a few words, read as one line.
 export const BOX_FACES = [
-  { src: "/images/box-includes/vivabox-caja-frente.webp", alt: "Caja de regalo Vivabox, vista de frente", title: "Por fuera", caption: "lista para regalar." },
-  { src: "/images/box-includes/vivabox-caja-reverso.webp", alt: "Reverso de la caja Vivabox: cómo funciona el regalo", title: "Atrás", caption: "cómo funciona, en 4 pasos." },
-  { src: "/images/box-includes/vivabox-caja-interior.webp", alt: "Interior de la caja Vivabox con el mensaje «Esto es solo el principio»", title: "Al abrirla", caption: "empieza la sorpresa." },
-  { src: "/images/box-includes/vivabox-caja-catalogo.webp", alt: "Catálogo de experiencias Vivabox", title: "El catálogo", caption: "ejemplos de experiencias para elegir." },
-  { src: "/images/box-includes/vivabox-caja-codigo.webp", alt: "Tarjeta con código QR y código de activación Vivabox", title: "El código", caption: "para activar el regalo." },
-  { src: "/images/box-includes/vivabox-caja-mensaje.webp", alt: "Tarjeta con mensaje personal dentro de la caja Vivabox", title: "Un mensaje", caption: "para hacerlo aún más personal." },
+  { src: "/images/box-includes/vivabox-caja-frente.webp", alt: "Caja de regalo Vivabox, vista de frente", title: "Por fuera", caption: "lista para regalar.", short: "para regalar." },
+  { src: "/images/box-includes/vivabox-caja-reverso.webp", alt: "Reverso de la caja Vivabox: cómo funciona el regalo", title: "Atrás", caption: "cómo funciona, en 4 pasos.", short: "cómo funciona." },
+  { src: "/images/box-includes/vivabox-caja-interior.webp", alt: "Interior de la caja Vivabox con el mensaje «Esto es solo el principio»", title: "Al abrirla", caption: "empieza la sorpresa.", short: "la sorpresa." },
+  { src: "/images/box-includes/vivabox-caja-catalogo.webp", alt: "Catálogo de experiencias Vivabox", title: "El catálogo", caption: "ejemplos de experiencias para elegir.", short: "para elegir." },
+  { src: "/images/box-includes/vivabox-caja-codigo.webp", alt: "Tarjeta con código QR y código de activación Vivabox", title: "El código", caption: "para activar el regalo.", short: "para activar." },
+  { src: "/images/box-includes/vivabox-caja-mensaje.webp", alt: "Tarjeta con mensaje personal dentro de la caja Vivabox", title: "Un mensaje", caption: "para hacerlo aún más personal.", short: "personal." },
 ] as const
 
 type Face = (typeof BOX_FACES)[number]
@@ -214,9 +215,18 @@ export default function BoxFacesCarousel({
           every viewport. */}
 
       {showCaption && !is3D && (
-        <p className={compact ? "mt-1.5 px-2 min-h-[2.75em] md:min-h-0 text-center text-[12px] leading-snug" : "-mt-3 sm:-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
+        <p className={compact ? "mt-1.5 px-2 whitespace-nowrap text-center text-[12px] leading-snug" : "-mt-3 sm:-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
           <span className={`font-semibold ${isDark ? "text-white" : "text-ink"}`}>{faces[active].title}</span>
-          <span className={isDark ? "text-white/60" : "text-ink/55"}>, {faces[active].caption}</span>
+          <span className={isDark ? "text-white/60" : "text-ink/55"}>
+            {compact ? (
+              <>
+                <span className="md:hidden">, {faces[active].short}</span>
+                <span className="hidden md:inline">, {faces[active].caption}</span>
+              </>
+            ) : (
+              <>, {faces[active].caption}</>
+            )}
+          </span>
         </p>
       )}
 
