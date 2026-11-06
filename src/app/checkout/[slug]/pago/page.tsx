@@ -382,9 +382,9 @@ export default function PagoPage() {
             <button
               onClick={handlePayment}
               disabled={!ready}
-              className="flex w-full items-center justify-center gap-1.5 text-sm text-[#6B6B6B] underline underline-offset-2 disabled:opacity-60"
+              className="vb-btn-neutral w-full h-12"
             >
-              <CreditCard size={14} strokeWidth={2} />
+              <CreditCard size={18} strokeWidth={2} />
               Pagar con tarjeta, Nequi o PSE
             </button>
           </div>
