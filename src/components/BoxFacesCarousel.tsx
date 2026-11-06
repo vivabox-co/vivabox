@@ -62,6 +62,9 @@ export default function BoxFacesCarousel({
   const on3DLoaded = useCallback(() => setReady3D(true), [])
 
   const isDark = theme === "dark"
+  // In compact spots the caption margin pulls the text up by the photo's transparent
+  // margin (~10.3% of its width), so the caption sits ~10px under the visible box,
+  // matching the ~10px gap below it (dots).
   // Compact + nothing under the image: dots float over the layout (product hero
   // without caption). As soon as a caption or the 3D switch is shown, dots go in flow.
   const floatDots = compact && !showCaption && !enable3D
@@ -215,7 +218,7 @@ export default function BoxFacesCarousel({
           every viewport. */}
 
       {showCaption && !is3D && (
-        <p className={compact ? "mt-1.5 px-2 whitespace-nowrap text-center text-[12px] leading-snug" : "-mt-3 sm:-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
+        <p className={compact ? "mt-[calc(10px-10.3%)] px-2 whitespace-nowrap text-center text-[12px] leading-snug" : "-mt-3 sm:-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
           <span className={`font-semibold ${isDark ? "text-white" : "text-ink"}`}>{faces[active].title}</span>
           <span className={isDark ? "text-white/60" : "text-ink/55"}>
             {compact ? (
@@ -254,7 +257,7 @@ export default function BoxFacesCarousel({
       )}
 
       {compact && !floatDots && !is3D && (
-        <div className="mt-0.5 flex justify-center gap-1.5">
+        <div className="mt-1.5 flex justify-center gap-1.5">
           {dots}
         </div>
       )}
@@ -263,7 +266,7 @@ export default function BoxFacesCarousel({
         <div
           role="group"
           aria-label="Tipo de vista"
-          className={`${is3D ? (compact ? "mt-9 sm:mt-12" : "mt-12 sm:mt-16 lg:mt-[88px] xl:mt-[96px]") : compact ? "mt-2" : "mt-4"} relative z-20 mx-auto flex w-fit rounded-full p-1 ${compact ? "text-[12px]" : "text-[14px]"} ${isDark ? "bg-white/15" : "bg-ink/[0.06]"}`}
+          className={`${is3D ? (compact ? "mt-9 sm:mt-12" : "mt-12 sm:mt-16 lg:mt-[88px] xl:mt-[96px]") : compact ? "mt-1.5" : "mt-4"} relative z-20 mx-auto flex w-fit rounded-full p-1 ${compact ? "text-[12px]" : "text-[14px]"} ${isDark ? "bg-white/15" : "bg-ink/[0.06]"}`}
         >
           {(["fotos", "3d"] as const).map((m) => (
             <button
