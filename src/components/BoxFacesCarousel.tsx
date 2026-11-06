@@ -61,6 +61,9 @@ export default function BoxFacesCarousel({
   const on3DLoaded = useCallback(() => setReady3D(true), [])
 
   const isDark = theme === "dark"
+  // Compact + nothing under the image: dots float over the layout (product hero
+  // without caption). As soon as a caption or the 3D switch is shown, dots go in flow.
+  const floatDots = compact && !showCaption && !enable3D
 
   // Active face derived from scroll position (one face = one track width),
   // so swipe, trackpad, dots and arrows all stay in sync with a single source.
@@ -191,7 +194,7 @@ export default function BoxFacesCarousel({
             add to the box's layout height — keeping it the same height as
             the image itself, which is what lets it sit truly centered next
             to the checklist beside it instead of drifting up. */}
-        {compact && (
+        {floatDots && (
           <div className="absolute inset-x-0 top-full mt-2 flex justify-center gap-1.5">
             {dots}
           </div>
@@ -211,7 +214,7 @@ export default function BoxFacesCarousel({
           every viewport. */}
 
       {showCaption && !is3D && (
-        <p className={compact ? "mt-1.5 px-2 text-center text-[12px] leading-snug" : "-mt-3 sm:-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
+        <p className={compact ? "mt-1.5 px-2 min-h-[2.75em] md:min-h-0 text-center text-[12px] leading-snug" : "-mt-3 sm:-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug"}>
           <span className={`font-semibold ${isDark ? "text-white" : "text-ink"}`}>{faces[active].title}</span>
           <span className={isDark ? "text-white/60" : "text-ink/55"}>, {faces[active].caption}</span>
         </p>
@@ -220,7 +223,7 @@ export default function BoxFacesCarousel({
       {/* DOTS (normal flow — homepage usage only; compact renders them above, overlaid) */}
 
       {is3D && (
-        <p className="-mt-3 sm:-mt-1 px-6 text-center text-[15px] md:text-[16px] leading-snug text-ink/55">
+        <p className={`${compact ? "mt-1.5 px-2 text-[12px]" : "-mt-3 sm:-mt-1 px-6 text-[15px] md:text-[16px]"} text-center leading-snug ${isDark ? "text-white/60" : "text-ink/55"}`}>
           <span className="relative">
             Arrástrala para girarla.
             {!ready3D && (
@@ -240,11 +243,17 @@ export default function BoxFacesCarousel({
         </div>
       )}
 
+      {compact && !floatDots && !is3D && (
+        <div className="mt-0.5 flex justify-center gap-1.5">
+          {dots}
+        </div>
+      )}
+
       {enable3D && (
         <div
           role="group"
           aria-label="Tipo de vista"
-          className={`${is3D ? "mt-12 sm:mt-16 lg:mt-[88px] xl:mt-[96px]" : "mt-4"} relative z-20 mx-auto flex w-fit rounded-full bg-ink/[0.06] p-1 text-[14px]`}
+          className={`${is3D ? (compact ? "mt-9 sm:mt-12" : "mt-12 sm:mt-16 lg:mt-[88px] xl:mt-[96px]") : compact ? "mt-2" : "mt-4"} relative z-20 mx-auto flex w-fit rounded-full p-1 ${compact ? "text-[12px]" : "text-[14px]"} ${isDark ? "bg-white/15" : "bg-ink/[0.06]"}`}
         >
           {(["fotos", "3d"] as const).map((m) => (
             <button
@@ -258,8 +267,10 @@ export default function BoxFacesCarousel({
                 }
               }}
               aria-pressed={mode === m}
-              className={`rounded-full px-4 py-1.5 font-medium transition ${
-                mode === m ? "bg-white text-ink shadow-sm" : "text-ink/55 hover:text-ink"
+              className={`rounded-full ${compact ? "px-3 py-1" : "px-4 py-1.5"} font-medium transition ${
+                mode === m
+                  ? "bg-white text-ink shadow-sm"
+                  : isDark ? "text-white/70 hover:text-white" : "text-ink/55 hover:text-ink"
               }`}
             >
               {m === "fotos" ? "Fotos" : "Ver en 3D"}

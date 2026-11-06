@@ -8,10 +8,6 @@ import { useRouter } from "next/navigation"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import BoxFacesCarousel, { BOX_FACES } from "@/components/BoxFacesCarousel"
 
-// Hero only needs front + back — enough to confirm the physical product
-// without repeating the full box-opening story already told on the Homepage.
-const HERO_BOX_FACES = BOX_FACES.slice(0, 2)
-
 type BoxHeroProps = {
   name: string
   price: number
@@ -110,18 +106,16 @@ export default function BoxHero({
             ${formatPrice(price)} COP
           </p>
 
-          {/* BOX + CHECKLIST — extra bottom margin gives the overlaid dots
-              (floated below the box image, see BoxFacesCarousel) clearance
-              from the quantity label underneath instead of nearly touching it. */}
-          <div className="flex items-center gap-0 sm:gap-2 mb-9">
+          {/* BOX + CHECKLIST — all six faces + caption + Fotos / 3D switch under the image. */}
+          <div className="flex items-center gap-0 sm:gap-2 mb-8">
 
             <div className="shrink-0 w-[190px] sm:w-[280px] md:w-[340px] -ml-6 sm:ml-0">
               <BoxFacesCarousel
-                faces={HERO_BOX_FACES}
+                faces={BOX_FACES}
                 sizes="(min-width: 768px) 340px, (min-width: 640px) 280px, 190px"
                 theme="dark"
                 compact
-                showCaption={false}
+                enable3D
               />
             </div>
 
