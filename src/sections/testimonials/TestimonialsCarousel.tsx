@@ -70,16 +70,17 @@ function ReviewCard({ t }: { t: Testimonial }) {
   const isLong = t.text.length > LONG_TEXT;
 
   return (
-    <article className="relative w-[280px] md:w-[320px] shrink-0 snap-start self-start bg-white border border-black/5 rounded-2xl px-5 pt-6 pb-4">
-      <span
-        aria-hidden
-        className="absolute -top-1 left-4 text-5xl leading-none text-primary/30 select-none"
-      >
-        “
-      </span>
-
+    <article className="w-[280px] md:w-[320px] shrink-0 snap-start self-start bg-white border border-black/5 rounded-2xl px-5 pt-4 pb-4">
       <div className="flex items-center justify-between gap-3 mb-2">
-        <span className="font-semibold text-sm">{t.name}</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            aria-hidden
+            className="font-serif text-3xl leading-none text-primary select-none translate-y-[6px]"
+          >
+            “
+          </span>
+          <span className="font-semibold text-sm truncate">{t.name}</span>
+        </div>
         <div className="flex items-center gap-2.5">
           <Stars count={t.rating} size={13} />
           <SourceLink source={t.source} url={t.sourceUrl} />
