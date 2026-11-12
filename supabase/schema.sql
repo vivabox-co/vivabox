@@ -605,3 +605,35 @@ alter table ventas
 alter table partner_leads
   add column if not exists status text not null default 'nuevo'
     check (status in ('nuevo', 'contactado', 'aceptado', 'rechazado'));
+
+-- =============================================================
+-- RESEÑAS GOOGLE — 2026-11-12 : reseñas de 4 y 5 estrellas copiadas de la
+-- ficha de Google Business para la sección de testimonios del home. Se
+-- importan de forma puntual con scripts/import-google-reviews.mjs (sin
+-- sincronización automática). is_visible permite ocultar una reseña sin
+-- republicar el sitio. Solo se leen del lado servidor (service_role).
+-- =============================================================
+create table if not exists google_reviews (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+
+  author_name text not null,
+  rating smallint not null check (rating between 1 and 5),
+  review_date date,
+  text text not null,
+  is_visible boolean not null default true,
+  source text not null default 'google',
+  -- Enlace a la reseña original (icono clicable en cada tarjeta).
+  source_url text,
+
+  -- Evita duplicados si el script se ejecuta dos veces.
+  constraint google_reviews_unique unique (source, author_name, text)
+);
+
+alter table google_reviews enable row level security;
+-- Sin policy : acceso exclusivo vía service_role.
+grant select, insert, update, delete on google_reviews to service_role;
+
+-- MIGRATION — 2026-11-12 : enlace a la reseña original. Sin efecto si la
+-- tabla ya se creó con la definición de arriba.
+alter table google_reviews add column if not exists source_url text;
