@@ -137,6 +137,35 @@ export default function Hero() {
 
         <div className="flex-1" />
 
+        {/* LOCATION BADGE */}
+
+        <div
+          className="
+            mb-3 inline-flex items-center gap-1.5 self-start
+            h-7 px-3 rounded-full
+            bg-white/20 backdrop-blur-sm
+            border border-white/40
+            text-white text-[13px] font-medium
+            [text-shadow:0_1px_8px_rgba(0,0,0,.25)]
+          "
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
+            <circle cx="12" cy="9.5" r="2.5" />
+          </svg>
+          Bogotá y Cundinamarca
+        </div>
+
         {/* HEADLINE */}
 
         <h1
