@@ -3,10 +3,6 @@ import TestimonialsCarousel, {
   type Testimonial,
 } from "./TestimonialsCarousel";
 
-// Ficha de Google Maps de Vivabox Colombia.
-const GOOGLE_URL =
-  "https://www.google.com/maps/place/Vivabox+Colombia/data=!4m8!3m7!1s0x8e3f999b98077ee5:0x877f1cb2c5b62e09!8m2!3d4.7824956!4d-73.970706!9m1!1b1!16s%2Fg%2F11nvgzsvzd";
-
 // "Camila Martínez Pérez" -> "Camila M."
 function formatName(full: string): string {
   const parts = full.trim().split(/\s+/);
@@ -32,44 +28,34 @@ function relativeDate(iso: string | null): string | null {
   return y === 1 ? "Hace 1 año" : `Hace ${y} años`;
 }
 
-async function getReviews(): Promise<{ items: Testimonial[]; average: string }> {
+async function getReviews(): Promise<Testimonial[]> {
   try {
     const { data, error } = await getSupabase()
       .from("google_reviews")
-      .select("id, author_name, rating, text, review_date")
+      .select("id, author_name, rating, text, review_date, source, source_url")
       .eq("is_visible", true)
       .gte("rating", 4)
       .order("review_date", { ascending: false });
 
-    if (error || !data || data.length === 0) return { items: [], average: "" };
+    if (error || !data) return [];
 
-    const avg =
-      data.reduce((sum, r) => sum + (r.rating as number), 0) / data.length;
-
-    return {
-      average: avg.toFixed(1).replace(".", ","),
-      items: data.map((r) => ({
-        id: r.id as string,
-        name: formatName(r.author_name as string),
-        rating: r.rating as number,
-        text: r.text as string,
-        dateLabel: relativeDate(r.review_date as string | null),
-      })),
-    };
+    return data.map((r) => ({
+      id: r.id as string,
+      name: formatName(r.author_name as string),
+      rating: r.rating as number,
+      text: r.text as string,
+      dateLabel: relativeDate(r.review_date as string | null),
+      source: (r.source as string) ?? "google",
+      sourceUrl: (r.source_url as string | null) ?? null,
+    }));
   } catch {
     // Sin Supabase configurado o tabla ausente: la sección simplemente no aparece.
-    return { items: [], average: "" };
+    return [];
   }
 }
 
 export default async function Testimonials() {
-  const { items, average } = await getReviews();
+  const items = await getReviews();
   if (items.length === 0) return null;
-  return (
-    <TestimonialsCarousel
-      reviews={items}
-      average={average}
-      googleUrl={GOOGLE_URL}
-    />
-  );
+  return <TestimonialsCarousel reviews={items} />;
 }

@@ -623,6 +623,8 @@ create table if not exists google_reviews (
   text text not null,
   is_visible boolean not null default true,
   source text not null default 'google',
+  -- Enlace a la reseña original (icono clicable en cada tarjeta).
+  source_url text,
 
   -- Evita duplicados si el script se ejecuta dos veces.
   constraint google_reviews_unique unique (source, author_name, text)
@@ -631,3 +633,7 @@ create table if not exists google_reviews (
 alter table google_reviews enable row level security;
 -- Sin policy : acceso exclusivo vía service_role.
 grant select, insert, update, delete on google_reviews to service_role;
+
+-- MIGRATION — 2026-11-12 : enlace a la reseña original. Sin efecto si la
+-- tabla ya se creó con la definición de arriba.
+alter table google_reviews add column if not exists source_url text;
