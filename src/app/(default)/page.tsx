@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsappButton from "@/components/WhatsappButton";
@@ -8,7 +7,7 @@ import HeroGuideArrow from "@/components/ui/HeroGuideArrow";
 import WhatsIncluded from "@/sections/whats-included/WhatsIncluded";
 import ExperiencesPreview from "@/sections/experiences-preview/ExperiencesPreview";
 import Occasions from "@/sections/occasions/Occasions";
-// import Testimonials from "@/sections/testimonials/Testimonials"; // désactivé tant qu'on n'a pas de vrais avis clients
+import Testimonials from "@/sections/testimonials/Testimonials";
 import FAQ from "@/sections/faq/FAQ";
 import FinalCTA from "@/sections/final-cta/FinalCTA";
 
@@ -69,10 +68,7 @@ export default function Home() {
 
         <BrandRibbon />
 
-        {/* Section avis clients désactivée en attendant les premières vraies ventes — Testimonials.tsx conservé pour réactivation future */}
-        <section className="bg-surface py-16 md:py-20 flex items-center justify-center">
-          <Image src="/icons/logo.webp" alt="Vivabox" width={56} height={56} />
-        </section>
+        <Testimonials />
 
         <section id="faq" className="scroll-mt-24">
           <FAQ />
