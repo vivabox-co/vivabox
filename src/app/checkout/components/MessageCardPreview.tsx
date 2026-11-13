@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef } from "react"
 import { Heart } from "lucide-react"
-import { homemadeApple } from "@/lib/fonts"
+import { coveredByYourGrace } from "@/lib/fonts"
 
 type Props = {
   mensaje: string
@@ -23,8 +23,8 @@ export default function MessageCardPreview({ mensaje, firma, corazon }: Props) {
     function fit() {
       if (!zone) return
       const width = zone.clientWidth
-      const max = width * 0.11
-      const min = width * 0.045
+      const max = width * 0.138
+      const min = width * 0.058
       let size = max
       zone.style.fontSize = `${size}px`
       while (size > min && zone.scrollHeight > zone.clientHeight + 1) {
@@ -44,7 +44,7 @@ export default function MessageCardPreview({ mensaje, firma, corazon }: Props) {
     <div className="w-full max-w-[340px] mx-auto aspect-square bg-[#FCFBF6] shadow-[0_10px_22px_rgba(24,20,15,0.16)] p-[12%] flex flex-col">
       <div
         ref={zoneRef}
-        className={`${homemadeApple.className} flex-1 min-h-0 overflow-hidden flex flex-col justify-center text-[#0B3C5D] leading-[1.5] transition-opacity ${empty ? "opacity-45" : ""}`}
+        className={`${coveredByYourGrace.className} flex-1 min-h-0 overflow-hidden flex flex-col justify-center text-[#0B3C5D] leading-[1.3] transition-opacity ${empty ? "opacity-45" : ""}`}
       >
         <p className="whitespace-pre-wrap break-words">
           {empty ? "Tu mensaje aparecerá aquí." : mensaje}
