@@ -9,6 +9,14 @@ function InstagramLogo({ size = 24 }: { size?: number }) {
   );
 }
 
+function LinkedinLogo({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  );
+}
+
 function WhatsappLogo({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -73,14 +81,31 @@ function openWhatsappOnMobile(e: MouseEvent<HTMLAnchorElement>, phone: string, m
   }, 1500);
 }
 
-export default function WhatsappButton() {
+const SOCIALS = {
+  instagram: {
+    href: "https://www.instagram.com/vivaboxcolombia/",
+    label: "Vivabox en Instagram",
+    bg: "bg-[#C13584]",
+  },
+  linkedin: {
+    href: "https://www.linkedin.com/company/vivabox-colombia",
+    label: "Vivabox en LinkedIn",
+    bg: "bg-[#0A66C2]",
+  },
+} as const;
+
+export default function WhatsappButton({
+  social = "instagram",
+}: {
+  social?: keyof typeof SOCIALS;
+}) {
 
   const [visible, setVisible] = useState(false);
 
   const phone = "573142590291"; 
   const message = "Hola! Estoy pensando regalar una Vivabox y tengo una pregunta.";
 
-  const instagramUrl = "https://www.instagram.com/vivaboxcolombia/";
+  const secondary = SOCIALS[social];
 
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
@@ -110,11 +135,11 @@ export default function WhatsappButton() {
 
       <div className="flex w-14 justify-center">
         <PressableLink
-          href={instagramUrl}
-          label="Vivabox en Instagram"
-          className="w-11 h-11 bg-[#C13584]"
+          href={secondary.href}
+          label={secondary.label}
+          className={`w-11 h-11 ${secondary.bg}`}
         >
-          <InstagramLogo size={24} />
+          {social === "linkedin" ? <LinkedinLogo size={22} /> : <InstagramLogo size={24} />}
         </PressableLink>
       </div>
 

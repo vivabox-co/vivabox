@@ -33,7 +33,7 @@ export default function EmpresasPage() {
       </main>
 
       <Footer />
-      <WhatsappButton />
+      <WhatsappButton social="linkedin" />
     </>
   );
 }
