@@ -9,6 +9,9 @@ import FitLine from "@/components/ui/FitLine"
 import { readSubtitleFontSize, SUBTITLE_FONT_SIZE_EVENT } from "@/utils/subtitleFontSize"
 import { boxes } from "@/data/boxes"
 import { formatPrice } from "@/utils/formatPrice"
+import MapPanel from "@/features/app-map/MapPanel"
+import LandscapePhone from "@/features/app-map/LandscapePhone"
+import type { MapExperience } from "@/features/app-map/config"
 
 const vivabox = boxes[0]
 
@@ -185,7 +188,17 @@ const TIP_ARROW_ALIGN_CLASS: Record<string, string> = {
   right: "right-4",
 }
 
-export default function WhatsIncluded() {
+export default function WhatsIncluded({ mapExperiences = [] }: { mapExperiences?: MapExperience[] }) {
+
+  // The map sits in a phone frame from lg (1024px) up; below that it fills the column.
+  const [isDesktop, setIsDesktop] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)")
+    const update = () => setIsDesktop(mq.matches)
+    update()
+    mq.addEventListener("change", update)
+    return () => mq.removeEventListener("change", update)
+  }, [])
 
   // Bienestar starts active so the tooltip + underline are visible on load,
   // teaching visitors the icons are clickable. Unlike the content picker
@@ -449,19 +462,14 @@ export default function WhatsIncluded() {
 
       <div className="vb-dark relative w-screen left-1/2 -translate-x-1/2 bg-ink">
 
-        <div className="max-w-[1200px] mx-auto grid grid-cols-2 items-stretch h-[380px] sm:h-[420px] md:h-[460px] lg:h-[500px]">
+        <div className="max-w-[1200px] lg:max-w-[1400px] mx-auto grid grid-cols-2 lg:grid-cols-[1.3fr_1fr] items-stretch h-[380px] sm:h-[420px] md:h-[460px] lg:h-[500px]">
 
-          <div className="relative w-full h-full overflow-hidden" aria-label="App Vivabox para descubrir, elegir y reservar experiencias">
-            <Image
-              src="/images/app-phone/vivabox-app-experiencias.webp"
-              alt="App Vivabox mostrando experiencias disponibles en Bogotá y Cundinamarca"
-              fill
-              // The source is only 853px wide, and at desktop sizes Next's
-              // resizing (750w at q75) plus scale-110 upscaled a re-compressed
-              // copy, so it looked blurry. Serve the original untouched.
-              unoptimized
-              className="object-cover scale-110"
-            />
+          {/* Below lg the map fills the column edge to edge. From lg up it sits inside a landscape iPhone frame at real phone size, scaled to fit. */}
+          <div
+            className="relative w-full h-full overflow-hidden flex items-center justify-center"
+            aria-label="Mapa de experiencias en Bogotá y Cundinamarca"
+          >
+            {isDesktop ? <LandscapePhone experiences={mapExperiences} /> : <MapPanel experiences={mapExperiences} />}
           </div>
 
           <div className="flex flex-col justify-center px-4 sm:px-8 md:px-14 lg:px-20 text-left">
