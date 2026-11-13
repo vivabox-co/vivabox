@@ -1,10 +1,10 @@
 import { Suspense } from "react"
-import { getExperienceExamples } from "@/services/experiences"
+import { getExperienceExamples, getMapExperiences } from "@/services/experiences"
 import BoxExperienceExamplesGrid from "./BoxExperienceExamplesGrid"
 
 async function BoxExperienceExamplesLoader() {
-  const experiences = await getExperienceExamples()
-  return <BoxExperienceExamplesGrid experiences={experiences} />
+  const [experiences, mapExperiences] = await Promise.all([getExperienceExamples(), getMapExperiences()])
+  return <BoxExperienceExamplesGrid experiences={experiences} mapExperiences={mapExperiences} />
 }
 
 export default function BoxExperienceExamples() {

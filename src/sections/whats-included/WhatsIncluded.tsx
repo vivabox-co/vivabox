@@ -466,6 +466,7 @@ export default function WhatsIncluded({ mapExperiences = [] }: { mapExperiences?
 
           {/* Below lg the map fills the column edge to edge. From lg up it sits inside a landscape iPhone frame at real phone size, scaled to fit. */}
           <div
+            id="mapa-experiencias"
             className="relative w-full h-full overflow-hidden flex items-center justify-center"
             aria-label="Mapa de experiencias en Bogotá y Cundinamarca"
           >
