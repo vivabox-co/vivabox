@@ -4,6 +4,7 @@ import crypto from "node:crypto"
 import { getSheetData } from "./sheet"
 import { parseVisibleBadgeKeys } from "@/data/badges"
 import type { Experience } from "@/types/experience"
+import { categoryOrder, normalizeActivityKey, type MapCategory, type MapExperience } from "@/features/app-map/config"
 
 const categoryMap: Record<string,string> = {
   gastro: "gastronomia",
@@ -192,4 +193,37 @@ export async function getExperienceExamples():Promise<Experience[]> {
   }
 
   return ordered
+}
+
+// Every published experience that has valid coordinates, in the compact shape
+// the homepage's phone map needs (same fields the beneficiary app's map reads).
+// Provider names, prices and exact addresses are deliberately not included.
+export async function getMapExperiences(): Promise<MapExperience[]> {
+
+  const rows: any[] = await getSheetData()
+  const result: MapExperience[] = []
+
+  for (const row of rows) {
+    const category = String(row.category || "").trim().toLowerCase() as MapCategory
+    const lat = Number(String(row.ubicacion_lat ?? "").replace(",", "."))
+    const lng = Number(String(row.ubicacion_lng ?? "").replace(",", "."))
+
+    if (!row.codigo_interno || !categoryOrder.includes(category) || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+      continue
+    }
+
+    result.push({
+      id: String(row.codigo_interno).trim(),
+      title: row.title,
+      category,
+      activityKey: normalizeActivityKey(row.tipo_actividad),
+      lat,
+      lng,
+      city: row.city || row.zone || "",
+      format: String(row.format || "").trim().toLowerCase(),
+      photos: resolveGallery(row),
+    })
+  }
+
+  return result
 }

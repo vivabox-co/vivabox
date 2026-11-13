@@ -5,6 +5,7 @@ import WhatsappButton from "@/components/WhatsappButton";
 import Hero from "@/sections/hero/Hero";
 import HeroGuideArrow from "@/components/ui/HeroGuideArrow";
 import WhatsIncluded from "@/sections/whats-included/WhatsIncluded";
+import { getMapExperiences } from "@/services/experiences";
 import ExperiencesPreview from "@/sections/experiences-preview/ExperiencesPreview";
 import Occasions from "@/sections/occasions/Occasions";
 import Testimonials from "@/sections/testimonials/Testimonials";
@@ -29,7 +30,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const mapExperiences = await getMapExperiences();
+
   return (
     <>
       <script
@@ -57,7 +60,7 @@ export default function Home() {
         </div>
 
         <section id="incluye" className="scroll-mt-24">
-          <WhatsIncluded />
+          <WhatsIncluded mapExperiences={mapExperiences} />
         </section>
 
         <section id="experiencias" className="scroll-mt-24">
