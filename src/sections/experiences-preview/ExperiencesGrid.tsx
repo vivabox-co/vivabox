@@ -18,6 +18,10 @@ export default function ExperiencesGrid({
 
   const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollToMap = () => {
+    document.getElementById("mapa-experiencias")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -155,7 +159,18 @@ export default function ExperiencesGrid({
         })}
 
         {/* LAST CARD */}
-        <div className="vb-card group snap-start min-w-[260px] hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden">
+        <div
+          role="link"
+          tabIndex={0}
+          onClick={scrollToMap}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault()
+              scrollToMap()
+            }
+          }}
+          className="vb-card group cursor-pointer snap-start min-w-[260px] hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden"
+        >
 
           <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px]">
 

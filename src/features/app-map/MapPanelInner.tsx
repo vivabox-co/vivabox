@@ -21,6 +21,7 @@ import {
   type MapExperience,
 } from "./config"
 import { createClusterIcon, createPinIcon } from "./createPinIcon"
+import AppChrome, { CHROME_LAYOUT, type AppChromeVariant } from "./AppChrome"
 
 import "leaflet/dist/leaflet.css"
 import "leaflet.markercluster/dist/MarkerCluster.css"
@@ -28,6 +29,11 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css"
 
 type Props = {
   experiences: MapExperience[]
+  // Inside a modal there is no page to scroll past: the map is live right away,
+  // on touch and with the mouse wheel, and shows no activation hints.
+  immediate?: boolean
+  // Draw the beneficiary app's full map chrome (only used inside the phone frames).
+  appUI?: AppChromeVariant
 }
 
 // `drag` covers panning, pinch/double-click zoom and keyboard; the mouse wheel
@@ -194,12 +200,13 @@ function ExperiencePopup({ exp }: { exp: MapExperience }) {
   )
 }
 
-export default function MapPanelInner({ experiences }: Props) {
+export default function MapPanelInner({ experiences, immediate = false, appUI }: Props) {
+  const chrome = appUI ? CHROME_LAYOUT[appUI] : null
   // Touch devices start frozen (tap to take control) so a finger scrolling the
   // page never gets trapped in the map. Mouse devices can drag right away.
   const [coarse] = useState(() => window.matchMedia("(pointer: coarse)").matches)
-  const [active, setActive] = useState(!coarse)
-  const [wheel, setWheel] = useState(false)
+  const [active, setActive] = useState(immediate || !coarse)
+  const [wheel, setWheel] = useState(immediate)
   // Mouse devices: tell the visitor the wheel needs a click first, then confirm it's on.
   const [hovering, setHovering] = useState(false)
   const [justActivated, setJustActivated] = useState(false)
@@ -234,7 +241,7 @@ export default function MapPanelInner({ experiences }: Props) {
 
   // On touch devices, freeze the map again once it leaves the screen.
   useEffect(() => {
-    if (!coarse) return
+    if (!coarse || immediate) return
     const el = frameRef.current
     if (!el) return
     const io = new IntersectionObserver(([entry]) => {
@@ -242,30 +249,30 @@ export default function MapPanelInner({ experiences }: Props) {
     }, { threshold: 0.2 })
     io.observe(el)
     return () => io.disconnect()
-  }, [coarse])
+  }, [coarse, immediate])
 
   useEffect(() => {
-    if (!active || !coarse) return
+    if (!active || !coarse || immediate) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setActive(false)
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [active, coarse])
+  }, [active, coarse, immediate])
 
   return (
     <div
       ref={frameRef}
       className="vb-map-panel"
       onPointerDown={() => {
-        if (coarse || wheel) return
+        if (immediate || coarse || wheel) return
         setWheel(true)
         setJustActivated(true)
       }}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => {
         setHovering(false)
-        setWheel(false)
+        if (!immediate) setWheel(false)
         setJustActivated(false)
       }}
       style={{
@@ -275,11 +282,12 @@ export default function MapPanelInner({ experiences }: Props) {
         overflow: "hidden",
         isolation: "isolate",
         background: "#f4f1ea",
+        ["--vb-attr-bottom" as string]: chrome ? `${chrome.attributionBottom}px` : "0px",
       }}
     >
       <style>{`
         .vb-map-panel .leaflet-container { background: #f4f1ea; font-family: inherit; }
-        .vb-map-panel .leaflet-control-attribution { font-size: 8px; opacity: .6; margin: 0; line-height: 1.2; }
+        .vb-map-panel .leaflet-control-attribution { font-size: 8px; opacity: .6; margin: 0 0 var(--vb-attr-bottom, 0px) 6px; line-height: 1.2; }
         .vb-map-panel .leaflet-popup-content { margin: 12px 14px; }
         .vb-map-panel .leaflet-popup-content-wrapper { border-radius: 14px; }
         .vb-map-panel .vivabox-pin { background: none; border: none; }
@@ -327,7 +335,10 @@ export default function MapPanelInner({ experiences }: Props) {
                 alt={exp.title}
                 icon={createPinIcon(categoryColors[category], exp.activityKey, exp.title)}
               >
-                <Popup autoPanPaddingTopLeft={[16, window.innerWidth >= 1024 ? 64 : 72]} autoPanPaddingBottomRight={[16, window.innerWidth >= 1024 ? 16 : 24]}>
+                <Popup
+                  autoPanPaddingTopLeft={[16, chrome ? chrome.popupTop : window.innerWidth >= 1024 ? 64 : 72]}
+                  autoPanPaddingBottomRight={[16, chrome ? chrome.popupBottom : window.innerWidth >= 1024 ? 16 : 24]}
+                >
                   <ExperiencePopup exp={exp} />
                 </Popup>
               </Marker>
@@ -336,7 +347,11 @@ export default function MapPanelInner({ experiences }: Props) {
         ))}
       </MapContainer>
 
-      {/* Category filters, same behaviour as the app's legend */}
+      {/* Category filters, same behaviour as the app's legend (or the full app chrome inside the phone frames) */}
+      {appUI ? (
+        <AppChrome variant={appUI} activeCategories={activeCategories} onToggleCategory={toggleCategory} />
+      ) : (
+        <>
       <div
         style={{
           position: "absolute",
@@ -378,15 +393,17 @@ export default function MapPanelInner({ experiences }: Props) {
           </button>
         ))}
       </div>
+        </>
+      )}
 
       {/* Mouse devices: signal that the wheel zooms only after a click */}
-      {!coarse && (hovering || justActivated) && (!wheel || justActivated) && (
+      {!immediate && !coarse && (hovering || justActivated) && (!wheel || justActivated) && (
         <span
           aria-hidden="true"
           style={{
             position: "absolute",
             left: "50%",
-            bottom: 26,
+            bottom: chrome ? chrome.hintBottom : 26,
             transform: "translateX(-50%)",
             zIndex: 1200,
             pointerEvents: "none",
@@ -405,7 +422,7 @@ export default function MapPanelInner({ experiences }: Props) {
       )}
 
       {/* Touch devices: tap once to take control of the map */}
-      {coarse && !active && (
+      {!immediate && coarse && !active && (
         <button
           type="button"
           onClick={() => setActive(true)}
@@ -439,14 +456,14 @@ export default function MapPanelInner({ experiences }: Props) {
         </button>
       )}
 
-      {coarse && active && (
+      {!immediate && coarse && active && (
         <button
           type="button"
           onClick={() => setActive(false)}
           style={{
             position: "absolute",
             right: 8,
-            bottom: 22,
+            bottom: chrome ? chrome.hintBottom : 22,
             zIndex: 1200,
             display: "flex",
             alignItems: "center",

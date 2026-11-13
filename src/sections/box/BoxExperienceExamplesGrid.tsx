@@ -5,17 +5,22 @@ import { useState } from "react"
 import { Smartphone } from "lucide-react"
 import ExperienceModal from "@/components/ExperienceModal"
 import type { Experience } from "@/types/experience"
+import type { MapExperience } from "@/features/app-map/config"
+import PortraitPhoneModal from "@/features/app-map/PortraitPhoneModal"
 import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR, formatCity } from "@/data/categories"
 
 const CARD_IMAGE_SIZES = "(min-width: 1024px) 210px, 260px"
 
 export default function BoxExperienceExamplesGrid({
   experiences,
+  mapExperiences,
 }: {
   experiences: Experience[]
+  mapExperiences: MapExperience[]
 }) {
 
   const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null)
+  const [mapOpen, setMapOpen] = useState(false)
 
   return (
     <>
@@ -75,7 +80,19 @@ export default function BoxExperienceExamplesGrid({
         })}
 
         {/* LAST CARD */}
-        <div className="vb-card group snap-start min-w-[260px] lg:min-w-[210px] hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden">
+        <div
+          role="button"
+          tabIndex={0}
+          aria-haspopup="dialog"
+          onClick={() => setMapOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault()
+              setMapOpen(true)
+            }
+          }}
+          className="vb-card group cursor-pointer snap-start min-w-[260px] lg:min-w-[210px] hover:-translate-y-[2px] transition-transform duration-300 overflow-hidden"
+        >
 
           <div className="relative w-full h-[160px] overflow-hidden rounded-t-[26px]">
 
@@ -120,6 +137,10 @@ export default function BoxExperienceExamplesGrid({
         experience={selectedExperience}
         onClose={() => setSelectedExperience(null)}
       />
+
+      {mapOpen && (
+        <PortraitPhoneModal experiences={mapExperiences} onClose={() => setMapOpen(false)} />
+      )}
     </>
   )
 }
