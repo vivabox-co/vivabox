@@ -80,7 +80,10 @@ export default function PagoPage() {
         return
       }
 
-      router.push(`/checkout/pago/pendiente?ventaId=${ventaId}`)
+      // El cliente no espera la verificación en una pantalla muerta: pasa
+      // directo al paso "Listo" (modo "verificando") y puede escribir su mensaje.
+      const slug = box?.slug ? `&slug=${encodeURIComponent(box.slug)}` : ""
+      router.push(`/checkout/success?ventaId=${ventaId}&pending=1${slug}`)
     } catch {
       setError("No pudimos conectar con el servidor. Revisa tu conexión e intenta de nuevo.")
       setReporting(false)

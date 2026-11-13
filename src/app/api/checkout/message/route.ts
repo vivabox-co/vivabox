@@ -2,9 +2,14 @@ import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
 import { MESSAGE_MAX_LENGTH, SIGNATURE_MAX_LENGTH } from "@/features/checkout/personalMessage"
 
-// Le message personnel s'écrit après le paiement, une seule fois : la ligne
-// n'est mise à jour que tant que message_mensaje est NULL. Un envoi sans texte
-// ("Continuar sin mensaje") écrit une chaîne vide, ce qui verrouille aussi.
+// Le message personnel s'écrit une seule fois : la ligne n'est mise à jour que
+// tant que message_mensaje est NULL. Un envoi sans texte ("Continuar sin
+// mensaje") écrit une chaîne vide, ce qui verrouille aussi.
+//
+// Il s'écrit une fois la venta payée, OU pendant que l'équipe vérifie un
+// paiement Bre-B (reserved/expired + payment_method 'transfer') : le client n'a
+// pas à attendre la confirmation. Le message reste sur la venta quand elle
+// passe à 'paid' (aucune transition ne touche message_*).
 export async function POST(req: Request) {
   try {
     const { ventaId, mensaje, de } = await req.json()
@@ -22,7 +27,7 @@ export async function POST(req: Request) {
       .from("ventas")
       .update({ message_mensaje: text, message_de: text ? signature : "" })
       .eq("id", ventaId)
-      .in("status", ["paid", "completed"])
+      .or("status.in.(paid,completed),and(status.in.(reserved,expired),payment_method.eq.transfer)")
       .is("message_mensaje", null)
       .select("id")
 

@@ -519,6 +519,40 @@ The customer already validated everything before entering payment.
 
 ---
 
+## Pago por QR / llave Bre-B (sin Wompi)
+
+Alternativa al widget: el cliente escanea el QR de Bancolombia, paga el monto
+exacto y toca **"Ya hice el pago"**. El equipo verifica a mano en Bancolombia.
+
+**El cliente no espera en una pantalla muerta.** Al tocar "Ya hice el pago":
+
+1. `POST /api/checkout/manual-payment` (`report`) marca la venta
+   `payment_method = 'transfer'`, guarda `transfer_reported_at`, alerta al equipo
+   (email "💸 Verificar pago VB-XXXXXX" + push de vivabox-operativo) y envía al
+   comprador el email **"Estamos verificando tu pago"** (`kind: verifying`).
+2. El cliente pasa directo a `/checkout/success?ventaId=…&pending=1`, en modo
+   *verificando*: banner "Ya casi está tu Vivabox" + referencia, y puede escribir
+   su mensaje personal enseguida (`/api/checkout/message` acepta ventas
+   `reserved/expired` con `payment_method = 'transfer'`).
+3. La página consulta `action: "status"` cada 5 s. Tres estados:
+   - `paid` — el equipo confirmó ("Confirmar pago"): el banner pasa a "Pago
+     confirmado", se llama a `/api/checkout/complete` y se limpia el store.
+     Llega el email "Pago confirmado" de siempre.
+   - `rejected` — el equipo pulsó "No llegó": `payment_method` vuelve a NULL pero
+     `transfer_reported_at` se conserva. La página muestra "Aún no vemos tu pago"
+     (WhatsApp con el comprobante + "Volver al pago") y el cliente recibe el
+     email `not_found`. El mensaje ya escrito se conserva. Si vuelve a avisar,
+     la venta reaparece en "Por verificar".
+   - `pending` — sigue en verificación.
+4. `/checkout/pago/pendiente?ventaId=…` ya no es una pantalla: redirige a
+   `/checkout/success?…&pending=1` (el enlace que el back-office manda por
+   WhatsApp sigue funcionando).
+
+`/api/checkout/complete` solo se llama con la venta pagada: una venta en
+verificación se queda `reserved`.
+
+---
+
 # STEP 3 — LISTO
 
 Purpose

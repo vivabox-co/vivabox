@@ -3,10 +3,12 @@
 import { Suspense, useEffect, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Package, CheckCircle2, Truck, Mail, Sparkles, Loader2, ArrowRight, MessageCircle } from "lucide-react"
+import { Package, CheckCircle2, Truck, Mail, Sparkles, Loader2, ArrowRight, MessageCircle, Clock, AlertCircle } from "lucide-react"
 import CheckoutProgress from "../CheckoutProgress"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 import { HEART, SIGNATURE_MAX_LENGTH } from "@/features/checkout/personalMessage"
+import { paymentReference } from "@/services/manualPayment"
+import { whatsappLink } from "@/utils/whatsappLink"
 import PersonalMessageForm from "../components/PersonalMessageForm"
 import MessageCardPreview from "../components/MessageCardPreview"
 
@@ -22,6 +24,12 @@ type OrderSnapshot = {
 // writing: form open · saved / already: message locked in · skipped: left empty
 type MessagePhase = "writing" | "saved" | "already" | "skipped"
 
+// paid: pago confirmado · verifying: pago Bre-B avisado, el equipo lo revisa en
+// Bancolombia · rejected: el equipo no lo encontró ("No llegó")
+type PaymentPhase = "paid" | "verifying" | "rejected"
+
+const STATUS_POLL_INTERVAL_MS = 5000
+
 export default function SuccessPage() {
   return (
     <Suspense fallback={null}>
@@ -33,6 +41,12 @@ export default function SuccessPage() {
 function SuccessPageContent() {
   const searchParams = useSearchParams()
   const ventaId = searchParams.get("ventaId") || ""
+  const pending = searchParams.get("pending") === "1"
+  const slug = searchParams.get("slug") || ""
+
+  // En modo pending el cliente llega apenas toca "Ya hice el pago": escribe su
+  // mensaje mientras el equipo verifica, y esta página detecta la confirmación.
+  const [payment, setPayment] = useState<PaymentPhase>(pending ? "verifying" : "paid")
 
   const hasHydrated = useCheckoutStore(s => s.hasHydrated)
   const reset = useCheckoutStore(s => s.reset)
@@ -51,8 +65,8 @@ function SuccessPageContent() {
   const [loading, setLoading] = useState(false)
   const isSubmittingRef = useRef(false)
 
-  // The payment already completes the venta on its own; this call is only a
-  // safety net (idempotent), then the checkout store is cleared.
+  // Snapshot of the order, taken once after hydration and always before the
+  // store is reset (that happens only once the payment is confirmed).
   useEffect(() => {
     if (!hasHydrated || startedRef.current) return
     startedRef.current = true
@@ -69,8 +83,15 @@ function SuccessPageContent() {
       city: s.city,
     })
     setFirma((s.buyerName || "").slice(0, SIGNATURE_MAX_LENGTH))
+  }, [hasHydrated])
 
-    if (!ventaId) return
+  // The payment already completes the venta on its own; this call is only a
+  // safety net (idempotent), then the checkout store is cleared. It waits for
+  // a confirmed payment: a Bre-B venta under review must stay reserved.
+  const completedRef = useRef(false)
+  useEffect(() => {
+    if (!hasHydrated || !ventaId || payment !== "paid" || completedRef.current) return
+    completedRef.current = true
 
     fetch("/api/checkout/complete", {
       method: "POST",
@@ -80,7 +101,41 @@ function SuccessPageContent() {
       .then(res => res.json())
       .then(data => { if (data.ok) reset() })
       .catch(() => {})
-  }, [hasHydrated, ventaId, reset])
+  }, [hasHydrated, ventaId, payment, reset])
+
+  // Bre-B: ask every few seconds whether the team confirmed (or couldn't find)
+  // the payment. Stops as soon as it is paid.
+  useEffect(() => {
+    if (!pending || !ventaId || payment === "paid") return
+
+    let cancelled = false
+
+    async function check() {
+      try {
+        const res = await fetch("/api/checkout/manual-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ventaId, action: "status" }),
+        })
+        const data = await res.json()
+        if (cancelled || !data.ok) return
+
+        if (data.status === "paid") setPayment("paid")
+        else if (data.status === "rejected") setPayment("rejected")
+        else setPayment("verifying")
+      } catch {
+        // Sin conexión un momento: el siguiente intento lo reintenta.
+      }
+    }
+
+    check()
+    const interval = setInterval(check, STATUS_POLL_INTERVAL_MS)
+
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [pending, ventaId, payment])
 
   // The message can only be written now, once: saving or skipping both lock it.
   async function handleMessage(withMessage: boolean) {
@@ -123,6 +178,9 @@ function SuccessPageContent() {
   const isGift = order?.isGift ?? false
   const writing = phase === "writing" && !!ventaId
   const showCard = writing || savedCard !== null
+  const reference = ventaId ? paymentReference(ventaId) : ""
+  const comprobanteLink = whatsappLink(`Hola Vivabox, ya hice mi pago. Referencia ${reference}. Te envío el comprobante.`)
+  const payHref = slug && useCheckoutStore.getState().ventaId === ventaId ? `/checkout/${slug}/pago` : "/cajas"
 
   const messageActions = (
     <div className="space-y-1">
@@ -156,23 +214,72 @@ function SuccessPageContent() {
 
   return (
     <>
-      <CheckoutProgress current="enviar" completed={!writing} />
+      <CheckoutProgress current="enviar" completed={!writing && payment === "paid"} />
 
       <div className={`${showCard ? "max-w-[1040px]" : "max-w-[520px]"} mx-auto py-8 px-4 space-y-6 ${writing ? "pb-32 lg:pb-12" : "pb-12"}`}>
 
         {/* HEADER */}
-        <div className="text-center space-y-3">
-          <div className="mx-auto w-14 h-14 rounded-full bg-green-50 flex items-center justify-center animate-check-pop">
-            <CheckCircle2 size={30} strokeWidth={2} className="text-green-700" />
+        {payment === "paid" && (
+          <div className="text-center space-y-3">
+            <div className="mx-auto w-14 h-14 rounded-full bg-green-50 flex items-center justify-center animate-check-pop">
+              <CheckCircle2 size={30} strokeWidth={2} className="text-green-700" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-green-700 font-semibold uppercase tracking-wide">Pago confirmado</p>
+              <h1 className="text-2xl font-semibold text-ink flex items-center justify-center gap-2">
+                <Package size={20} strokeWidth={1.75} className="text-primary" />
+                {isGift ? "Tu regalo está listo" : "Tu Vivabox está lista"}
+              </h1>
+            </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-sm text-green-700 font-semibold uppercase tracking-wide">Pago confirmado</p>
-            <h1 className="text-2xl font-semibold text-ink flex items-center justify-center gap-2">
-              <Package size={20} strokeWidth={1.75} className="text-primary" />
-              {isGift ? "Tu regalo está listo" : "Tu Vivabox está lista"}
-            </h1>
+        )}
+
+        {payment === "verifying" && (
+          <div className="text-center space-y-3">
+            <div className="mx-auto w-14 h-14 rounded-full bg-[#FFF4EC] flex items-center justify-center">
+              <Clock size={28} strokeWidth={2} className="text-primary" />
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-sm text-primary font-semibold uppercase tracking-wide">Verificando tu pago</p>
+              <h1 className="text-2xl font-semibold text-ink">Ya casi está tu Vivabox</h1>
+              <p className="text-sm text-[#6B6B6B] max-w-md mx-auto">
+                Lo confirmamos nosotros mismos en Bancolombia. Mientras tanto, escribe tu mensaje personal: no tienes que esperar. Te escribimos por correo apenas lo veamos.
+              </p>
+            </div>
+            <div className="vb-well inline-block px-5 py-2.5 text-sm text-ink">
+              Referencia <span className="font-semibold tabular-nums">{reference}</span>
+            </div>
           </div>
-        </div>
+        )}
+
+        {payment === "rejected" && (
+          <div className="vb-card p-5 space-y-3 text-center">
+            <div className="mx-auto w-12 h-12 rounded-full bg-[#FFF4EC] flex items-center justify-center">
+              <AlertCircle size={26} strokeWidth={2} className="text-primary" />
+            </div>
+            <div className="space-y-1.5">
+              <h1 className="text-xl font-semibold text-ink">Aún no vemos tu pago</h1>
+              <p className="text-sm text-[#6B6B6B] max-w-md mx-auto">
+                Revisamos Bancolombia y no lo encontramos todavía. A veces el banco tarda en reflejarlo, o el monto no coincide. Tu pedido sigue reservado y tu mensaje queda guardado.
+              </p>
+              <p className="text-xs text-[#6B6B6B]">Referencia <span className="font-semibold tabular-nums">{reference}</span></p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5">
+              <a
+                href={comprobanteLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="vb-btn-primary h-11 px-5 text-sm inline-flex items-center gap-2"
+              >
+                <MessageCircle size={16} strokeWidth={2} />
+                Enviar comprobante por WhatsApp
+              </a>
+              <Link href={payHref} className="vb-btn-soft h-11 px-5 text-sm inline-flex items-center">
+                Volver al pago
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Desktop: rows share the same two columns, so each left block has its
             right-hand neighbour at the same level (cards stretch to equal height). */}
@@ -180,15 +287,30 @@ function SuccessPageContent() {
 
           {/* ROW 1 — confirmation | destination */}
           <div className="vb-card p-5 space-y-3">
-            <div className="flex items-center gap-2 text-sm text-ink/80">
-              <Mail size={16} strokeWidth={2} className="text-primary shrink-0" />
-              Te enviamos la confirmación por correo
-            </div>
-            <div className="flex items-center gap-2 text-sm text-ink/80">
-              <Sparkles size={16} strokeWidth={2} className="text-primary shrink-0" />
-              Estamos preparando tu Vivabox
-            </div>
-            {order?.isPhysical && (
+            {payment === "paid" ? (
+              <>
+                <div className="flex items-center gap-2 text-sm text-ink/80">
+                  <Mail size={16} strokeWidth={2} className="text-primary shrink-0" />
+                  Te enviamos la confirmación por correo
+                </div>
+                <div className="flex items-center gap-2 text-sm text-ink/80">
+                  <Sparkles size={16} strokeWidth={2} className="text-primary shrink-0" />
+                  Estamos preparando tu Vivabox
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 text-sm text-ink/80">
+                  <Mail size={16} strokeWidth={2} className="text-primary shrink-0" />
+                  Te enviamos un correo con tu referencia
+                </div>
+                <div className="flex items-center gap-2 text-sm text-ink/80">
+                  <Clock size={16} strokeWidth={2} className="text-primary shrink-0" />
+                  {payment === "verifying" ? "Estamos verificando tu pago" : "Revisando tu pago con el banco"}
+                </div>
+              </>
+            )}
+            {payment === "paid" && order?.isPhysical && (
               <div className="flex items-center gap-2 text-sm text-ink/80">
                 <Truck size={16} strokeWidth={2} className="text-primary shrink-0" />
                 Te avisaremos con las novedades del envío

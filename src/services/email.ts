@@ -138,7 +138,7 @@ export async function sendManualPaymentReportEmail(params: ManualPaymentEmailPar
     await getResend().emails.send({
       from: FROM,
       to: NOTIFY_TO,
-      subject: `Pago por verificar — ${reference} — ${amount}`,
+      subject: `💸 Verificar pago ${reference} · ${amount}`,
       html,
     })
   } catch (error) {
