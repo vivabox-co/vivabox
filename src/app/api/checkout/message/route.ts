@@ -7,8 +7,10 @@ import { MESSAGE_MAX_LENGTH, SIGNATURE_MAX_LENGTH } from "@/features/checkout/pe
 // mensaje") écrit une chaîne vide, ce qui verrouille aussi.
 //
 // Il s'écrit une fois la venta payée, OU pendant que l'équipe vérifie un
-// paiement Bre-B (reserved/expired + payment_method 'transfer') : le client n'a
-// pas à attendre la confirmation. Le message reste sur la venta quand elle
+// paiement Bre-B (reserved/expired + payment_method 'transfer', ou déjà signalé
+// puis écarté par "No llegó" : transfer_reported_at reste) : le client n'a pas
+// à attendre la confirmation, et son message n'est pas perdu si l'équipe ne
+// retrouve pas le paiement. Le message reste sur la venta quand elle
 // passe à 'paid' (aucune transition ne touche message_*).
 export async function POST(req: Request) {
   try {
@@ -27,7 +29,7 @@ export async function POST(req: Request) {
       .from("ventas")
       .update({ message_mensaje: text, message_de: text ? signature : "" })
       .eq("id", ventaId)
-      .or("status.in.(paid,completed),and(status.in.(reserved,expired),payment_method.eq.transfer)")
+      .or("status.in.(paid,completed),and(status.in.(reserved,expired),or(payment_method.eq.transfer,transfer_reported_at.not.is.null))")
       .is("message_mensaje", null)
       .select("id")
 
