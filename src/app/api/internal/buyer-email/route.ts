@@ -5,7 +5,7 @@ import { sendBuyerEmail } from "@/services/buyerEmail"
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-const ALLOWED_KINDS = ["paid", "shipped"] as const
+const ALLOWED_KINDS = ["paid", "shipped", "not_found"] as const
 type AllowedKind = (typeof ALLOWED_KINDS)[number]
 
 function hasValidSecret(req: Request) {
@@ -23,7 +23,8 @@ function hasValidSecret(req: Request) {
 }
 
 // Appelée par vivabox-operativo (serveur à serveur) quand l'équipe confirme un
-// paiement ou marque une box comme expédiée : ces deux événements
+// paiement, ne retrouve pas un paiement Bre-B ("No llegó") ou marque une box
+// comme expédiée : ces événements
 // arrivent dans l'autre projet, mais le contenu des emails acheteur vit ici,
 // à un seul endroit. Sans INTERNAL_API_SECRET configuré, la route refuse tout.
 export async function POST(req: Request) {

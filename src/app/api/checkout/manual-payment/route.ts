@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
 import { sendManualPaymentReportEmail } from "@/services/email"
+import { sendBuyerEmail } from "@/services/buyerEmail"
 import { paymentReference } from "@/services/manualPayment"
 import { checkRateLimit } from "@/utils/rateLimit"
 
@@ -25,7 +26,9 @@ function cleanReceiptNumber(value: unknown): string | null {
 
 // Paiement manuel Bre-B (voir services/manualPayment.ts).
 //
-// - "status" : la page d'attente demande si l'équipe a confirmé le paiement.
+// - "status" : la page de succès (mode "en vérification") demande où en est le
+//   paiement : "paid", "pending" ou "rejected" (l'équipe a cliqué "No llegó" :
+//   payment_method remis à NULL alors que transfer_reported_at existe).
 // - "report" : l'acheteur dit avoir payé. N'active RIEN : marque seulement la
 //   venta payment_method='transfer' (c'est ce qui la fait apparaître dans
 //   Pedidos → Pagos du back-office) et alerte l'équipe. Le passage à "paid"
@@ -48,7 +51,7 @@ export async function POST(req: Request) {
 
     const { data: venta, error: fetchError } = await supabase
       .from("ventas")
-      .select("id, status, total, box_slug, quantity, buyer_name, buyer_email, buyer_phone, payment_method")
+      .select("id, status, total, box_slug, quantity, buyer_name, buyer_email, buyer_phone, payment_method, transfer_reported_at")
       .eq("id", ventaId)
       .single()
 
@@ -61,7 +64,8 @@ export async function POST(req: Request) {
     }
 
     if (action === "status") {
-      return NextResponse.json({ ok: true, status: "pending" })
+      const rejected = venta.payment_method === null && !!venta.transfer_reported_at
+      return NextResponse.json({ ok: true, status: rejected ? "rejected" : "pending" })
     }
 
     // reserved o expired : una reserva vencida (30 min de Wompi) no impide
@@ -123,6 +127,9 @@ export async function POST(req: Request) {
         receiptNumber,
       })
 
+      // Email al comprador ("estamos verificando tu pago"). Best-effort: no
+      // lanza, y Resend ignora un duplicado con la misma clave durante 24 h.
+      await sendBuyerEmail(supabase, venta.id, "verifying")
     }
 
     return NextResponse.json({ ok: true, status: "pending", reference })
