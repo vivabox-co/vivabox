@@ -15,6 +15,11 @@
 // your browser, but don't rely on that) and grant Sheets access. Saves a
 // reusable token to scripts/sheet-sync/.credentials/token.json (gitignored).
 // Re-run this if the token expires or is revoked.
+//
+// Also requests the script.projects scope, needed to push Apps Script code
+// (e.g. push-apps-script.mjs) into the container-bound script attached to a
+// sheet. Before this will work, enable "Google Apps Script API" for the
+// account at https://script.google.com/home/usersettings.
 
 import { google } from "googleapis"
 import http from "http"
@@ -26,7 +31,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const CREDENTIALS_PATH = path.join(__dirname, ".credentials", "credentials.json")
 const TOKEN_PATH = path.join(__dirname, ".credentials", "token.json")
 
-const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+const SCOPES = [
+  "https://www.googleapis.com/auth/spreadsheets",
+  "https://www.googleapis.com/auth/script.projects",
+]
 
 async function main() {
   let keyFile
@@ -45,9 +53,10 @@ async function main() {
   const oAuth2Client = new google.auth.OAuth2(keys.client_id, keys.client_secret)
 
   const client = await new Promise((resolve, reject) => {
+    let port
     const server = http.createServer(async (req, res) => {
       try {
-        const url = new URL(req.url, `http://localhost:${server.address().port}`)
+        const url = new URL(req.url, `http://localhost:${port}`)
         const code = url.searchParams.get("code")
         if (!code) {
           res.end("No se recibió código de autorización. Puedes cerrar esta pestaña.")
@@ -55,7 +64,7 @@ async function main() {
         }
         res.end("Autorización completada. Puedes cerrar esta pestaña y volver a la terminal.")
         server.close()
-        const finalRedirect = `http://localhost:${server.address().port}${redirectUri.pathname}`
+        const finalRedirect = `http://localhost:${port}${redirectUri.pathname}`
         const { tokens } = await oAuth2Client.getToken({ code, redirect_uri: finalRedirect })
         oAuth2Client.setCredentials(tokens)
         resolve(oAuth2Client)
@@ -65,7 +74,7 @@ async function main() {
     })
 
     server.listen(0, () => {
-      const port = server.address().port
+      port = server.address().port
       const finalRedirect = `http://localhost:${port}${redirectUri.pathname}`
       const authorizeUrl = oAuth2Client.generateAuthUrl({
         access_type: "offline",
