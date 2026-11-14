@@ -475,20 +475,24 @@ export default function WhatsIncluded({ mapExperiences = [] }: { mapExperiences?
 
           <div className="flex flex-col justify-center px-4 sm:px-8 md:px-14 lg:px-20 text-left">
 
+            <p className="text-primary font-semibold tracking-wide uppercase text-[11px] sm:text-[12px] md:text-[13px] mb-3 md:mb-4">
+              Tú regalas. Ellos eligen.
+            </p>
+
             <h2 className="text-white font-semibold tracking-tight leading-[1.05] text-[26px] sm:text-[32px] md:text-[42px] lg:text-[52px]">
               <span className="block">Explorar.</span>
               <span className="block">Elegir.</span>
               <span className="block">Reservar.</span>
             </h2>
 
-            <div className="w-10 h-px bg-white/20 my-6 md:my-8" />
+            <div className="w-10 h-px bg-white/20 my-4 md:my-5" />
 
             <h3 className="text-white text-[16px] sm:text-[18px] md:text-[22px] lg:text-[25px] font-semibold leading-snug tracking-tight max-w-[360px] mb-3 md:mb-4">
               La experiencia continúa en la <span className="text-primary">app Vivabox</span>.
             </h3>
 
             <p className="text-white/70 text-[13px] sm:text-[15px] md:text-[16px] lg:text-[17px] leading-relaxed max-w-[400px]">
-              Descubrirá todas las experiencias y podrá reservar con el acompañamiento del equipo Vivabox.
+              No tienes que adivinar qué le gusta: quien recibe tu Vivabox descubre las experiencias y reserva a su ritmo, con el acompañamiento del equipo.
             </p>
 
           </div>
