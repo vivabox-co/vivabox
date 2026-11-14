@@ -16,9 +16,12 @@ const TIP_TEXT = "Disponible en la app Vivabox"
 type TipAlign = "start" | "center" | "end"
 type TipSide = "below" | "above" | "left" | "right"
 
+// Gap between the floating bottom tab pill and the phone screen edge (portrait).
+const NAV_MARGIN = 10
+
 // Offsets (real phone pixels) the map needs so popups and attribution clear the chrome.
 export const CHROME_LAYOUT = {
-  portrait: { barTop: 58, navHeight: 64, popupTop: 184, popupBottom: 76, attributionBottom: 70, hintBottom: 90 },
+  portrait: { barTop: 58, navHeight: 64, popupTop: 184, popupBottom: 86, attributionBottom: 80, hintBottom: 100 },
   // Landscape has no bottom bar: the tabs sit in a vertical rail on the left.
   landscape: { barTop: 12, navHeight: 0, popupTop: 76, popupBottom: 16, attributionBottom: 12, hintBottom: 16 },
 } as const
@@ -224,7 +227,7 @@ export default function AppChrome({
         style={{
           position: "absolute",
           right: 14,
-          bottom: layout.navHeight + 16,
+          bottom: layout.navHeight + (landscape ? 0 : NAV_MARGIN) + 16,
           zIndex: 1200,
           display: "flex",
           flexDirection: "column",
@@ -263,18 +266,18 @@ export default function AppChrome({
               }
             : {
                 position: "absolute",
-                left: 0,
-                right: 0,
-                bottom: 0,
+                left: NAV_MARGIN,
+                right: NAV_MARGIN,
+                bottom: NAV_MARGIN,
                 height: layout.navHeight,
                 zIndex: 1200,
                 background: "#fff",
-                borderRadius: "20px 20px 0 0",
-                boxShadow: "0 -8px 20px rgba(0,0,0,0.08)",
+                borderRadius: 999,
+                boxShadow: "0 8px 24px rgba(0,0,0,0.14)",
                 display: "flex",
                 alignItems: "center",
                 gap: 4,
-                padding: "0 8px",
+                padding: "0 6px",
                 pointerEvents: "none",
               }
         }
