@@ -50,9 +50,9 @@ export default function FAQ() {
   return (
     <section className="vb-dark bg-ink py-8 md:py-10">
 
-      <div className="container max-w-[640px]">
+      <div className="max-w-[640px] mx-auto px-6">
 
-        <h2 className="h2 text-white text-center mb-9">
+        <h2 className="h2 text-white text-center mb-6 md:mb-7">
           Preguntas frecuentes
         </h2>
 

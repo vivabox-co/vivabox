@@ -35,7 +35,7 @@ export default function FaqAccordion({ items }: Props) {
 
             <button
               onClick={() => setOpen(isOpen ? null : i)}
-              className="flex w-full items-center gap-4 py-7 text-left"
+              className="flex w-full items-center gap-4 py-6 text-left md:py-4"
             >
 
               <span className="flex-1 text-[15px] font-medium leading-snug">
@@ -66,7 +66,7 @@ export default function FaqAccordion({ items }: Props) {
               <div className="min-h-0">
                 <p
                   onClick={() => setOpen(null)}
-                  className="cursor-pointer pb-7 pr-8 text-[15px] leading-relaxed opacity-65"
+                  className="cursor-pointer pb-6 pr-8 md:pb-4 text-[15px] leading-relaxed opacity-65"
                 >
                   {item.answer}
                 </p>
