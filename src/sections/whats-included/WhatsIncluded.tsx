@@ -11,6 +11,7 @@ import { boxes } from "@/data/boxes"
 import { formatPrice } from "@/utils/formatPrice"
 import MapPanel from "@/features/app-map/MapPanel"
 import LandscapePhone from "@/features/app-map/LandscapePhone"
+import PortraitPhoneModal from "@/features/app-map/PortraitPhoneModal"
 import type { MapExperience } from "@/features/app-map/config"
 
 const vivabox = boxes[0]
@@ -192,6 +193,8 @@ export default function WhatsIncluded({ mapExperiences = [] }: { mapExperiences?
 
   // The map sits in a phone frame from lg (1024px) up; below that it fills the column.
   const [isDesktop, setIsDesktop] = useState(false)
+  // Below lg the inline map is a still picture; tapping it opens the portrait iPhone modal.
+  const [mapOpen, setMapOpen] = useState(false)
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)")
     const update = () => setIsDesktop(mq.matches)
@@ -470,8 +473,28 @@ export default function WhatsIncluded({ mapExperiences = [] }: { mapExperiences?
             className="relative w-full h-full overflow-hidden flex items-center justify-center"
             aria-label="Mapa de experiencias en Bogotá y Cundinamarca"
           >
-            {isDesktop ? <LandscapePhone experiences={mapExperiences} /> : <MapPanel experiences={mapExperiences} />}
+            {isDesktop ? (
+              <LandscapePhone experiences={mapExperiences} />
+            ) : (
+              <>
+                <MapPanel experiences={mapExperiences} preview />
+                <button
+                  type="button"
+                  onClick={() => setMapOpen(true)}
+                  aria-label="Explorar el mapa de experiencias"
+                  className="absolute inset-0 z-[1100] flex items-center justify-center bg-[rgba(24,20,15,0.16)] cursor-pointer"
+                >
+                  <span className="rounded-full bg-[rgba(24,20,15,0.88)] text-white font-semibold text-xs px-3.5 py-2 shadow-[0_6px_18px_rgba(0,0,0,0.3)]">
+                    Toca para explorar
+                  </span>
+                </button>
+              </>
+            )}
           </div>
+
+          {mapOpen && !isDesktop && (
+            <PortraitPhoneModal experiences={mapExperiences} onClose={() => setMapOpen(false)} />
+          )}
 
           <div className="flex flex-col justify-center px-4 sm:px-8 md:px-14 lg:px-20 text-left">
 

@@ -1,11 +1,11 @@
 import { Suspense } from "react";
-import { getExperiencesPreview } from "@/services/experiences";
+import { getExperiencesPreview, getMapExperiences } from "@/services/experiences";
 import BrandDots from "@/components/ui/BrandDots";
 import ExperiencesGrid from "./ExperiencesGrid";
 
 async function ExperiencesGridLoader() {
-  const experiencesPreview = await getExperiencesPreview();
-  return <ExperiencesGrid experiencesPreview={experiencesPreview} />;
+  const [experiencesPreview, mapExperiences] = await Promise.all([getExperiencesPreview(), getMapExperiences()]);
+  return <ExperiencesGrid experiencesPreview={experiencesPreview} mapExperiences={mapExperiences} />;
 }
 
 export default function ExperiencesPreview() {

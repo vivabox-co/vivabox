@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, MapPin, Users, Smartphone } from "lucide-react";
 import ExperienceModal from "@/components/ExperienceModal";
+import PortraitPhoneModal from "@/features/app-map/PortraitPhoneModal";
+import type { MapExperience } from "@/features/app-map/config";
 import type { Experience } from "@/types/experience";
 import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR, formatCity, formatPeopleCount } from "@/data/categories";
 
@@ -12,13 +14,21 @@ const SCROLL_STEP = 584; // ~2 cards (260px card + 16px gap) x2
 
 export default function ExperiencesGrid({
   experiencesPreview,
+  mapExperiences,
 }: {
   experiencesPreview: Experience[];
+  mapExperiences: MapExperience[];
 }) {
 
   const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
+  const [mapOpen, setMapOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Below lg the map opens in the portrait iPhone modal; from lg up it scrolls to the landscape phone.
   const scrollToMap = () => {
+    if (window.innerWidth < 1024) {
+      setMapOpen(true);
+      return;
+    }
     document.getElementById("mapa-experiencias")?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
@@ -217,6 +227,10 @@ export default function ExperiencesGrid({
         experience={selectedExperience}
         onClose={() => setSelectedExperience(null)}
       />
+
+      {mapOpen && (
+        <PortraitPhoneModal experiences={mapExperiences} onClose={() => setMapOpen(false)} />
+      )}
     </>
   );
 }
