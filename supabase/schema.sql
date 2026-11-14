@@ -637,3 +637,37 @@ grant select, insert, update, delete on google_reviews to service_role;
 -- MIGRATION — 2026-11-12 : enlace a la reseña original. Sin efecto si la
 -- tabla ya se creó con la definición de arriba.
 alter table google_reviews add column if not exists source_url text;
+
+-- EMPRESAS — CONFIGURADOR DE MAQUETA — 2026-11-14 : una fila por visitante
+-- que prueba el configurador de /empresas, aunque nunca nos contacte. El
+-- logo se guarda en baja calidad (512 px máx, WebP en data URL) ; si la venta
+-- se concreta, se pide el archivo en alta calidad por WhatsApp.
+-- Acceso exclusivo vía service_role (rutas /api/empresas/maqueta y
+-- /empresas/maqueta/[id]). El id es un UUID v4 generado en el navegador.
+create table if not exists empresa_maquetas (
+  id uuid primary key,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  logo_thumb text,
+  message text,
+  quantity text,
+  needed_by date,
+  signature text,
+  front_text smallint,
+  front_text_custom text,
+  logo_size smallint,
+  brand_color text,
+
+  cta_clicked_at timestamptz,
+
+  referrer text,
+  utm jsonb,
+  device text check (device in ('mobile', 'desktop'))
+);
+
+create index if not exists empresa_maquetas_created_at_idx on empresa_maquetas (created_at desc);
+
+alter table empresa_maquetas enable row level security;
+
+grant select, insert, update, delete on empresa_maquetas to service_role;
