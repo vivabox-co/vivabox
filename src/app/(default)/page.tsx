@@ -5,7 +5,8 @@ import WhatsappButton from "@/components/WhatsappButton";
 import Hero from "@/sections/hero/Hero";
 import HeroGuideArrow from "@/components/ui/HeroGuideArrow";
 import WhatsIncluded from "@/sections/whats-included/WhatsIncluded";
-import { getMapExperiences } from "@/services/experiences";
+import { getMapExperiences, getExperienceSchemaItems } from "@/services/experiences";
+import { getExperienceItemListSchema } from "@/data/boxSchema";
 import ExperiencesPreview from "@/sections/experiences-preview/ExperiencesPreview";
 import Occasions from "@/sections/occasions/Occasions";
 import Testimonials from "@/sections/testimonials/Testimonials";
@@ -32,6 +33,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const mapExperiences = await getMapExperiences();
+  const schemaItems = await getExperienceSchemaItems();
 
   return (
     <>
@@ -46,6 +48,13 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(getOrganizationSchema()),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getExperienceItemListSchema(schemaItems)),
         }}
       />
 

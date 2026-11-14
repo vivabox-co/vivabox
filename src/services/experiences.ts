@@ -3,6 +3,9 @@ import path from "node:path"
 import crypto from "node:crypto"
 import { getSheetData } from "./sheet"
 import { parseVisibleBadgeKeys } from "@/data/badges"
+import { interleaveByOrder, SHOWCASE_CATEGORY_ORDER } from "@/utils/interleave"
+import { formatCity } from "@/data/categories"
+import type { ExperienceSchemaItem } from "@/data/boxSchema"
 import type { Experience } from "@/types/experience"
 import { categoryOrder, normalizeActivityKey, type MapCategory, type MapExperience } from "@/features/app-map/config"
 
@@ -136,6 +139,55 @@ export async function getExperiencesPreview():Promise<Experience[]> {
   return ordered
 }
 
+// Every published experience across all 5 categories, interleaved so
+// consecutive items rarely share a category. Used by the internal
+// /experience-showcase production tool (not linked from the live site) --
+// no gallery resolution here since that page never opens the modal.
+export async function getAllExperiences(): Promise<Experience[]> {
+
+  const rows: any[] = await getSheetData()
+
+  const categories = [
+    "gastronomia",
+    "bienestar",
+    "aventura",
+    "cultura",
+    "estancias"
+  ]
+
+  const grouped: Record<string, Experience[]> = {}
+
+  for (const cat of categories) {
+
+    const activities = rows.filter(
+      r => categoryMap[r.category?.toLowerCase()] === cat
+    )
+
+    grouped[cat] = shuffle(activities).map(row => ({
+      title: row.title,
+      city: row.city,
+      category: cat,
+      image: resolveExperienceImage(row.image),
+
+      duration: row.duration,
+      zone: row.zone,
+      format: row.format,
+      shortDescription: row.shortDescription,
+
+      idealFor: row.idealFor,
+      effortLevel: row.effortLevel,
+      ambiance: row.ambiance,
+      environment: row.environment,
+      engagement: row.engagement,
+      vivanote: row.vivanote,
+
+      visibleBadges: parseVisibleBadgeKeys(row.visibleBadges)
+    }))
+  }
+
+  return interleaveByOrder(grouped, SHOWCASE_CATEGORY_ORDER)
+}
+
 // Two experiences per category, for the product page's "algunas experiencias
 // que podría elegir" section. Only 4 categories (per docs/08_product-page.md)
 // to keep the section shorter than the homepage's -- "cultura" intentionally
@@ -193,6 +245,46 @@ export async function getExperienceExamples():Promise<Experience[]> {
   }
 
   return ordered
+}
+const SCHEMA_CATEGORY_LABELS: Record<string, string> = {
+  gastro: "Gastronomía",
+  bienestar: "Bienestar",
+  aventura: "Aventura",
+  cultura: "Cultura",
+  estancias: "Estancias",
+}
+
+// Every published experience for the SEO/GEO structured data (JSON-LD only,
+// never rendered). Stable order (category, then sheet order) and deduped by
+// title + city, so crawlers always see the same complete list.
+export async function getExperienceSchemaItems(): Promise<ExperienceSchemaItem[]> {
+
+  const rows: any[] = await getSheetData()
+  const seen = new Set<string>()
+  const items: ExperienceSchemaItem[] = []
+
+  for (const row of rows) {
+    const key = String(row.category || "").trim().toLowerCase()
+    const title = String(row.title || "").trim()
+    const label = SCHEMA_CATEGORY_LABELS[key]
+
+    if (!title || !label || !row.codigo_interno) continue
+
+    const city = formatCity(row.city)
+    const dedupeKey = `${title.toLowerCase()}|${(city || "").toLowerCase()}`
+    if (seen.has(dedupeKey)) continue
+    seen.add(dedupeKey)
+
+    items.push({
+      title,
+      city,
+      categoryLabel: label,
+      description: String(row.shortDescription || "").trim() || undefined,
+    })
+  }
+
+  const order = Object.keys(SCHEMA_CATEGORY_LABELS).map((k) => SCHEMA_CATEGORY_LABELS[k])
+  return items.sort((a, b) => order.indexOf(a.categoryLabel) - order.indexOf(b.categoryLabel))
 }
 
 // Every published experience that has valid coordinates, in the compact shape

@@ -15,6 +15,8 @@ import BoxStickyCTA from "@/sections/box/BoxStickyCTA"
 import BrandRibbon from "@/components/ui/BrandRibbon"
 
 import { boxes } from "@/data/boxes"
+import { getBoxProductSchema } from "@/data/boxSchema"
+import { getExperienceSchemaItems } from "@/services/experiences"
 
 // Force per-request rendering so the "Ejemplos de experiencias" shuffle
 // (Math.random() in src/services/experiences.ts) re-runs on every reload
@@ -55,10 +57,12 @@ export async function generateMetadata({
     }
   }
 
-  const title = "Vivabox Colombia | Caja de regalo de experiencias"
+  const price = `$${box.price.toLocaleString("es-CO")}`
+
+  const title = `Caja de regalo de experiencias en Bogotá | ${box.name} ${price}`
 
   const description =
-    `Descubre Vivabox, una caja de regalo que deja elegir entre ${box.experiences} experiencias en Bogotá y Cundinamarca. Una forma diferente de regalar.`
+    `Regala una ${box.name} de ${price}: quien la recibe elige entre más de ${box.experiences} ejemplos de experiencias en Bogotá y Cundinamarca. Válida ${box.validityMonths} meses, física o digital.`
 
   return {
     title,
@@ -108,8 +112,17 @@ export default async function BoxPage({ params }: PageProps) {
     notFound()
   }
 
+  const schemaItems = await getExperienceSchemaItems()
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getBoxProductSchema(box, schemaItems)),
+        }}
+      />
+
       <Navbar />
 
       <main>

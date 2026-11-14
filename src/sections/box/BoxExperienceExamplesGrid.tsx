@@ -46,7 +46,7 @@ export default function BoxExperienceExamplesGrid({
 
                 <Image
                   src={exp.image || "/images/box-includes/vivabox-caja-regalo.webp"}
-                  alt={exp.title}
+                  alt={formatCity(exp.city) ? `${exp.title} en ${formatCity(exp.city)}` : exp.title}
                   fill
                   sizes={CARD_IMAGE_SIZES}
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
