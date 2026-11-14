@@ -54,7 +54,7 @@ export default function LandscapePhone({ experiences }: { experiences: MapExperi
         <span aria-hidden="true" style={{ position: "absolute", top: -4, left: 210, width: 82, height: 4, borderRadius: "3px 3px 0 0", background: BUTTON }} />
 
         <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: 52, overflow: "hidden", background: "#f4f1ea" }}>
-          <MapPanel experiences={experiences} />
+          <MapPanel experiences={experiences} appUI="landscape" />
           {/* Dynamic Island, on the left edge in landscape */}
           <span
             aria-hidden="true"

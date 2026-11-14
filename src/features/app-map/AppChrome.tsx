@@ -14,12 +14,13 @@ const DARK = "#152F40"
 const TIP_TEXT = "Disponible en la app Vivabox"
 
 type TipAlign = "start" | "center" | "end"
-type TipSide = "below" | "above" | "left"
+type TipSide = "below" | "above" | "left" | "right"
 
 // Offsets (real phone pixels) the map needs so popups and attribution clear the chrome.
 export const CHROME_LAYOUT = {
   portrait: { barTop: 58, navHeight: 64, popupTop: 184, popupBottom: 76, attributionBottom: 70, hintBottom: 90 },
-  landscape: { barTop: 12, navHeight: 56, popupTop: 76, popupBottom: 64, attributionBottom: 62, hintBottom: 76 },
+  // Landscape has no bottom bar: the tabs sit in a vertical rail on the left.
+  landscape: { barTop: 12, navHeight: 0, popupTop: 76, popupBottom: 16, attributionBottom: 12, hintBottom: 16 },
 } as const
 
 function LockedButton({
@@ -46,6 +47,8 @@ function LockedButton({
   const tipPosition: React.CSSProperties =
     tipSide === "left"
       ? { right: "calc(100% + 10px)", top: "50%", transform: "translateY(-50%)" }
+      : tipSide === "right"
+      ? { left: "calc(100% + 10px)", top: "50%", transform: "translateY(-50%)" }
       : {
           ...(tipSide === "below" ? { top: "calc(100% + 10px)" } : { bottom: "calc(100% + 10px)" }),
           ...(tipAlign === "start" ? { left: 0 } : tipAlign === "end" ? { right: 0 } : { left: "50%", transform: "translateX(-50%)" }),
@@ -169,7 +172,7 @@ export default function AppChrome({
           top: layout.barTop,
           left: landscape ? 70 : 10,
           right: landscape ? 14 : 10,
-          zIndex: 1200,
+          zIndex: 1210,
           background: "#fff",
           borderRadius: 26,
           padding: landscape ? "8px 12px" : "10px 12px",
@@ -238,24 +241,43 @@ export default function AppChrome({
         </LockedButton>
       </div>
 
-      {/* Bottom tabs */}
+      {/* Tabs: bottom bar in portrait, vertical rail on the left in landscape */}
       <div
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: layout.navHeight,
-          zIndex: 1200,
-          background: "#fff",
-          borderRadius: "20px 20px 0 0",
-          boxShadow: "0 -8px 20px rgba(0,0,0,0.08)",
-          display: "flex",
-          alignItems: "center",
-          gap: 4,
-          padding: landscape ? "0 14px 0 70px" : "0 8px",
-          pointerEvents: "none",
-        }}
+        style={
+          landscape
+            ? {
+                position: "absolute",
+                left: 70,
+                top: 84,
+                width: 76,
+                zIndex: 1200,
+                background: "#fff",
+                borderRadius: 24,
+                boxShadow: "0 8px 24px rgba(0,0,0,0.14)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "stretch",
+                gap: 6,
+                padding: 8,
+                pointerEvents: "none",
+              }
+            : {
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: layout.navHeight,
+                zIndex: 1200,
+                background: "#fff",
+                borderRadius: "20px 20px 0 0",
+                boxShadow: "0 -8px 20px rgba(0,0,0,0.08)",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "0 8px",
+                pointerEvents: "none",
+              }
+        }
       >
         {tabs.map(({ id, label, Icon, active, align }) => {
           const content = (
@@ -266,7 +288,7 @@ export default function AppChrome({
           )
           const style: React.CSSProperties = {
             width: "100%",
-            height: layout.navHeight - 12,
+            height: landscape ? 60 : layout.navHeight - 12,
             borderRadius: 999,
             display: "flex",
             flexDirection: "column",
@@ -283,7 +305,7 @@ export default function AppChrome({
               {active ? (
                 <span style={style}>{content}</span>
               ) : (
-                <LockedButton id={id} label={label} openId={openId} onOpen={open} tipSide="above" tipAlign={align} style={style}>
+                <LockedButton id={id} label={label} openId={openId} onOpen={open} tipSide={landscape ? "right" : "above"} tipAlign={align} style={style}>
                   {content}
                 </LockedButton>
               )}
