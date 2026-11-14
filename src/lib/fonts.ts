@@ -1,4 +1,11 @@
-import { Archivo_Narrow, Caveat_Brush, Covered_By_Your_Grace, Gloria_Hallelujah, Homemade_Apple } from "next/font/google"
+import { Archivo_Narrow, Caveat_Brush, Covered_By_Your_Grace, Gloria_Hallelujah, Homemade_Apple, Playfair_Display } from "next/font/google"
+
+// Serif of the printed sleeve text ("Un regalo para ti."), used to repaint
+// that line on the 3D box in the /empresas configurator.
+export const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400"],
+})
 
 export const caveatBrush = Caveat_Brush({
   subsets: ["latin"],
