@@ -34,6 +34,8 @@ type Props = {
   immediate?: boolean
   // Draw the beneficiary app's full map chrome (only used inside the phone frames).
   appUI?: AppChromeVariant
+  // Non-interactive picture of the map: no drag, no hints. The parent lays its own tap target on top.
+  preview?: boolean
 }
 
 // `drag` covers panning, pinch/double-click zoom and keyboard; the mouse wheel
@@ -200,12 +202,12 @@ function ExperiencePopup({ exp }: { exp: MapExperience }) {
   )
 }
 
-export default function MapPanelInner({ experiences, immediate = false, appUI }: Props) {
+export default function MapPanelInner({ experiences, immediate = false, appUI, preview = false }: Props) {
   const chrome = appUI ? CHROME_LAYOUT[appUI] : null
   // Touch devices start frozen (tap to take control) so a finger scrolling the
   // page never gets trapped in the map. Mouse devices can drag right away.
   const [coarse] = useState(() => window.matchMedia("(pointer: coarse)").matches)
-  const [active, setActive] = useState(immediate || !coarse)
+  const [active, setActive] = useState(immediate || (!coarse && !preview))
   const [wheel, setWheel] = useState(immediate)
   // Mouse devices: tell the visitor the wheel needs a click first, then confirm it's on.
   const [hovering, setHovering] = useState(false)
@@ -265,7 +267,7 @@ export default function MapPanelInner({ experiences, immediate = false, appUI }:
       ref={frameRef}
       className="vb-map-panel"
       onPointerDown={() => {
-        if (immediate || coarse || wheel) return
+        if (immediate || coarse || wheel || preview) return
         setWheel(true)
         setJustActivated(true)
       }}
@@ -302,12 +304,12 @@ export default function MapPanelInner({ experiences, immediate = false, appUI }:
         maxBoundsViscosity={0.8}
         zoomControl={false}
         attributionControl={false}
-        dragging={!coarse}
-        touchZoom={!coarse}
-        doubleClickZoom={!coarse}
+        dragging={!coarse && !preview}
+        touchZoom={!coarse && !preview}
+        doubleClickZoom={!coarse && !preview}
         scrollWheelZoom={false}
         boxZoom={false}
-        keyboard={!coarse}
+        keyboard={!coarse && !preview}
         style={{ width: "100%", height: "100%" }}
       >
         <AttributionControl prefix={false} position="bottomleft" />
@@ -397,7 +399,7 @@ export default function MapPanelInner({ experiences, immediate = false, appUI }:
       )}
 
       {/* Mouse devices: signal that the wheel zooms only after a click */}
-      {!immediate && !coarse && (hovering || justActivated) && (!wheel || justActivated) && (
+      {!immediate && !preview && !coarse && (hovering || justActivated) && (!wheel || justActivated) && (
         <span
           aria-hidden="true"
           style={{
@@ -422,7 +424,7 @@ export default function MapPanelInner({ experiences, immediate = false, appUI }:
       )}
 
       {/* Touch devices: tap once to take control of the map */}
-      {!immediate && coarse && !active && (
+      {!immediate && !preview && coarse && !active && (
         <button
           type="button"
           onClick={() => setActive(true)}
@@ -456,7 +458,7 @@ export default function MapPanelInner({ experiences, immediate = false, appUI }:
         </button>
       )}
 
-      {!immediate && coarse && active && (
+      {!immediate && !preview && coarse && active && (
         <button
           type="button"
           onClick={() => setActive(false)}

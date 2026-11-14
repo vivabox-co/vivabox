@@ -15,10 +15,12 @@ export default function MapPanel({
   experiences,
   immediate = false,
   appUI,
+  preview = false,
 }: {
   experiences: MapExperience[]
   immediate?: boolean
   appUI?: AppChromeVariant
+  preview?: boolean
 }) {
-  return <MapPanelInner experiences={experiences} immediate={immediate} appUI={appUI} />
+  return <MapPanelInner experiences={experiences} immediate={immediate} appUI={appUI} preview={preview} />
 }
