@@ -119,7 +119,7 @@ export default function ExperiencesGrid({
 
                 <Image
                   src={exp.image || "/images/box-includes/vivabox-caja-regalo.webp"}
-                  alt={exp.title}
+                  alt={city ? `${exp.title} en ${city}` : exp.title}
                   fill
                   sizes={CARD_IMAGE_SIZES}
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
