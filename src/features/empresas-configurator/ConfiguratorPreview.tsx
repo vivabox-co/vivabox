@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import Image from "next/image"
 import dynamic from "next/dynamic"
 import MessageCardPreview from "@/app/checkout/components/MessageCardPreview"
@@ -95,6 +95,7 @@ export default function ConfiguratorPreview({ config }: { config: MaquetaConfig 
   const [side, setSide] = useState<"front" | "back">("front")
   const [ready3D, setReady3D] = useState(false)
   const [zoom, setZoom] = useState<ZoomState | null>(null)
+  const tapStart = useRef<{ x: number; y: number; t: number } | null>(null)
 
   // Phones only: a transparent button over each object opens it large.
   const zoomButton = (kind: ZoomKind, label: string) => (
@@ -125,7 +126,22 @@ export default function ConfiguratorPreview({ config }: { config: MaquetaConfig 
           top: pctH(L.box.cy - BOX_SQUARE_CM / 2),
         }}
       >
-        <div className="relative aspect-square">
+        <div
+          className="relative aspect-square"
+          onPointerDown={(e) => {
+            tapStart.current = { x: e.clientX, y: e.clientY, t: Date.now() }
+          }}
+          onPointerUp={(e) => {
+            const s = tapStart.current
+            tapStart.current = null
+            if (!s || window.matchMedia("(min-width: 768px)").matches) return
+            // A tap opens the zoom; a drag (turning the box) or a long press does not.
+            if (Math.hypot(e.clientX - s.x, e.clientY - s.y) < 8 && Date.now() - s.t < 400) {
+              setZoom({ kind: "box", rect: e.currentTarget.getBoundingClientRect() })
+            }
+          }}
+          onPointerCancel={() => (tapStart.current = null)}
+        >
           <Image
             src="/images/box-includes/vivabox-caja-regalo.webp"
             alt=""
@@ -134,7 +150,13 @@ export default function ConfiguratorPreview({ config }: { config: MaquetaConfig 
             className={`object-contain transition-opacity duration-500 ${ready3D ? "opacity-0" : "opacity-100"}`}
           />
           <SleeveViewer config={config} side={side} onLoaded={() => setReady3D(true)} />
-          {zoomButton("box", "Ver la caja en grande")}
+          {/* No overlay here: it would block turning the box. A short tap is detected on the wrapper instead. */}
+          <button
+            type="button"
+            aria-label="Ver la caja en grande"
+            onClick={(e) => setZoom({ kind: "box", rect: e.currentTarget.parentElement!.getBoundingClientRect() })}
+            className="sr-only md:hidden"
+          />
         </div>
       </div>
 
