@@ -61,6 +61,37 @@ function drawContain(ctx: CanvasRenderingContext2D, img: HTMLImageElement, box: 
   ctx.drawImage(img, box.x + (box.w - dw) / 2, box.y + (box.h - dh) / 2, dw, dh)
 }
 
+// Bounding box of the visible pixels (opaque and not near-white) of an image
+// or canvas, in its own pixel coordinates.
+function inkBounds(src: HTMLImageElement | HTMLCanvasElement): Rect {
+  const sw = src instanceof HTMLImageElement ? src.naturalWidth : src.width
+  const sh = src instanceof HTMLImageElement ? src.naturalHeight : src.height
+  const k = Math.min(1, 600 / Math.max(sw, sh))
+  const w = Math.max(1, Math.round(sw * k))
+  const h = Math.max(1, Math.round(sh * k))
+  const c = document.createElement("canvas")
+  c.width = w
+  c.height = h
+  const cx = c.getContext("2d", { willReadFrequently: true })
+  if (!cx) return { x: 0, y: 0, w: sw, h: sh }
+  cx.drawImage(src, 0, 0, w, h)
+  const d = cx.getImageData(0, 0, w, h).data
+  let x0 = w, y0 = h, x1 = -1, y1 = -1
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4
+      if (d[i + 3] > 40 && (d[i] < 235 || d[i + 1] < 235 || d[i + 2] < 235)) {
+        if (x < x0) x0 = x
+        if (x > x1) x1 = x
+        if (y < y0) y0 = y
+        if (y > y1) y1 = y
+      }
+    }
+  }
+  if (x1 < 0) return { x: 0, y: 0, w: sw, h: sh }
+  return { x: x0 / k, y: y0 / k, w: (x1 - x0 + 1) / k, h: (y1 - y0 + 1) / k }
+}
+
 function scaledBox(box: Rect, scale: number): Rect {
   const w = box.w * scale
   const h = box.h * scale
@@ -162,27 +193,48 @@ export async function composeSleeveTexture(opts: SleeveOptions): Promise<string>
   ctx.fillStyle = paperColor(ctx, BACK.y + BACK.h / 2)
   ctx.fillRect(BACK.x, BACK.y, BACK.w, BACK.h)
 
-  // Proportions of the IGNIA mockup: lockup ≈ 85% of the band, Vivabox logo ≈ 46%.
+  // Everything is aligned on the VISIBLE ink (not the padded image boxes):
+  // the partner logo and the × sit on the vertical center of the whole
+  // Vivabox logo (gift + wordmark + the 4 colored dashes), and the × is
+  // exactly midway between the two logos' visible edges.
+  const vbInk = inkBounds(vivabox)
+  const logoInk = inkBounds(logo)
   const vbScale = 0.74
-  const vbW = vivabox.width * vbScale
-  const vbH = vivabox.height * vbScale
-  const partnerW = 235
-  const gap = 26
-  const crossW = 30
+  const vbW = vbInk.w * vbScale
+  const vbH = vbInk.h * vbScale
+  const gap = 34
+  const crossW = 36
+  const maxPartnerW = 235
+  const maxPartnerH = Math.min(BACK.h - 30, vbH)
+  const pr = Math.min(maxPartnerW / logoInk.w, maxPartnerH / logoInk.h)
+  const partnerW = logoInk.w * pr
+  const partnerH = logoInk.h * pr
   const total = partnerW + gap + crossW + gap + vbW
   const left = BACK.x + (BACK.w - total) / 2
-  const vbTop = BACK.y + (BACK.h - vbH) / 2
-  const logoCenterY = vbTop + vbH * 0.4 // the wordmark, above the colored dashes
+  const centerY = BACK.y + BACK.h / 2
 
-  drawContain(ctx, logo, { x: left, y: logoCenterY - 62, w: partnerW, h: 124 })
+  ctx.drawImage(
+    logo,
+    logoInk.x, logoInk.y, logoInk.w, logoInk.h,
+    left, centerY - partnerH / 2, partnerW, partnerH,
+  )
 
-  ctx.fillStyle = "#3A3A3A"
+  ctx.fillStyle = "#1A2433"
   ctx.textAlign = "center"
   ctx.textBaseline = "middle"
-  ctx.font = `300 44px ${opts.serifFamily}`
-  ctx.fillText("×", left + partnerW + gap + crossW / 2, logoCenterY)
+  ctx.font = `400 60px ${opts.serifFamily}`
+  const crossCx = left + partnerW + gap + crossW / 2
+  // Center the glyph on its real ink, not on the font's line box.
+  const m = ctx.measureText("×")
+  const glyphMidY = (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2
+  ctx.textBaseline = "alphabetic"
+  ctx.fillText("×", crossCx, centerY + glyphMidY)
 
-  ctx.drawImage(vivabox, left + partnerW + gap + crossW + gap, vbTop, vbW, vbH)
+  ctx.drawImage(
+    vivabox,
+    vbInk.x, vbInk.y, vbInk.w, vbInk.h,
+    left + partnerW + gap + crossW + gap, centerY - vbH / 2, vbW, vbH,
+  )
 
   const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, "image/webp", 0.92))
   return blob ? URL.createObjectURL(blob) : canvas.toDataURL("image/png")
