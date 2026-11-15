@@ -186,7 +186,8 @@ export default function Configurator({ header }: { header?: React.ReactNode }) {
 
       {/* PREVIEW — on phones it comes first, full width, same layout as desktop */}
       <div className="order-2 md:order-none md:col-start-2 md:row-span-4 md:row-start-1 md:self-center">
-        <ConfiguratorPreview config={config} />
+        {/* Capped so the scene is no taller than the text + controls column next to it */}
+        <ConfiguratorPreview config={config} maxWidth={440} />
       </div>
 
       {/* CONTROLS — two columns on larger screens */}

@@ -4,12 +4,13 @@ import WhatsappButton from "@/components/WhatsappButton";
 import BrandRibbon from "@/components/ui/BrandRibbon";
 
 import EmpresasHero from "@/sections/empresas/EmpresasHero";
-import EmpresasQuickBenefits from "@/sections/empresas/EmpresasQuickBenefits";
-import EmpresasBenefits from "@/sections/empresas/EmpresasBenefits";
-import EmpresasCustomization from "@/sections/empresas/EmpresasCustomization";
-import EmpresasUseCases from "@/sections/empresas/EmpresasUseCases";
+import EmpresasTrustStrip from "@/sections/empresas/EmpresasTrustStrip";
 import EmpresasHowItWorks from "@/sections/empresas/EmpresasHowItWorks";
+import EmpresasExamples from "@/sections/empresas/EmpresasExamples";
+import EmpresasUseCases from "@/sections/empresas/EmpresasUseCases";
+import EmpresasCustomization from "@/sections/empresas/EmpresasCustomization";
 import EmpresasPricing from "@/sections/empresas/EmpresasPricing";
+import EmpresasFAQ from "@/sections/empresas/EmpresasFAQ";
 import EmpresasFinalCTA from "@/sections/empresas/EmpresasFinalCTA";
 
 export default function EmpresasPage() {
@@ -20,12 +21,13 @@ export default function EmpresasPage() {
       <main>
         <EmpresasHero />
         <BrandRibbon />
-        <EmpresasQuickBenefits />
-        <EmpresasBenefits />
-        <EmpresasCustomization />
-        <EmpresasUseCases />
         <EmpresasHowItWorks />
+        <EmpresasExamples />
+        <EmpresasUseCases />
+        <EmpresasCustomization />
+        <EmpresasTrustStrip />
         <EmpresasPricing />
+        <EmpresasFAQ />
         <EmpresasFinalCTA />
 
         {/*

@@ -91,7 +91,7 @@ export function AppScreen({ logoUrl }: { logoUrl: string | null }) {
   )
 }
 
-export default function ConfiguratorPreview({ config }: { config: MaquetaConfig }) {
+export default function ConfiguratorPreview({ config, maxWidth }: { config: MaquetaConfig; maxWidth?: number }) {
   const [side, setSide] = useState<"front" | "back">("front")
   const [ready3D, setReady3D] = useState(false)
   const [zoom, setZoom] = useState<ZoomState | null>(null)
@@ -113,7 +113,7 @@ export default function ConfiguratorPreview({ config }: { config: MaquetaConfig 
   return (
     <div
       className="relative mx-auto w-full"
-      style={{ aspectRatio: `${L.w} / ${L.h}`, maxWidth: L.maxWidth }}
+      style={{ aspectRatio: `${L.w} / ${L.h}`, maxWidth: maxWidth ?? L.maxWidth }}
       role="group"
       aria-label="Vista previa de tu Vivabox personalizada, a escala real"
     >

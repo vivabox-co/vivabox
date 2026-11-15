@@ -1,56 +1,54 @@
-"use client"; // icons are components, which can't cross the server → client boundary as props
-
-import { Snowflake, Award, Handshake } from "lucide-react";
 import OccasionCarousel, { type OccasionCard } from "@/components/OccasionCarousel";
 
+// B2B only, real Pexels photos (free licence) of Latin American professionals.
 const CASES: readonly OccasionCard[] = [
   {
-    name: "Empleados",
-    subtitle: "Cumpleaños, reconocimientos e incentivos.",
-    image: "/images/occasions/regalo-cumpleanos-vivabox.webp",
-    alt: "Mujer soplando las velas de una torta de cumpleaños",
-    ariaLabel: "Vivabox para empleados",
+    name: "Fin de año",
+    subtitle: "Novenas, cierre de año y regalo para todo el equipo.",
+    image: "/images/empresas/ideal-para/fin-de-ano.webp",
+    alt: "Colegas intercambiando regalos en una fiesta de fin de año en la oficina",
+    ariaLabel: "Vivabox de fin de año para empresas",
+  },
+  {
+    name: "Equipos",
+    subtitle: "Reconocimientos, metas cumplidas e incentivos.",
+    image: "/images/occasions/regalo-corporativo-vivabox-equipo.webp",
+    alt: "Equipo de trabajo mostrando una caja Vivabox en la oficina",
+    ariaLabel: "Vivabox para equipos",
   },
   {
     name: "Clientes",
     subtitle: "Agradecimientos, fidelización y cierre de proyectos.",
-    image: "/images/occasions/regalo-corporativo-vivabox-equipo.webp",
-    alt: "Equipo de trabajo mostrando una caja Vivabox en la oficina",
+    image: "/images/empresas/ideal-para/clientes.webp",
+    alt: "Ejecutiva sonriendo en su oficina",
     ariaLabel: "Vivabox para clientes",
   },
   {
     name: "Eventos",
     subtitle: "Conferencias, lanzamientos y activaciones.",
-    image: "/images/occasions/regalo-celebracion-vivabox.webp",
-    alt: "Hombre soplando un espantasuegras sobre fondo rojo",
+    image: "/images/empresas/ideal-para/eventos.webp",
+    alt: "Asistentes brindando en un evento corporativo",
     ariaLabel: "Vivabox para eventos",
   },
   {
     name: "Bienvenida",
     subtitle: "Nuevos ingresos, primer día y onboarding.",
-    image: "/images/occasions/regalo-sorpresa-vivabox.webp",
-    alt: "Mujer sonriendo con sus gafas en la mano",
+    image: "/images/empresas/ideal-para/bienvenida.webp",
+    alt: "Dos compañeras con un cartel de bienvenida «Estás en casa»",
     ariaLabel: "Vivabox de bienvenida",
   },
   {
-    name: "Proveedores",
+    name: "Aliados",
     subtitle: "Alianzas, cierre de negociación y agradecimiento.",
-    color: "#0294D2",
-    icon: Handshake,
+    image: "/images/empresas/ideal-para/aliados-apreton.webp",
+    alt: "Dos empresarios cerrando un acuerdo con un apretón de manos",
     ariaLabel: "Vivabox para proveedores y aliados",
-  },
-  {
-    name: "Fin de año",
-    subtitle: "Novenas, cierre de año y regalo navideño.",
-    color: "#CB2033",
-    icon: Snowflake,
-    ariaLabel: "Vivabox de fin de año",
   },
   {
     name: "Aniversario",
     subtitle: "Hitos de la empresa y celebración de equipo.",
-    color: "#8DB92F",
-    icon: Award,
+    image: "/images/empresas/ideal-para/aniversario.webp",
+    alt: "Equipo brindando por el aniversario de la empresa",
     ariaLabel: "Vivabox de aniversario de empresa",
   },
 ];

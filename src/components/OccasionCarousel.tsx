@@ -67,9 +67,9 @@ export default function OccasionCarousel({
   const isDark = theme === "dark";
 
   return (
-    <section className={`${isDark ? "vb-dark bg-ink" : "vb-surface-base"} ${compact ? "py-12 md:py-8" : "py-12 md:py-14"}`}>
+    <section className={`${isDark ? "vb-dark bg-ink" : "vb-surface-base"} ${compact ? "py-6 md:py-6" : "py-12 md:py-14"}`}>
 
-      <div className={`max-w-6xl mx-auto px-6 mb-6 ${compact ? "md:mb-5" : "md:mb-8"}`}>
+      <div className={`max-w-6xl mx-auto px-6 ${compact ? "mb-3 md:mb-4" : "mb-6 md:mb-8"}`}>
 
         <h2 className={`h2 text-center ${isDark ? "text-white" : ""}`}>
           {title}
@@ -121,7 +121,11 @@ export default function OccasionCarousel({
                   setRevealed((current) => (current === item.name ? null : item.name));
                 }
               }}
-              className="vb-card group relative shrink-0 w-[60vw] sm:w-[260px] lg:w-[272px] aspect-[3/4.3] overflow-hidden snap-start cursor-pointer"
+              className={`vb-card group relative shrink-0 overflow-hidden snap-start cursor-pointer ${
+                compact
+                  ? "w-[48vw] sm:w-[220px] lg:w-[236px] aspect-[3/3.7]"
+                  : "w-[60vw] sm:w-[260px] lg:w-[272px] aspect-[3/4.3]"
+              }`}
               aria-label={item.ariaLabel}
             >
 
@@ -140,10 +144,13 @@ export default function OccasionCarousel({
                     style={{ background: `linear-gradient(160deg, ${item.color}, ${item.color}CC)` }}
                   />
                   <item.icon
-                    size={120}
+                    size={170}
                     strokeWidth={1}
-                    className="absolute -right-4 -top-4 text-white/15"
+                    className="absolute -right-8 -top-6 text-white/10"
                   />
+                  <span className="absolute left-1/2 top-[36%] flex h-[72px] w-[72px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 ring-1 ring-white/35 md:h-[84px] md:w-[84px]">
+                    <item.icon size={38} strokeWidth={1.5} className="text-white" />
+                  </span>
                 </>
               )}
 

@@ -1,47 +1,44 @@
 import { ShoppingBag, Gift, CalendarCheck } from "lucide-react";
 import Reveal from "@/components/ui/Reveal";
-import BrandRibbon from "@/components/ui/BrandRibbon";
 
 const STEPS = [
-  { icon: ShoppingBag, title: "Compra", subtitle: "Física o digital" },
-  { icon: Gift, title: "Regala", subtitle: "Cada persona elige su experiencia" },
-  { icon: CalendarCheck, title: "Vivabox gestiona la reserva", subtitle: null },
+  { icon: ShoppingBag, title: "Compras", subtitle: "Un solo pedido, físico o digital." },
+  { icon: Gift, title: "Cada persona elige", subtitle: "La experiencia que más le llama." },
+  { icon: CalendarCheck, title: "Vivabox reserva", subtitle: "Nosotros coordinamos la fecha." },
 ] as const;
 
+// Always three columns, phone included: short, wide, little vertical space.
 export default function EmpresasHowItWorks() {
   return (
-    <section id="como-funciona-empresas" className="vb-dark bg-ink">
+    <section id="como-funciona-empresas" className="vb-light bg-white">
 
-      <div className="max-w-6xl mx-auto px-6 py-14 md:py-12">
+      <div className="max-w-5xl mx-auto px-4 md:px-6 py-5 md:py-6">
 
         <Reveal>
-          <h2 className="text-3xl md:text-4xl font-semibold text-center tracking-[-0.01em] text-white mb-10 md:mb-8">
+          <h2 className="text-2xl md:text-3xl font-semibold text-center tracking-[-0.01em] text-ink mb-4 md:mb-5">
             Cómo funciona
           </h2>
         </Reveal>
 
-        {/* DESKTOP — horizontal timeline */}
-        <Reveal className="hidden md:block" delay={100}>
+        <Reveal delay={100}>
           <div className="relative">
 
-            <div className="absolute left-0 right-0 top-7 h-px bg-white/15" />
+            <div className="absolute left-[16%] right-[16%] top-6 md:top-7 h-px bg-black/15" />
 
-            <div className="relative grid grid-cols-3">
+            <div className="relative grid grid-cols-3 gap-2 md:gap-6">
               {STEPS.map((step) => {
                 const Icon = step.icon;
                 return (
-                  <div key={step.title} className="flex flex-col items-center text-center px-2">
-                    <div className="vb-icon-btn h-14 w-14 mb-5">
-                      <Icon size={22} strokeWidth={1.5} className="text-primary" />
+                  <div key={step.title} className="flex flex-col items-center text-center">
+                    <div className="vb-icon-btn h-12 w-12 md:h-12 md:w-12 mb-2 md:mb-2.5">
+                      <Icon size={20} strokeWidth={1.5} className="text-primary" />
                     </div>
-                    <span className="text-white text-base font-semibold leading-snug max-w-[200px]">
+                    <span className="text-ink text-[14px] md:text-lg font-semibold leading-snug">
                       {step.title}
                     </span>
-                    {step.subtitle && (
-                      <span className="text-white/60 text-sm leading-snug max-w-[200px] mt-1">
-                        {step.subtitle}
-                      </span>
-                    )}
+                    <span className="text-ink/65 text-[12px] md:text-[15px] leading-snug max-w-[240px] mt-1">
+                      {step.subtitle}
+                    </span>
                   </div>
                 );
               })}
@@ -50,41 +47,7 @@ export default function EmpresasHowItWorks() {
           </div>
         </Reveal>
 
-        {/* MOBILE — vertical timeline */}
-        <div className="md:hidden relative pl-7">
-
-          <div className="absolute left-[27px] top-2 bottom-2 w-px bg-white/15" />
-
-          <div className="space-y-10">
-            {STEPS.map((step, index) => {
-              const Icon = step.icon;
-              return (
-                <Reveal key={step.title} delay={index * 80}>
-                  <div className="relative flex items-center gap-4">
-                    <div className="vb-icon-btn relative z-10 h-14 w-14 shrink-0 -ml-7">
-                      <Icon size={20} strokeWidth={1.5} className="text-primary" />
-                    </div>
-                    <div>
-                      <span className="block text-white text-[15px] font-semibold leading-snug">
-                        {step.title}
-                      </span>
-                      {step.subtitle && (
-                        <span className="block text-white/60 text-[13px] leading-snug mt-0.5">
-                          {step.subtitle}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Reveal>
-              );
-            })}
-          </div>
-
-        </div>
-
       </div>
-
-      <BrandRibbon />
 
     </section>
   );
