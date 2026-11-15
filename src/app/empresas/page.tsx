@@ -9,6 +9,7 @@ import EmpresasBenefits from "@/sections/empresas/EmpresasBenefits";
 import EmpresasCustomization from "@/sections/empresas/EmpresasCustomization";
 import EmpresasUseCases from "@/sections/empresas/EmpresasUseCases";
 import EmpresasHowItWorks from "@/sections/empresas/EmpresasHowItWorks";
+import EmpresasPricing from "@/sections/empresas/EmpresasPricing";
 import EmpresasFinalCTA from "@/sections/empresas/EmpresasFinalCTA";
 
 export default function EmpresasPage() {
@@ -24,6 +25,7 @@ export default function EmpresasPage() {
         <EmpresasCustomization />
         <EmpresasUseCases />
         <EmpresasHowItWorks />
+        <EmpresasPricing />
         <EmpresasFinalCTA />
 
         {/*
