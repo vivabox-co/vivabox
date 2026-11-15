@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react"
 import { Info } from "lucide-react"
 import ConfiguratorPreview from "./ConfiguratorPreview"
+import type { MapExperience } from "@/features/app-map/config"
 import DateField from "./DateField"
 import Dropdown from "./Dropdown"
 import { LOGO_ACCEPT, processLogo, type LogoError, type LogoResult } from "./logoFile"
@@ -40,7 +41,7 @@ const field =
 
 const label = "mb-1.5 block text-[13px] font-medium text-white/80"
 
-export default function Configurator({ header }: { header?: React.ReactNode }) {
+export default function Configurator({ header, mapExperiences }: { header?: React.ReactNode; mapExperiences?: MapExperience[] }) {
   const [id, setId] = useState<string | null>(null)
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const [logoThumb, setLogoThumb] = useState<string | null>(null)
@@ -187,7 +188,7 @@ export default function Configurator({ header }: { header?: React.ReactNode }) {
       {/* PREVIEW — on phones it comes first, full width, same layout as desktop */}
       <div className="order-2 md:order-none md:col-start-2 md:row-span-4 md:row-start-1 md:self-center">
         {/* Capped so the scene is no taller than the text + controls column next to it */}
-        <ConfiguratorPreview config={config} maxWidth={440} />
+        <ConfiguratorPreview config={config} maxWidth={440} mapExperiences={mapExperiences} />
       </div>
 
       {/* CONTROLS — two columns on larger screens */}

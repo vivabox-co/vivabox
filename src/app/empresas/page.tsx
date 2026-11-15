@@ -1,3 +1,4 @@
+import { getMapExperiences } from "@/services/experiences";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsappButton from "@/components/WhatsappButton";
@@ -14,7 +15,9 @@ import EmpresasPricing from "@/sections/empresas/EmpresasPricing";
 import EmpresasFAQ from "@/sections/empresas/EmpresasFAQ";
 import EmpresasFinalCTA from "@/sections/empresas/EmpresasFinalCTA";
 
-export default function EmpresasPage() {
+export default async function EmpresasPage() {
+  const mapExperiences = await getMapExperiences();
+
   return (
     <>
       <script
@@ -31,7 +34,7 @@ export default function EmpresasPage() {
         <EmpresasHowItWorks />
         <EmpresasExamples />
         <EmpresasUseCases />
-        <EmpresasCustomization />
+        <EmpresasCustomization mapExperiences={mapExperiences} />
         <EmpresasTrustStrip />
         <EmpresasPricing />
         <EmpresasFAQ />

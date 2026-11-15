@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import Image from "next/image"
 import dynamic from "next/dynamic"
 import { X } from "lucide-react"
 import MessageCardPreview from "@/app/checkout/components/MessageCardPreview"
@@ -33,17 +32,20 @@ export default function ZoomOverlay({
   side,
   onSide,
   onClose,
+  onStart,
 }: {
   zoom: ZoomState
   config: MaquetaConfig
   side: "front" | "back"
   onSide: (s: "front" | "back") => void
   onClose: () => void
+  onStart?: () => void
 }) {
   const panelRef = useRef<HTMLDivElement>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
   const closing = useRef(false)
   const drag = useRef<{ y: number } | null>(null)
+  const tap = useRef<{ x: number; y: number; t: number } | null>(null)
   const [dy, setDy] = useState(0)
   const [ready3D, setReady3D] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -151,18 +153,29 @@ export default function ZoomOverlay({
       >
         <div ref={panelRef} className="pointer-events-auto relative" style={{ width: WIDTH[zoom.kind] }}>
           {zoom.kind === "box" && (
-            <div className="relative aspect-square">
-              <Image
-                src="/images/box-includes/vivabox-caja-regalo.webp"
-                alt=""
-                fill
-                sizes="100vw"
-                className={`object-contain transition-opacity duration-500 ${ready3D ? "opacity-0" : "opacity-100"}`}
-              />
-              <SleeveViewer config={config} side={side} onLoaded={() => setReady3D(true)} />
+            <div
+              className="relative aspect-square"
+              onPointerDown={(e) => {
+                tap.current = { x: e.clientX, y: e.clientY, t: Date.now() }
+              }}
+              onPointerUp={(e) => {
+                const s = tap.current
+                tap.current = null
+                if (!s || Math.hypot(e.clientX - s.x, e.clientY - s.y) > 6 || Date.now() - s.t > 350) return
+                // A short tap on the empty corners of the square (outside the box) closes the view.
+                const r = e.currentTarget.getBoundingClientRect()
+                const dx = Math.abs(e.clientX - (r.left + r.width / 2)) / r.width
+                const dy = Math.abs(e.clientY - (r.top + r.height / 2)) / r.height
+                if (dx > 0.4 || dy > 0.45) close()
+              }}
+              onPointerCancel={() => (tap.current = null)}
+            >
+              <div className={`absolute inset-0 transition-opacity duration-200 ${ready3D ? "opacity-100" : "opacity-0"}`}>
+                <SleeveViewer config={config} side={side} onLoaded={() => setReady3D(true)} />
+              </div>
             </div>
           )}
-          {zoom.kind === "phone" && <AppScreen logoUrl={config.logoUrl} />}
+          {zoom.kind === "phone" && <AppScreen logoUrl={config.logoUrl} onStart={onStart} />}
           {zoom.kind === "card" && (
             <MessageCardPreview mensaje={config.message} firma={config.signature} corazon={false} />
           )}

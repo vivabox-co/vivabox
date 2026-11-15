@@ -5,6 +5,8 @@ import Image from "next/image"
 import dynamic from "next/dynamic"
 import MessageCardPreview from "@/app/checkout/components/MessageCardPreview"
 import type { MaquetaConfig } from "./types"
+import PortraitPhoneModal from "@/features/app-map/PortraitPhoneModal"
+import type { MapExperience } from "@/features/app-map/config"
 import ZoomOverlay, { type ZoomKind, type ZoomState } from "./ZoomOverlay"
 
 const SleeveViewer = dynamic(() => import("./SleeveViewer"), { ssr: false })
@@ -47,7 +49,7 @@ const LogoImg = ({ src, className }: { src: string; className: string }) => <img
 // Faithful to the real activation welcome screen (vivabox-appben, /activar):
 // blurred photo, frosted card, navy button, the company logo where the
 // Vivabox logo normally sits. Sized in cqw of the phone itself.
-export function AppScreen({ logoUrl }: { logoUrl: string | null }) {
+export function AppScreen({ logoUrl, onStart }: { logoUrl: string | null; onStart?: () => void }) {
   return (
     <div className="@container w-full">
       <div className="rounded-[15cqw] bg-[#0f0d0a] p-[3cqw] shadow-[3cqw_6cqw_13cqw_rgba(0,0,0,0.5)] ring-1 ring-white/15">
@@ -80,9 +82,19 @@ export function AppScreen({ logoUrl }: { logoUrl: string | null }) {
               <p className="mx-auto mt-[4.7cqw] max-w-[88%] text-[4.3cqw] leading-snug text-[#152F40]/70">
                 Descubre las experiencias disponibles para ti.
               </p>
-              <span className="mt-[8.7cqw] flex h-[14.7cqw] items-center justify-center rounded-[4.7cqw] bg-[#152F40] text-[5.3cqw] font-semibold text-white">
-                Empezar
-              </span>
+              {onStart ? (
+                <button
+                  type="button"
+                  onClick={onStart}
+                  className="mt-[8.7cqw] flex h-[14.7cqw] w-full cursor-pointer items-center justify-center rounded-[4.7cqw] bg-[#152F40] text-[5.3cqw] font-semibold text-white transition active:scale-[0.98] hover:bg-[#1d3d54]"
+                >
+                  Empezar
+                </button>
+              ) : (
+                <span className="mt-[8.7cqw] flex h-[14.7cqw] items-center justify-center rounded-[4.7cqw] bg-[#152F40] text-[5.3cqw] font-semibold text-white">
+                  Empezar
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -91,10 +103,19 @@ export function AppScreen({ logoUrl }: { logoUrl: string | null }) {
   )
 }
 
-export default function ConfiguratorPreview({ config, maxWidth }: { config: MaquetaConfig; maxWidth?: number }) {
+export default function ConfiguratorPreview({
+  config,
+  maxWidth,
+  mapExperiences = [],
+}: {
+  config: MaquetaConfig
+  maxWidth?: number
+  mapExperiences?: MapExperience[]
+}) {
   const [side, setSide] = useState<"front" | "back">("front")
   const [ready3D, setReady3D] = useState(false)
   const [zoom, setZoom] = useState<ZoomState | null>(null)
+  const [mapOpen, setMapOpen] = useState(false)
   const tapStart = useRef<{ x: number; y: number; t: number } | null>(null)
 
   // Phones only: a transparent button over each object opens it large.
@@ -103,7 +124,7 @@ export default function ConfiguratorPreview({ config, maxWidth }: { config: Maqu
       type="button"
       aria-label={label}
       onClick={(e) => setZoom({ kind, rect: e.currentTarget.parentElement!.getBoundingClientRect() })}
-      className="absolute inset-0 z-10 md:hidden"
+      className={`absolute inset-0 z-10 ${kind === "phone" ? "cursor-pointer" : "md:hidden"}`}
     />
   )
   const L = TRIANGLE
@@ -134,7 +155,7 @@ export default function ConfiguratorPreview({ config, maxWidth }: { config: Maqu
           onPointerUp={(e) => {
             const s = tapStart.current
             tapStart.current = null
-            if (!s || window.matchMedia("(min-width: 768px)").matches) return
+            if (!s) return
             // A tap opens the zoom; a drag (turning the box) or a long press does not.
             if (Math.hypot(e.clientX - s.x, e.clientY - s.y) < 8 && Date.now() - s.t < 400) {
               setZoom({ kind: "box", rect: e.currentTarget.getBoundingClientRect() })
@@ -142,20 +163,16 @@ export default function ConfiguratorPreview({ config, maxWidth }: { config: Maqu
           }}
           onPointerCancel={() => (tapStart.current = null)}
         >
-          <Image
-            src="/images/box-includes/vivabox-caja-regalo.webp"
-            alt=""
-            fill
-            sizes="(min-width: 768px) 320px, 45vw"
-            className={`object-contain transition-opacity duration-500 ${ready3D ? "opacity-0" : "opacity-100"}`}
-          />
-          <SleeveViewer config={config} side={side} onLoaded={() => setReady3D(true)} />
+          {/* No placeholder photo: it looked different from the 3D box and made the swap visible. The box fades in once loaded. */}
+          <div className={`absolute inset-0 transition-opacity duration-500 ${ready3D ? "opacity-100" : "opacity-0"}`}>
+            <SleeveViewer config={config} side={side} onLoaded={() => setReady3D(true)} />
+          </div>
           {/* No overlay here: it would block turning the box. A short tap is detected on the wrapper instead. */}
           <button
             type="button"
             aria-label="Ver la caja en grande"
             onClick={(e) => setZoom({ kind: "box", rect: e.currentTarget.parentElement!.getBoundingClientRect() })}
-            className="sr-only md:hidden"
+            className="sr-only"
           />
         </div>
       </div>
@@ -202,7 +219,20 @@ export default function ConfiguratorPreview({ config, maxWidth }: { config: Maqu
         ))}
       </div>
 
-      {zoom && <ZoomOverlay zoom={zoom} config={config} side={side} onSide={setSide} onClose={() => setZoom(null)} />}
+      {zoom && (
+        <ZoomOverlay
+          zoom={zoom}
+          config={config}
+          side={side}
+          onSide={setSide}
+          onClose={() => setZoom(null)}
+          onStart={() => {
+            setZoom(null)
+            setMapOpen(true)
+          }}
+        />
+      )}
+      {mapOpen && <PortraitPhoneModal experiences={mapExperiences} onClose={() => setMapOpen(false)} />}
     </div>
   )
 }

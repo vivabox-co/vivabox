@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
+import { getMapExperiences } from "@/services/experiences"
 import { getSupabase } from "@/services/supabase"
 import ConfiguratorPreview from "@/features/empresas-configurator/ConfiguratorPreview"
 
@@ -27,6 +28,8 @@ export default async function MaquetaPage({ params }: { params: Promise<{ id: st
 
   if (!data) notFound()
 
+  const mapExperiences = await getMapExperiences()
+
   return (
     <>
       <Navbar />
@@ -39,6 +42,7 @@ export default async function MaquetaPage({ params }: { params: Promise<{ id: st
             Así se vería tu Vivabox. Gírala para verla por todos lados.
           </p>
           <ConfiguratorPreview
+            mapExperiences={mapExperiences}
             config={{
               logoUrl: data.logo_thumb,
               message: data.message ?? "",
