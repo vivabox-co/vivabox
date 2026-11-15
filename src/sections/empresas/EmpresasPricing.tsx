@@ -14,7 +14,7 @@ const DETAILS = [
   { icon: ReceiptText, text: "Factura electrónica" },
   { icon: CalendarClock, text: "Código válido 6 meses" },
   { icon: Landmark, text: "Transferencia, anticipo 50 %" },
-  { icon: Timer, text: "Listo en 3-4 días (10 con sleeve personalizada)" },
+  { icon: Timer, text: "Listo en 3-4 días (10 si le pones tu logo a la caja)" },
 ] as const;
 
 export default function EmpresasPricing() {
