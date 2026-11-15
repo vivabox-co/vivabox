@@ -26,9 +26,11 @@ function fitScale() {
 export default function PortraitPhoneModal({
   experiences,
   onClose,
+  logos,
 }: {
   experiences: MapExperience[]
   onClose: () => void
+  logos?: string[]
 }) {
   const [scale, setScale] = useState<number | null>(null)
 
@@ -118,7 +120,7 @@ export default function PortraitPhoneModal({
           <span aria-hidden="true" style={{ position: "absolute", right: -4, top: 220, width: 4, height: 88, borderRadius: "0 3px 3px 0", background: BUTTON }} />
 
           <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: 52, overflow: "hidden", background: "#f4f1ea" }}>
-            <MapPanel experiences={experiences} immediate appUI="portrait" />
+            <MapPanel experiences={experiences} immediate appUI="portrait" logos={logos} />
             {/* Dynamic Island */}
             <span
               aria-hidden="true"

@@ -36,6 +36,8 @@ type Props = {
   appUI?: AppChromeVariant
   // Non-interactive picture of the map: no drag, no hints. The parent lays its own tap target on top.
   preview?: boolean
+  // Logos shown (and alternated) in the top-right corner of the app chrome.
+  logos?: string[]
 }
 
 // `drag` covers panning, pinch/double-click zoom and keyboard; the mouse wheel
@@ -202,7 +204,7 @@ function ExperiencePopup({ exp }: { exp: MapExperience }) {
   )
 }
 
-export default function MapPanelInner({ experiences, immediate = false, appUI, preview = false }: Props) {
+export default function MapPanelInner({ experiences, immediate = false, appUI, preview = false, logos }: Props) {
   const chrome = appUI ? CHROME_LAYOUT[appUI] : null
   // Touch devices start frozen (tap to take control) so a finger scrolling the
   // page never gets trapped in the map. Mouse devices can drag right away.
@@ -351,7 +353,7 @@ export default function MapPanelInner({ experiences, immediate = false, appUI, p
 
       {/* Category filters, same behaviour as the app's legend (or the full app chrome inside the phone frames) */}
       {appUI ? (
-        <AppChrome variant={appUI} activeCategories={activeCategories} onToggleCategory={toggleCategory} />
+        <AppChrome variant={appUI} activeCategories={activeCategories} onToggleCategory={toggleCategory} logos={logos} />
       ) : (
         <>
       <div

@@ -103,6 +103,10 @@ export function AppScreen({ logoUrl, onStart }: { logoUrl: string | null; onStar
   )
 }
 
+const VIVABOX_LOGO = "/icons/app-logo.svg"
+// Same companies as the /empresas hero, each with its name. Vivabox shows between every two companies.
+const DEMO_LOGOS = ["nuvora", "kubo", "zentra", "moventia", "bluetec"].map((n) => `/images/empresas/logos-demo/${n}.svg`)
+
 export default function ConfiguratorPreview({
   config,
   maxWidth,
@@ -127,6 +131,8 @@ export default function ConfiguratorPreview({
       className={`absolute inset-0 z-10 ${kind === "phone" ? "cursor-pointer" : "md:hidden"}`}
     />
   )
+  // With the visitor's own logo: it alternates with the Vivabox gift logo. Otherwise the hero's demo companies.
+  const mapLogos = config.logoUrl ? [VIVABOX_LOGO, config.logoUrl] : DEMO_LOGOS.flatMap((l) => [l, VIVABOX_LOGO])
   const L = TRIANGLE
   const pctW = (cm: number) => `${(cm / L.w) * 100}%`
   const pctH = (cm: number) => `${(cm / L.h) * 100}%`
@@ -232,7 +238,7 @@ export default function ConfiguratorPreview({
           }}
         />
       )}
-      {mapOpen && <PortraitPhoneModal experiences={mapExperiences} onClose={() => setMapOpen(false)} />}
+      {mapOpen && <PortraitPhoneModal experiences={mapExperiences} logos={mapLogos} onClose={() => setMapOpen(false)} />}
     </div>
   )
 }

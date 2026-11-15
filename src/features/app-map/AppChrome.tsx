@@ -93,14 +93,53 @@ function LockedButton({
   )
 }
 
+const LOGO_INTERVAL = 3200
+
+// The top-right logo. With several logos they cross-fade one over the other.
+function CornerLogo({ logos }: { logos: string[] }) {
+  const [i, setI] = useState(0)
+  useEffect(() => {
+    if (logos.length < 2) return
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (reduce) return
+    const t = setInterval(() => setI((c) => (c + 1) % logos.length), LOGO_INTERVAL)
+    return () => clearInterval(t)
+  }, [logos.length])
+  return (
+    <span style={{ position: "relative", display: "block", width: 44, height: 40 }}>
+      {logos.map((src, n) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={n}
+          src={src}
+          alt=""
+          width={44}
+          height={40}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: 44,
+            height: 40,
+            objectFit: "contain",
+            opacity: n === i % logos.length ? 1 : 0,
+            transition: "opacity 600ms ease",
+          }}
+        />
+      ))}
+    </span>
+  )
+}
+
 export default function AppChrome({
   variant,
   activeCategories,
   onToggleCategory,
+  logos = ["/icons/app-logo.svg"],
 }: {
   variant: AppChromeVariant
   activeCategories: MapCategory[]
   onToggleCategory: (category: MapCategory) => void
+  logos?: string[]
 }) {
   const landscape = variant === "landscape"
   const layout = CHROME_LAYOUT[variant]
@@ -217,8 +256,7 @@ export default function AppChrome({
           tipAlign="end"
           style={{ background: "transparent", padding: 0, display: "flex" }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icons/app-logo.svg" alt="" width={44} height={40} style={{ display: "block" }} />
+          <CornerLogo logos={logos} />
         </LockedButton>
       </div>
 
