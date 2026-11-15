@@ -20,6 +20,7 @@ type OccasionCarouselProps = {
   theme?: "dark" | "light";
   prevLabel?: string;
   nextLabel?: string;
+  compact?: boolean;
 };
 
 // Shared by the homepage ("¿Para qué ocasión…?") and Empresas ("Ideal para").
@@ -29,6 +30,7 @@ export default function OccasionCarousel({
   theme = "dark",
   prevLabel = "Ver ocasiones anteriores",
   nextLabel = "Ver más ocasiones",
+  compact = false,
 }: OccasionCarouselProps) {
 
   const [revealed, setRevealed] = useState<string | null>(null);
@@ -65,9 +67,9 @@ export default function OccasionCarousel({
   const isDark = theme === "dark";
 
   return (
-    <section className={`${isDark ? "vb-dark bg-ink" : "vb-surface-base"} py-12 md:py-14`}>
+    <section className={`${isDark ? "vb-dark bg-ink" : "vb-surface-base"} ${compact ? "py-12 md:py-8" : "py-12 md:py-14"}`}>
 
-      <div className="max-w-6xl mx-auto px-6 mb-6 md:mb-8">
+      <div className={`max-w-6xl mx-auto px-6 mb-6 ${compact ? "md:mb-5" : "md:mb-8"}`}>
 
         <h2 className={`h2 text-center ${isDark ? "text-white" : ""}`}>
           {title}

@@ -63,6 +63,7 @@ export default function EmpresasUseCases() {
       theme="light"
       prevLabel="Ver casos anteriores"
       nextLabel="Ver más casos"
+      compact
     />
   );
 }

@@ -12,10 +12,10 @@ export default function EmpresasHowItWorks() {
   return (
     <section id="como-funciona-empresas" className="vb-dark bg-ink">
 
-      <div className="max-w-6xl mx-auto px-6 py-14 md:py-20">
+      <div className="max-w-6xl mx-auto px-6 py-14 md:py-12">
 
         <Reveal>
-          <h2 className="text-3xl md:text-4xl font-semibold text-center tracking-[-0.01em] text-white mb-10 md:mb-14">
+          <h2 className="text-3xl md:text-4xl font-semibold text-center tracking-[-0.01em] text-white mb-10 md:mb-8">
             Cómo funciona
           </h2>
         </Reveal>

@@ -15,12 +15,12 @@ const COLUMNS = [
 
 export default function EmpresasBenefits() {
   return (
-    <section className="bg-white py-14 md:py-20">
+    <section className="bg-white py-14 md:py-12">
 
       <div className="max-w-4xl mx-auto px-6">
 
         <Reveal>
-          <h2 className="text-3xl md:text-4xl font-semibold text-center tracking-[-0.01em] mb-8 md:mb-12">
+          <h2 className="text-3xl md:text-4xl font-semibold text-center tracking-[-0.01em] mb-8 md:mb-7">
             Un solo regalo.<br />Miles de gustos.
           </h2>
         </Reveal>
