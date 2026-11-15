@@ -4,7 +4,7 @@ import Reveal from "@/components/ui/Reveal";
 const TIERS = [
   { range: "1 a 4 boxes", price: "$199.000", note: "Precio de cada box", featured: false },
   { range: "5 a 19 boxes", price: "$194.900", note: "Por cada box", featured: false },
-  { range: "20 a 99 boxes", price: "$189.000", note: "Por cada box", featured: true },
+  { range: "20 a 99 boxes", price: "$189.900", note: "Por cada box", featured: true },
   { range: "100 o más", price: "A tu medida", note: "Armamos tu cotización", featured: false },
 ] as const;
 
