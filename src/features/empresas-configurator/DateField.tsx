@@ -40,6 +40,7 @@ export default function DateField({
   const [open, setOpen] = useState(false)
   const [phone, setPhone] = useState(false)
   const [month, setMonth] = useState(() => new Date())
+  const [draft, setDraft] = useState<Date | null>(null) // picked but not yet confirmed
   const rootRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
@@ -77,11 +78,13 @@ export default function DateField({
   function openPanel() {
     const base = selected ?? new Date()
     setMonth(new Date(base.getFullYear(), base.getMonth(), 1))
+    setDraft(selected)
     setOpen(true)
   }
 
-  function pick(d: Date) {
-    onChange(toIso(d))
+  function confirm() {
+    if (!draft) return
+    onChange(toIso(draft))
     setOpen(false)
     buttonRef.current?.focus()
   }
@@ -134,14 +137,14 @@ export default function DateField({
         {cells.map((d, i) => {
           if (!d) return <span key={i} />
           const past = d < today
-          const isSelected = selected !== null && sameDay(d, selected)
+          const isSelected = draft !== null && sameDay(d, draft)
           const isToday = sameDay(d, today)
           return (
             <button
               key={i}
               type="button"
               disabled={past}
-              onClick={() => pick(d)}
+              onClick={() => setDraft(d)}
               aria-label={d.toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long" })}
               aria-pressed={isSelected}
               className={`mx-auto flex h-9 w-9 items-center justify-center rounded-full text-[13px] transition ${
@@ -157,6 +160,15 @@ export default function DateField({
           )
         })}
       </div>
+
+      <button
+        type="button"
+        onClick={confirm}
+        disabled={!draft}
+        className="mt-3 h-11 w-full rounded-full bg-primary text-[14px] font-semibold text-white shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+      >
+        Confirmar
+      </button>
 
       <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2.5 text-[12px]">
         <button
