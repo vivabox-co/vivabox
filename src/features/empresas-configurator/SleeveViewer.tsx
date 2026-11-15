@@ -15,8 +15,12 @@ const MAX_RADIUS = `${(AUTO_RADIUS * 1.1).toFixed(4)}m`
 const MIN_RADIUS_TOUCH = `${(AUTO_RADIUS * 0.9).toFixed(4)}m`
 const MIN_RADIUS_DESKTOP = `${(AUTO_RADIUS * 0.65).toFixed(4)}m`
 
-const ORBIT_FRONT = "0deg 84deg 100%"
-const ORBIT_BACK = "180deg 84deg 100%"
+// Slightly off-axis (camera ~28° to the right) so the box faces the left of
+// the screen and shows a bit of its right side: it reads as a 3D object that
+// can be turned, not a flat picture.
+const TILT = 28
+const ORBIT_FRONT = `${TILT}deg 84deg 100%`
+const ORBIT_BACK = `${180 + TILT}deg 84deg 100%`
 
 type ModelViewerEl = HTMLElement & {
   loaded?: boolean
