@@ -16,13 +16,13 @@ const expSrc = (slug: string) => `/images/experiencias-reales/${slug}-vivabox/${
 export default function EmpresasExamples() {
   return (
     <section id="ejemplos-empresas" className="vb-dark bg-ink">
-      <div className="max-w-6xl mx-auto px-6 py-6 md:py-7">
+      <div className="max-w-7xl mx-auto px-6 py-6 md:py-7 lg:py-9 lg:grid lg:grid-cols-[1fr_280px] lg:items-center lg:gap-10">
 
-        <Reveal>
-          <h2 className="text-2xl md:text-3xl font-semibold text-center tracking-[-0.01em] text-white mb-1">
+        <Reveal className="lg:order-2">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-center lg:text-right tracking-[-0.01em] text-white mb-1 lg:mb-3">
             Ejemplos de experiencias
           </h2>
-          <p className="text-white/70 text-center text-[14px] md:text-[15px] mb-4 md:mb-5">
+          <p className="text-white/70 text-center lg:text-right text-[14px] md:text-[15px] mb-4 md:mb-5 lg:mb-0">
             Esto es lo que tu equipo puede elegir.
           </p>
         </Reveal>

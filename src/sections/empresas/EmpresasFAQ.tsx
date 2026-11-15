@@ -35,12 +35,22 @@ const QUESTIONS = [
 export default function EmpresasFAQ() {
   return (
     <section id="preguntas-empresas" className="vb-dark bg-ink">
-      <div className="max-w-3xl mx-auto px-4 md:px-6 py-6 md:py-7">
+      <div className="max-w-3xl lg:max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-7 lg:py-9 lg:grid lg:grid-cols-[1fr_280px] lg:gap-10">
 
-        <Reveal>
-          <h2 className="text-2xl md:text-3xl font-semibold text-center tracking-[-0.01em] text-white mb-4 md:mb-5">
-            Preguntas frecuentes
-          </h2>
+        <Reveal className="lg:order-2">
+          <div className="lg:text-right lg:sticky lg:top-24">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-center lg:text-right tracking-[-0.01em] text-white mb-4 md:mb-5 lg:mb-3">
+              Preguntas frecuentes
+            </h2>
+            <a
+              href="https://wa.me/573142590291?text=Hola%2C%20tengo%20una%20pregunta%20sobre%20Vivabox%20para%20mi%20empresa."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden lg:inline-block text-[15px] text-white/70 underline underline-offset-4 decoration-white/30 hover:text-white transition-colors"
+            >
+              ¿Otra duda? Escríbenos por WhatsApp
+            </a>
+          </div>
         </Reveal>
 
         <Reveal delay={80}>

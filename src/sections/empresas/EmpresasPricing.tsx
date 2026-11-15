@@ -15,20 +15,40 @@ const DETAILS = [
   { icon: Timer, text: "10 días si le pones tu logo a la caja" },
 ] as const;
 
+const quote = (
+  <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-4 lg:flex-col lg:items-start lg:gap-3 text-center lg:text-left">
+    <p className="text-ink/70 text-[14px] md:text-[15px]">
+      ¿Más de 100 personas, o un pedido especial? Te armamos la cotización.
+    </p>
+    <a
+      href="https://wa.me/573142590291?text=Hola%2C%20quiero%20una%20cotizaci%C3%B3n%20de%20Vivabox%20para%20mi%20empresa."
+      target="_blank"
+      rel="noopener noreferrer"
+      className="vb-btn-primary inline-flex items-center gap-2 whitespace-nowrap px-5 py-2 text-[14px]"
+    >
+      <MessageCircle size={16} strokeWidth={1.8} />
+      Pedir cotización
+    </a>
+  </div>
+);
+
 export default function EmpresasPricing() {
   return (
     <section id="precios-empresas" className="vb-light vb-surface-base">
 
-      <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 lg:py-10 lg:grid lg:grid-cols-[280px_1fr] lg:gap-10 lg:items-center">
 
         <Reveal>
-          <h2 className="text-2xl md:text-3xl font-semibold text-center tracking-[-0.01em] text-ink mb-1">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-center lg:text-left tracking-[-0.01em] text-ink mb-1 lg:mb-3">
             Precio y facturación
           </h2>
-          <p className="text-ink/70 text-center text-[14px] md:text-[15px] mb-4 md:mb-5">
+          <p className="text-ink/70 text-center lg:text-left text-[14px] md:text-[15px] mb-4 md:mb-5 lg:mb-5">
             Entre más personas sorprendes, menos pagas por cada box.
           </p>
+          <div className="hidden lg:block">{quote}</div>
         </Reveal>
+
+        <div>
 
         {/* TIERS */}
         <Reveal delay={80}>
@@ -63,11 +83,11 @@ export default function EmpresasPricing() {
 
         {/* DETAILS */}
         <Reveal delay={140}>
-          <ul className="vb-card flex flex-wrap justify-between gap-x-6 gap-y-2.5 px-4 py-3.5 md:px-7 md:py-4">
+          <ul className="vb-card flex flex-wrap lg:flex-nowrap justify-between gap-x-6 lg:gap-x-4 gap-y-2.5 px-4 py-3.5 md:px-7 lg:px-5 md:py-4">
             {DETAILS.map((item) => {
               const Icon = item.icon;
               return (
-                <li key={item.text} className="flex items-center gap-2 md:gap-3 whitespace-nowrap text-ink text-[13px] md:text-[14px] leading-snug">
+                <li key={item.text} className="flex items-center gap-2 md:gap-3 lg:gap-2 whitespace-nowrap text-ink text-[13px] md:text-[14px] lg:text-[13px] leading-snug">
                   <Icon size={18} strokeWidth={1.5} className="text-primary shrink-0" />
                   <span>{item.text}</span>
                 </li>
@@ -76,23 +96,12 @@ export default function EmpresasPricing() {
           </ul>
         </Reveal>
 
-        {/* QUOTE */}
-        <Reveal delay={200}>
-          <div className="mt-4 md:mt-5 flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-4 text-center">
-            <p className="text-ink/70 text-[14px] md:text-[15px]">
-              ¿Más de 100 personas, o un pedido especial? Te armamos la cotización.
-            </p>
-            <a
-              href="https://wa.me/573142590291?text=Hola%2C%20quiero%20una%20cotizaci%C3%B3n%20de%20Vivabox%20para%20mi%20empresa."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="vb-btn-primary inline-flex items-center gap-2 whitespace-nowrap px-5 py-2 text-[14px]"
-            >
-              <MessageCircle size={16} strokeWidth={1.8} />
-              Pedir cotización
-            </a>
-          </div>
+        {/* QUOTE (mobile: below; desktop: in the title column) */}
+        <Reveal delay={200} className="lg:hidden">
+          <div className="mt-4 md:mt-5">{quote}</div>
         </Reveal>
+
+        </div>
 
       </div>
 

@@ -21,6 +21,8 @@ type OccasionCarouselProps = {
   prevLabel?: string;
   nextLabel?: string;
   compact?: boolean;
+  // Desktop: title on the left, cards on the right (instead of a centred title above).
+  sideTitle?: boolean;
 };
 
 // Shared by the homepage ("¿Para qué ocasión…?") and Empresas ("Ideal para").
@@ -31,6 +33,7 @@ export default function OccasionCarousel({
   prevLabel = "Ver ocasiones anteriores",
   nextLabel = "Ver más ocasiones",
   compact = false,
+  sideTitle = false,
 }: OccasionCarouselProps) {
 
   const [revealed, setRevealed] = useState<string | null>(null);
@@ -66,22 +69,53 @@ export default function OccasionCarousel({
 
   const isDark = theme === "dark";
 
+  const arrows = (
+    <div className="hidden lg:flex gap-2 mt-4">
+      <button
+        type="button"
+        onClick={() => scrollByStep("left")}
+        aria-label={prevLabel}
+        disabled={!canScrollLeft}
+        className="vb-icon-btn w-11 h-11 transition-opacity duration-200 disabled:opacity-30"
+      >
+        <ChevronLeft size={22} />
+      </button>
+      <button
+        type="button"
+        onClick={() => scrollByStep("right")}
+        aria-label={nextLabel}
+        disabled={!canScrollRight}
+        className="vb-icon-btn w-11 h-11 transition-opacity duration-200 disabled:opacity-30"
+      >
+        <ChevronRight size={22} />
+      </button>
+    </div>
+  );
+
   return (
-    <section className={`${isDark ? "vb-dark bg-ink" : "vb-surface-base"} ${compact ? "py-6 md:py-6" : "py-12 md:py-14"}`}>
+    <section className={`${isDark ? "vb-dark bg-ink" : "vb-surface-base"} ${compact ? "py-6 md:py-6" : "py-12 md:py-14"} ${sideTitle ? "lg:py-9" : ""}`}>
 
-      <div className={`max-w-6xl mx-auto px-6 ${compact ? "mb-3 md:mb-4" : "mb-6 md:mb-8"}`}>
+      <div className={sideTitle ? "max-w-7xl mx-auto lg:flex lg:items-center" : ""}>
 
-        <h2 className={`h2 text-center ${isDark ? "text-white" : ""}`}>
+      <div className={
+        sideTitle
+          ? `px-6 ${compact ? "mb-3 md:mb-4" : "mb-6 md:mb-8"} lg:mb-0 lg:w-[280px] lg:shrink-0 lg:pr-4`
+          : `max-w-6xl mx-auto px-6 ${compact ? "mb-3 md:mb-4" : "mb-6 md:mb-8"}`
+      }>
+
+        <h2 className={`h2 text-center ${sideTitle ? "lg:text-left" : ""} ${isDark ? "text-white" : ""}`}>
           {title}
         </h2>
+
+        {sideTitle && arrows}
 
       </div>
 
       {/* CAROUSEL at every width — the next card always peeks in to invite swiping; desktop gets arrows since horizontal scroll has no discoverable affordance with a mouse */}
 
-      <div className="relative max-w-7xl mx-auto">
+      <div className={`relative ${sideTitle ? "lg:flex-1 lg:min-w-0" : "max-w-7xl mx-auto"}`}>
 
-        <button
+        {!sideTitle && <button
           type="button"
           onClick={() => scrollByStep("left")}
           aria-label={prevLabel}
@@ -90,9 +124,9 @@ export default function OccasionCarousel({
           }`}
         >
           <ChevronLeft size={22} />
-        </button>
+        </button>}
 
-        <button
+        {!sideTitle && <button
           type="button"
           onClick={() => scrollByStep("right")}
           aria-label={nextLabel}
@@ -101,7 +135,7 @@ export default function OccasionCarousel({
           }`}
         >
           <ChevronRight size={22} />
-        </button>
+        </button>}
 
         <div
           ref={scrollRef}
@@ -179,6 +213,8 @@ export default function OccasionCarousel({
           ))}
 
         </div>
+
+      </div>
 
       </div>
 
