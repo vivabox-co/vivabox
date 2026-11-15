@@ -132,7 +132,7 @@ function StageView({ stage, i, prev }: { stage: Stage; i: number; prev: number }
         {LOGOS.map((l, n) => (
           <Image
             key={l}
-            src={`/images/empresas/hero-boxes/frente-${l}-v4.webp`}
+            src={`/images/empresas/hero-boxes/frente-${l}-v5.webp`}
             alt={n === 0 ? "Vivabox con el logo de la empresa en la sleeve" : ""}
             width={IMG_W} height={IMG_H} sizes="(min-width: 1100px) 560px, 95vw" priority={n === 0}
             className="absolute inset-0 w-full h-full"
