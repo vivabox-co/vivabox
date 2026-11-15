@@ -17,10 +17,10 @@ import BrandRibbon from "@/components/ui/BrandRibbon";
 import { getFAQPageSchema } from "@/data/faqSchema";
 import { getOrganizationSchema } from "@/data/organizationSchema";
 
-// Force per-request rendering so the "Ejemplos de experiencias" shuffle
-// (Math.random() in src/services/experiences.ts) re-runs on every reload
-// instead of being frozen into the statically cached HTML.
-export const dynamic = "force-dynamic";
+// ISR: the page is cached at the edge and rebuilt at most once an hour (same
+// cadence as the catalog cache in services/sheet.ts). The "Ejemplos de
+// experiencias" shuffle now runs in the browser (see ExperiencesGrid).
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Vivabox Colombia | El regalo que deja elegir",

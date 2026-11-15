@@ -1,8 +1,8 @@
 # Vivabox — Línea Editorial de Experiencias
 
-> Fuente de verdad para el contenido de cada ficha de experiencia: `descripcion_corta`, `nota_vivabox` y `claves_eleccion`.
+> Fuente de verdad para el contenido de cada ficha de experiencia: `nombre_experiencia` (título, ver §14), `descripcion_corta`, `nota_vivabox` y `claves_eleccion`.
 > Tono y lenguaje general de la marca → ver `../02_brand-voice.md`.
-> Esta doc NO cubre título, categoría, ubicación, duración ni estructura visual — eso se mantiene tal cual está. El registro de íconos de `claves_eleccion` (`BADGE_REGISTRY`) tampoco se cubre aquí — vive en `src/data/badges.ts`.
+> Esta doc NO cubre categoría, ubicación, duración ni estructura visual — eso se mantiene tal cual está. El registro de íconos de `claves_eleccion` (`BADGE_REGISTRY`) tampoco se cubre aquí — vive en `src/data/badges.ts`.
 
 ## 1. Propósito
 
@@ -163,3 +163,24 @@ El nombre del prestador de servicio **no** aparece en `descripcion_corta` ni en 
 - Datos: columnas `descripcion_corta` (obligatoria), `nota_vivabox` (obligatoria) y `claves_eleccion` (opcional) del Google Sheet "Experiencias" — ver diccionario completo en `.claude/skills/vivabox-sheet-prestador/SKILL.md`.
 - Código: `src/services/sheet.ts` (mapea headers ES→EN) → `src/services/experiences.ts` (arma `Experience`) → `src/components/ExperienceModal.tsx` (renderiza `shortDescription` como descripción, `vivanote` en el bloque "La elegimos", y `claves_eleccion` como pills vía `resolveVisibleBadges` en `src/data/badges.ts`, con fallback genérico por categoría en `src/data/categories.ts` solo para filas sin datos).
 - No hay que crear campos nuevos: la separación `description` / nota editorial / claves de elección ya existe en el modelo de datos.
+
+## 14. Título de la experiencia (`nombre_experiencia`)
+
+**Dónde vive:** la fuente de verdad en producción es la tabla `experiences` de Supabase (la web y la app beneficiaria la leen de ahí). El Google Sheet queda solo como respaldo si Supabase no responde, así que un título cambiado en el Sheet no se refleja en línea.
+
+**Por qué importa:** el título aparece en las tarjetas (home y Cajas), en el mapa, en el `alt` de la imagen y en el JSON-LD (`ItemList`) que leen Google y las IA. Un buen título se entiende solo, sin la tarjeta alrededor.
+
+**Reglas:**
+1. **La actividad primero**, con una palabra que la gente reconoce y busca (rafting, termales, cabalgata, cata). Nunca un título que no diga qué se hace ("Tras bambalinas" solo, "Terapia integral").
+2. **Corto:** 3 a 7 palabras, máximo ~45 caracteres, para que quepa en 2 líneas en la tarjeta.
+3. **Sin duración en horas ni minutos.** La duración ya tiene su propio campo. La única excepción es "Noche" en estancias, porque ahí la noche es lo que se regala. Una distancia ("14 km") no es una duración y se puede usar.
+4. **Sin ciudad:** ya se muestra al lado y se añade sola en el esquema SEO. Excepción: dos filas del mismo tipo en la misma ciudad se distinguen por el lugar (barrio o sede), por ejemplo "Copa de vino & teatro en La Candelaria" / "…en Chapinero".
+5. **Único:** dos filas no comparten título en la misma ciudad. Si se parecen, el título dice qué las distingue (el lugar o lo que incluyen), nunca solo la duración.
+6. **Combinaciones con "&":** `Rafting & cuatrimoto`, `Termales, masaje & cóctel`. Con tres o más elementos, comas y "&" antes del último. No usar "y" en estos casos, para que todo el catálogo se vea igual.
+7. **Mayúsculas:** solo la primera letra y los nombres propios (Suesca, La Candelaria, Tominé, Superman). Sin Title Case. Abreviaturas en mayúsculas (CC). Después de dos puntos va minúscula.
+8. **Ortografía consistente:** `rápel` (con tilde), `cuatrimoto`, `paddle board`, `La Candelaria`.
+9. **Sin nombre del prestador y sin palabras vagas** ("integral", "magia", "sabor", "profundo" sin objeto). Tampoco las palabras de marca prohibidas (exclusivo, lujo, condiciones, ver `../02_brand-voice.md`).
+10. **Honesto con el contenido:** el título menciona lo que realmente incluye la experiencia (si termina en cuatrimoto, el título lo dice) y nunca promete algo que no está.
+11. **Coherente con el formato:** si el título dice "para dos", `formato` debe ser `duo`.
+
+**Antes de cambiar un título:** revisar que no haya otro igual en la misma ciudad, que `formato` y título digan lo mismo y guardar una copia de los títulos actuales (`scripts/sheet-sync/backups/`).

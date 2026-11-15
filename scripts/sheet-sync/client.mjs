@@ -10,7 +10,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const CREDENTIALS_PATH = path.join(__dirname, ".credentials", "credentials.json")
 const TOKEN_PATH = path.join(__dirname, ".credentials", "token.json")
 
-export async function getSheetsClient() {
+async function getAuthClient() {
   let credentials, token
   try {
     credentials = JSON.parse(await fs.readFile(CREDENTIALS_PATH, "utf-8"))
@@ -24,6 +24,15 @@ export async function getSheetsClient() {
   const { client_id, client_secret, redirect_uris } = credentials.installed || credentials.web
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris?.[0])
   oAuth2Client.setCredentials(token)
+  return oAuth2Client
+}
 
-  return google.sheets({ version: "v4", auth: oAuth2Client })
+export async function getSheetsClient() {
+  return google.sheets({ version: "v4", auth: await getAuthClient() })
+}
+
+// Requiere que el token tenga el scope script.projects (ver authorize.mjs) y
+// que "Google Apps Script API" esté activado en https://script.google.com/home/usersettings.
+export async function getScriptClient() {
+  return google.script({ version: "v1", auth: await getAuthClient() })
 }

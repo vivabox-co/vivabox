@@ -3,6 +3,7 @@ import path from "node:path"
 import crypto from "node:crypto"
 import { getSheetData } from "./sheet"
 import { parseVisibleBadgeKeys } from "@/data/badges"
+import { interleaveByOrder, SHOWCASE_CATEGORY_ORDER } from "@/utils/interleave"
 import { formatCity } from "@/data/categories"
 import type { ExperienceSchemaItem } from "@/data/boxSchema"
 import type { Experience } from "@/types/experience"
@@ -78,6 +79,12 @@ function resolveGallery(row: any): string[] {
   return gallery
 }
 
+// The homepage is statically cached (ISR), so the per-visit shuffle can't run
+// on the server any more. This returns a small pool per category (itself
+// reshuffled at every regeneration); ExperiencesGrid shows 2 per category
+// and re-picks them in the browser.
+export const PREVIEW_POOL_PER_CATEGORY = 3
+
 export async function getExperiencesPreview():Promise<Experience[]> {
 
   const rows:any[] = await getSheetData()
@@ -100,7 +107,7 @@ export async function getExperiencesPreview():Promise<Experience[]> {
 
     const shuffled = shuffle(activities)
 
-    grouped[cat] = shuffled.slice(0,2).map(row => ({
+    grouped[cat] = shuffled.slice(0,PREVIEW_POOL_PER_CATEGORY).map(row => ({
 
       title: row.title,
       city: row.city,
@@ -127,7 +134,7 @@ export async function getExperiencesPreview():Promise<Experience[]> {
 
   const ordered:Experience[] = []
 
-  for(let i=0;i<2;i++){
+  for(let i=0;i<PREVIEW_POOL_PER_CATEGORY;i++){
     for(const cat of categories){
       if(grouped[cat]?.[i]){
         ordered.push(grouped[cat][i])
@@ -195,6 +202,55 @@ export async function getExperienceExamples():Promise<Experience[]> {
   }
 
   return ordered
+}
+
+// Every published experience across all 5 categories, interleaved so
+// consecutive items rarely share a category. Used by the internal
+// /experience-showcase production tool (not linked from the live site) --
+// no gallery resolution here since that page never opens the modal.
+export async function getAllExperiences(): Promise<Experience[]> {
+
+  const rows: any[] = await getSheetData()
+
+  const categories = [
+    "gastronomia",
+    "bienestar",
+    "aventura",
+    "cultura",
+    "estancias"
+  ]
+
+  const grouped: Record<string, Experience[]> = {}
+
+  for (const cat of categories) {
+
+    const activities = rows.filter(
+      r => categoryMap[r.category?.toLowerCase()] === cat
+    )
+
+    grouped[cat] = shuffle(activities).map(row => ({
+      title: row.title,
+      city: row.city,
+      category: cat,
+      image: resolveExperienceImage(row.image),
+
+      duration: row.duration,
+      zone: row.zone,
+      format: row.format,
+      shortDescription: row.shortDescription,
+
+      idealFor: row.idealFor,
+      effortLevel: row.effortLevel,
+      ambiance: row.ambiance,
+      environment: row.environment,
+      engagement: row.engagement,
+      vivanote: row.vivanote,
+
+      visibleBadges: parseVisibleBadgeKeys(row.visibleBadges)
+    }))
+  }
+
+  return interleaveByOrder(grouped, SHOWCASE_CATEGORY_ORDER)
 }
 
 const SCHEMA_CATEGORY_LABELS: Record<string, string> = {
