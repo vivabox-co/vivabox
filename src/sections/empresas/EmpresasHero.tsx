@@ -21,7 +21,7 @@ export default function EmpresasHero() {
               Nosotros gestionamos las reservas.
             </p>
 
-            <div className="flex items-center gap-4 justify-center md:justify-start">
+            <div className="hidden md:flex items-center gap-4 justify-center md:justify-start">
               <a
                 href="https://wa.me/573142590291?text=Hola%2C%20me%20gustar%C3%ADa%20conocer%20las%20opciones%20de%20Vivabox%20para%20mi%20empresa."
                 target="_blank"
