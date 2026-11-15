@@ -5,6 +5,7 @@ import Image from "next/image"
 import dynamic from "next/dynamic"
 import MessageCardPreview from "@/app/checkout/components/MessageCardPreview"
 import type { MaquetaConfig } from "./types"
+import ZoomOverlay, { type ZoomKind, type ZoomState } from "./ZoomOverlay"
 
 const SleeveViewer = dynamic(() => import("./SleeveViewer"), { ssr: false })
 
@@ -93,6 +94,17 @@ export function AppScreen({ logoUrl }: { logoUrl: string | null }) {
 export default function ConfiguratorPreview({ config }: { config: MaquetaConfig }) {
   const [side, setSide] = useState<"front" | "back">("front")
   const [ready3D, setReady3D] = useState(false)
+  const [zoom, setZoom] = useState<ZoomState | null>(null)
+
+  // Phones only: a transparent button over each object opens it large.
+  const zoomButton = (kind: ZoomKind, label: string) => (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={(e) => setZoom({ kind, rect: e.currentTarget.parentElement!.getBoundingClientRect() })}
+      className="absolute inset-0 z-10 md:hidden"
+    />
+  )
   const L = TRIANGLE
   const pctW = (cm: number) => `${(cm / L.w) * 100}%`
   const pctH = (cm: number) => `${(cm / L.h) * 100}%`
@@ -122,12 +134,14 @@ export default function ConfiguratorPreview({ config }: { config: MaquetaConfig 
             className={`object-contain transition-opacity duration-500 ${ready3D ? "opacity-0" : "opacity-100"}`}
           />
           <SleeveViewer config={config} side={side} onLoaded={() => setReady3D(true)} />
+          {zoomButton("box", "Ver la caja en grande")}
         </div>
       </div>
 
       {/* APP, 16 x 7.5 cm — overlaps the box on the right */}
       <div className="absolute z-10 rotate-[3deg]" style={{ left: pctW(L.phone.x), top: pctH(L.phone.y), width: pctW(7.5) }}>
         <AppScreen logoUrl={config.logoUrl} />
+        {zoomButton("phone", "Ver la app en grande")}
       </div>
 
       {/* CARD, 10 x 10 cm — same card as the checkout, on top of box and phone */}
@@ -141,6 +155,7 @@ export default function ConfiguratorPreview({ config }: { config: MaquetaConfig 
           corazon={false}
           className="group-hover:shadow-[inset_1px_1px_0_rgba(255,255,255,0.95),inset_-1px_-1px_0_rgba(24,20,15,0.07),0_0_0_0.5px_rgba(24,20,15,0.08),2px_4px_4px_rgba(24,20,15,0.14),8px_14px_22px_rgba(24,20,15,0.18),16px_26px_44px_rgba(24,20,15,0.16)]"
         />
+        {zoomButton("card", "Ver la tarjeta en grande")}
       </div>
 
       {/* FRENTE | DORSO — under the box, never covered */}
@@ -164,6 +179,8 @@ export default function ConfiguratorPreview({ config }: { config: MaquetaConfig 
           </button>
         ))}
       </div>
+
+      {zoom && <ZoomOverlay zoom={zoom} config={config} side={side} onSide={setSide} onClose={() => setZoom(null)} />}
     </div>
   )
 }
