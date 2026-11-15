@@ -184,8 +184,8 @@ export default function Configurator({ header }: { header?: React.ReactNode }) {
       {/* HEADER — hugs the controls, centered with the scene */}
       {header && <div className="order-1 md:order-none md:col-start-1 md:row-start-2 md:mb-1">{header}</div>}
 
-      {/* PREVIEW — on phones it comes first and stays in view while editing */}
-      <div className="order-2 sticky top-[72px] z-20 -mx-6 bg-ink px-6 pb-3 pt-2 md:static md:order-none md:col-start-2 md:row-span-4 md:row-start-1 md:mx-0 md:self-center md:bg-transparent md:p-0">
+      {/* PREVIEW — on phones it comes first, full width, same layout as desktop */}
+      <div className="order-2 md:order-none md:col-start-2 md:row-span-4 md:row-start-1 md:self-center">
         <ConfiguratorPreview config={config} />
       </div>
 

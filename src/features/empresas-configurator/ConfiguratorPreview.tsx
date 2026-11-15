@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import dynamic from "next/dynamic"
 import MessageCardPreview from "@/app/checkout/components/MessageCardPreview"
@@ -10,10 +10,9 @@ const SleeveViewer = dynamic(() => import("./SleeveViewer"), { ssr: false })
 
 /* TRUE-TO-SCALE. One unit = 1 cm:
      box 15 x 15 cm · phone 16 x 7.5 cm · message card 10 x 10 cm
-   Two arrangements of the same three objects:
-     - TRIANGLE (tablet and desktop): the box on the left, the phone overlapping
-       its right edge, the card slid underneath between the two, on top of both.
-     - ROW (phones): a flat strip, short enough to stay pinned while editing.
+   One arrangement on every screen, scaled to the container width: the box on
+   the left, the phone overlapping its right edge, the card slid underneath
+   between the two, on top of both.
    The Frente | Dorso switch always sits under the box, clear of the card. */
 
 type Layout = {
@@ -34,16 +33,6 @@ const TRIANGLE: Layout = {
   card: { x: 9.5, y: 12.9 }, // corners just overlap the box and the phone; bottom edge = container edge
   toggle: { x: 2.9, y: 18.4 },
   maxWidth: 560,
-}
-
-const ROW: Layout = {
-  w: 40,
-  h: 21,
-  box: { cx: 9, cy: 8.5 },
-  phone: { x: 19.5, y: 0 },
-  card: { x: 29.5, y: 6 },
-  toggle: { x: 9, y: 17.4 },
-  maxWidth: 680,
 }
 
 // The 3D box fills ~80% of its square (same framing as the homepage), so the
@@ -104,17 +93,7 @@ export function AppScreen({ logoUrl }: { logoUrl: string | null }) {
 export default function ConfiguratorPreview({ config }: { config: MaquetaConfig }) {
   const [side, setSide] = useState<"front" | "back">("front")
   const [ready3D, setReady3D] = useState(false)
-  const [phoneLayout, setPhoneLayout] = useState(false)
-
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)")
-    const update = () => setPhoneLayout(mq.matches)
-    update()
-    mq.addEventListener("change", update)
-    return () => mq.removeEventListener("change", update)
-  }, [])
-
-  const L = phoneLayout ? ROW : TRIANGLE
+  const L = TRIANGLE
   const pctW = (cm: number) => `${(cm / L.w) * 100}%`
   const pctH = (cm: number) => `${(cm / L.h) * 100}%`
 
