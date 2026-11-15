@@ -95,19 +95,22 @@ export default function OccasionCarousel({
   return (
     <section className={`${isDark ? "vb-dark bg-ink" : "vb-surface-base"} ${compact ? "py-6 md:py-6" : "py-12 md:py-14"} ${sideTitle ? "lg:py-9" : ""}`}>
 
-      <div className={sideTitle ? "max-w-7xl mx-auto lg:flex lg:items-center" : ""}>
+      {/* sideTitle: the title sits close to the left edge, and the cards bleed to the right edge of the viewport so the next one is visibly cut off */}
+      <div className={sideTitle ? "lg:flex lg:items-center" : ""}>
 
       <div className={
         sideTitle
-          ? `px-6 ${compact ? "mb-3 md:mb-4" : "mb-6 md:mb-8"} lg:mb-0 lg:w-[280px] lg:shrink-0 lg:pr-4`
+          ? `px-6 ${compact ? "mb-3 md:mb-4" : "mb-6 md:mb-8"} lg:mb-0 lg:shrink-0 lg:[--pad:2rem] xl:[--pad:3rem] lg:pl-[var(--pad)] lg:pr-4 lg:w-[calc(var(--pad)+170px)]`
           : `max-w-6xl mx-auto px-6 ${compact ? "mb-3 md:mb-4" : "mb-6 md:mb-8"}`
       }>
 
-        <h2 className={`h2 text-center ${sideTitle ? "lg:text-left" : ""} ${isDark ? "text-white" : ""}`}>
-          {title}
-        </h2>
+        <div className={sideTitle ? "lg:w-fit lg:flex lg:flex-col lg:items-center" : ""}>
+          <h2 className={`h2 text-center ${isDark ? "text-white" : ""}`}>
+            {title}
+          </h2>
 
-        {sideTitle && arrows}
+          {sideTitle && arrows}
+        </div>
 
       </div>
 
