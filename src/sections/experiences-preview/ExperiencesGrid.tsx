@@ -12,13 +12,41 @@ import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR, formatCity, formatPeopleCount 
 const CARD_IMAGE_SIZES = "(min-width: 1024px) 260px, 260px";
 const SCROLL_STEP = 584; // ~2 cards (260px card + 16px gap) x2
 
+const SHOWN_PER_CATEGORY = 2;
+
+function shuffled<T>(items: T[]): T[] {
+  return [...items].sort(() => Math.random() - 0.5);
+}
+
+// Picks SHOWN_PER_CATEGORY per category from the pool, interleaved so
+// consecutive cards rarely share a category.
+function pickPreview(pool: Experience[], randomize: boolean): Experience[] {
+  const byCategory = new Map<string, Experience[]>();
+  for (const exp of pool) {
+    byCategory.set(exp.category, [...(byCategory.get(exp.category) ?? []), exp]);
+  }
+  const groups = [...byCategory.values()].map((g) => (randomize ? shuffled(g) : g));
+  const picked: Experience[] = [];
+  for (let i = 0; i < SHOWN_PER_CATEGORY; i++) {
+    for (const g of groups) if (g[i]) picked.push(g[i]);
+  }
+  return picked;
+}
+
 export default function ExperiencesGrid({
-  experiencesPreview,
+  experiencesPreview: experiencesPool,
   mapExperiences,
 }: {
   experiencesPreview: Experience[];
   mapExperiences: MapExperience[];
 }) {
+
+  // First render matches the cached HTML; the random re-pick happens after hydration.
+  const [experiencesPreview, setExperiencesPreview] = useState(() => pickPreview(experiencesPool, false));
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setExperiencesPreview(pickPreview(experiencesPool, true));
+  }, [experiencesPool]);
 
   const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
   const [mapOpen, setMapOpen] = useState(false);

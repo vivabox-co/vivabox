@@ -79,6 +79,12 @@ function resolveGallery(row: any): string[] {
   return gallery
 }
 
+// The homepage is statically cached (ISR), so the per-visit shuffle can't run
+// on the server any more. This returns a small pool per category (itself
+// reshuffled at every regeneration); ExperiencesGrid shows 2 per category
+// and re-picks them in the browser.
+export const PREVIEW_POOL_PER_CATEGORY = 3
+
 export async function getExperiencesPreview():Promise<Experience[]> {
 
   const rows:any[] = await getSheetData()
@@ -101,7 +107,7 @@ export async function getExperiencesPreview():Promise<Experience[]> {
 
     const shuffled = shuffle(activities)
 
-    grouped[cat] = shuffled.slice(0,2).map(row => ({
+    grouped[cat] = shuffled.slice(0,PREVIEW_POOL_PER_CATEGORY).map(row => ({
 
       title: row.title,
       city: row.city,
@@ -128,7 +134,7 @@ export async function getExperiencesPreview():Promise<Experience[]> {
 
   const ordered:Experience[] = []
 
-  for(let i=0;i<2;i++){
+  for(let i=0;i<PREVIEW_POOL_PER_CATEGORY;i++){
     for(const cat of categories){
       if(grouped[cat]?.[i]){
         ordered.push(grouped[cat][i])
@@ -236,7 +242,7 @@ export async function getExperienceExamples():Promise<Experience[]> {
 
   const ordered:Experience[] = []
 
-  for(let i=0;i<2;i++){
+  for(let i=0;i<PREVIEW_POOL_PER_CATEGORY;i++){
     for(const cat of categories){
       if(grouped[cat]?.[i]){
         ordered.push(grouped[cat][i])
