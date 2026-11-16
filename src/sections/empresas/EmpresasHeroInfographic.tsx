@@ -12,7 +12,8 @@ import { Package, Truck, Mountain, MessageCircle, Stamp, type LucideIcon } from 
 // size, so they are stacked on top of each other. The logos are PLACEHOLDERS.
 
 const LOGOS = ["nuvora", "kubo", "zentra", "moventia", "bluetec"] as const;
-const INK = "#FF8406";
+// Vivabox logo colors, one per card.
+const C = { orange: "#FF8406", red: "#E0384B", green: "#8DB92F", blue: "#0294D2", violet: "#8B5CF6" };
 
 // Size of the renders (all identical) — used for the aspect ratio.
 const IMG_W = 1035;
@@ -31,6 +32,7 @@ type Card = {
   from: "left" | "right" | "top" | "bottom";
   // Target: a point on the render, as a fraction of the render (0..1).
   at: Pt;
+  color: string; // accent color of the card, its line and its dot
 };
 
 type Stage = {
@@ -64,11 +66,11 @@ const WIDE: Stage = {
   img: { left: 215, top: 36, width: 470 },
   title: 14, sub: 0, icon: 24, showSub: false, boxed: true,
   cards: [
-    { key: "logo", Icon: Stamp, title: T.logo, note: "Cada empresa, su propia Vivabox", x: 0, y: 34, w: 190, h: 50, from: "right", at: AT_LOGO },
-    { key: "mensaje", Icon: MessageCircle, title: T.mensaje, note: "Unas palabras de la empresa", x: 0, y: 138, w: 190, h: 50, from: "right", at: AT_MSG },
-    { key: "experiencia", Icon: Mountain, title: T.experiencia, note: "Masajes, aventura, gastronomía…", x: 0, y: 242, w: 190, h: 50, from: "right", at: AT_PHOTO },
-    { key: "cantidad", Icon: Package, title: T.cantidad, note: "Nosotros nos encargamos de la reserva", x: 706, y: 6, w: 174, h: 56, from: "left", at: AT_ROW_TOP },
-    { key: "entrega", Icon: Truck, title: T.entrega, x: 716, y: 268, w: 164, h: 56, from: "left", at: AT_ROW_FOOT },
+    { key: "logo", Icon: Stamp, title: T.logo, note: "Cada empresa, su propia Vivabox", x: 0, y: 34, w: 212, h: 50, from: "right", at: AT_LOGO, color: C.orange },
+    { key: "mensaje", Icon: MessageCircle, title: T.mensaje, note: "Unas palabras de la empresa", x: 0, y: 138, w: 212, h: 50, from: "right", at: AT_MSG, color: C.red },
+    { key: "experiencia", Icon: Mountain, title: T.experiencia, note: "Masajes, aventura, gastronomía…", x: 0, y: 242, w: 212, h: 50, from: "right", at: AT_PHOTO, color: C.green },
+    { key: "cantidad", Icon: Package, title: T.cantidad, note: "Nosotros nos encargamos de la reserva", x: 668, y: 6, w: 212, h: 50, from: "left", at: AT_ROW_TOP, color: C.blue },
+    { key: "entrega", Icon: Truck, title: T.entrega, x: 706, y: 268, w: 174, h: 50, from: "left", at: AT_ROW_FOOT, color: C.violet },
   ],
 };
 
@@ -78,11 +80,11 @@ const NARROW: Stage = {
   img: { left: 10, top: 100, width: 380 },
   title: 14, sub: 0, icon: 20, showSub: false, boxed: true,
   cards: [
-    { key: "logo", Icon: Stamp, title: "Tu logo en la sleeve", x: 6, y: 6, w: 190, h: 50, from: "bottom", at: AT_LOGO },
-    { key: "cantidad", Icon: Package, title: "Desde pocas cajas hasta cientos", x: 204, y: 6, w: 190, h: 66, from: "bottom", at: AT_ROW_TOP },
-    { key: "experiencia", Icon: Mountain, title: "Cada persona elige su experiencia", x: 4, y: 358, w: 128, h: 72, from: "top", at: AT_PHOTO },
-    { key: "mensaje", Icon: MessageCircle, title: "Tu mensaje para el equipo", x: 136, y: 358, w: 128, h: 72, from: "top", at: AT_MSG },
-    { key: "entrega", Icon: Truck, title: "Entrega física o digital", x: 268, y: 358, w: 128, h: 72, from: "top", at: AT_ROW_FOOT },
+    { key: "logo", Icon: Stamp, title: "Tu logo en la sleeve", x: 6, y: 6, w: 190, h: 50, from: "bottom", at: AT_LOGO, color: C.orange },
+    { key: "cantidad", Icon: Package, title: "Desde pocas cajas hasta cientos", x: 204, y: 6, w: 190, h: 50, from: "bottom", at: AT_ROW_TOP, color: C.blue },
+    { key: "experiencia", Icon: Mountain, title: "Cada persona elige su experiencia", x: 4, y: 358, w: 148, h: 72, from: "top", at: AT_PHOTO, color: C.green },
+    { key: "mensaje", Icon: MessageCircle, title: "Tu mensaje para el equipo", x: 156, y: 358, w: 128, h: 72, from: "top", at: AT_MSG, color: C.red },
+    { key: "entrega", Icon: Truck, title: "Entrega física o digital", x: 288, y: 358, w: 108, h: 72, from: "top", at: AT_ROW_FOOT, color: C.violet },
   ],
 };
 
@@ -151,9 +153,9 @@ function StageView({ stage, i, prev }: { stage: Stage; i: number; prev: number }
           const a = anchor(c), t = target(c);
           const r = W > 500 ? 5.5 : 4.5;
           return (
-            <g key={c.key} stroke={INK} strokeLinecap="round">
+            <g key={c.key} stroke={c.color} strokeLinecap="round">
               <path d={linePath(a, t, c.from)} strokeWidth={W > 500 ? 2.4 : 2} />
-              <circle cx={t[0]} cy={t[1]} r={r} fill={INK} stroke="#18140F" strokeWidth={W > 500 ? 2 : 1.5} />
+              <circle cx={t[0]} cy={t[1]} r={r} fill={c.color} stroke="#18140F" strokeWidth={W > 500 ? 2 : 1.5} />
             </g>
           );
         })}
@@ -179,7 +181,7 @@ function StageView({ stage, i, prev }: { stage: Stage; i: number; prev: number }
           className="absolute flex items-center text-white"
           style={{
             left: pctX(c.x), top: pctY(c.y), width: pctX(c.w), height: pctY(c.h),
-            border: stage.boxed ? `${W > 500 ? 2 : 1.5}px solid ${INK}` : "none",
+            border: stage.boxed ? `${W > 500 ? 2 : 1.5}px solid ${c.color}` : "none",
             borderRadius: u(W > 500 ? 22 : 10),
             background: stage.boxed ? "rgba(24,20,15,0.72)" : "transparent",
             padding: stage.boxed ? `0 ${u(W > 500 ? 11 : 8)}` : 0,
@@ -187,10 +189,10 @@ function StageView({ stage, i, prev }: { stage: Stage; i: number; prev: number }
             gap: u(W > 500 ? 9 : 7),
           }}
         >
-          <c.Icon aria-hidden strokeWidth={1.6} style={{ color: INK, width: u(stage.icon), height: u(stage.icon), flex: "none" }} />
-          <span aria-hidden style={{ width: 2, alignSelf: "stretch", margin: `${u(W > 500 ? 15 : 10)} 0`, background: INK, opacity: 0.85, flex: "none" }} />
+          <c.Icon aria-hidden strokeWidth={1.6} style={{ color: c.color, width: u(stage.icon), height: u(stage.icon), flex: "none" }} />
+          <span aria-hidden style={{ width: 2, alignSelf: "stretch", margin: `${u(W > 500 ? 15 : 10)} 0`, background: c.color, opacity: 0.85, flex: "none" }} />
           <div className="min-w-0">
-            <p className="font-condensed font-semibold uppercase" style={{ fontSize: u(stage.title), lineHeight: 1.02 }}>
+            <p className="font-condensed font-semibold uppercase" style={{ fontSize: u(stage.title), lineHeight: 1.02, textWrap: "balance" }}>
               {c.title}
             </p>
             {stage.showSub && c.sub && (
