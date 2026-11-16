@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { ShoppingCart, QrCode, Menu, X } from "lucide-react"
+import { ShoppingCart, QrCode, X } from "lucide-react"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 
 // Pill with a transparent center and a 2px border cut in the four ribbon colors, twice (200deg slant).
@@ -91,11 +91,17 @@ export default function Navbar() {
             {!isCheckout && (
               <button
                 onClick={() => setMenuOpen(true)}
-                className={`md:hidden transition hover:scale-105 translate-y-[2px] ${
-                  solid ? "text-foreground" : "text-white"
+                aria-label="Abrir menú"
+                className={`md:hidden inline-flex items-center justify-center h-10 w-10 rounded-[14px] transition active:scale-95 ${
+                  solid
+                    ? "text-foreground bg-black/5 hover:bg-black/10"
+                    : "text-white bg-white/15 backdrop-blur-sm hover:bg-white/25"
                 }`}
               >
-                <Menu size={28} strokeWidth={1.5} />
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
+                  <path d="M3.5 7h15" />
+                  <path d="M3.5 15h9" />
+                </svg>
               </button>
             )}
 
@@ -244,24 +250,10 @@ export default function Navbar() {
 <Link
   href="/#incluye"
   onClick={() => setMenuOpen(false)}
-  className="vb-btn-secondary mb-4 h-12 font-medium"
+  className="vb-btn-secondary mb-10 h-12 font-medium"
 >
-  Ver las cajas
+  Regalar una Vivabox
 </Link>
-
-{/* CTA SECONDARY */}
-{!isCheckout && (
-  <Link
-    href="https://app.vivabox.com.co/activar"
-    target="_blank"
-    rel="noopener noreferrer"
-    onClick={() => setMenuOpen(false)}
-    className="vb-btn-soft mb-10 h-12 font-medium"
-  >
-    <QrCode size={15} strokeWidth={1.5} />
-    Activar mi box
-  </Link>
-)}
 
       {/* NAV */}
       <div className="flex flex-col gap-7 text-[16px] text-foreground">
@@ -311,8 +303,22 @@ export default function Navbar() {
 
       </div>
 
+      {/* CTA ACTIVATION (recipient) */}
+      {!isCheckout && (
+        <Link
+          href="https://app.vivabox.com.co/activar"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => setMenuOpen(false)}
+          className="mt-auto inline-flex items-center justify-center gap-2 h-12 rounded-[18px] border-2 border-ink/30 text-ink text-sm font-semibold transition-colors hover:bg-ink hover:text-white hover:border-ink"
+        >
+          <QrCode size={16} strokeWidth={1.5} />
+          Activar mi box
+        </Link>
+      )}
+
       {/* TRUST (minimal) */}
-      <div className="mt-auto pt-6 text-xs text-gray-400">
+      <div className="pt-6 text-xs text-gray-400">
         +60 experiencias · Confirmación rápida
       </div>
 
