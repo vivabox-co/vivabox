@@ -7,6 +7,16 @@ import Link from "next/link"
 import { ShoppingCart, QrCode, Menu, X } from "lucide-react"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
 
+// Pill with a transparent center and a 2px border cut in the four ribbon colors, twice (200deg slant).
+const EMPRESAS_PILL = [
+  "relative inline-flex items-center h-10 px-4 rounded-[18px]",
+  "text-[15px] font-semibold whitespace-nowrap shrink-0 transition-opacity hover:opacity-80",
+  "before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:p-[2px]",
+  "before:bg-[linear-gradient(200deg,var(--color-primary)_0_12.5%,var(--color-accent-red)_12.5%_25%,var(--color-accent-green)_25%_37.5%,var(--color-accent-blue)_37.5%_50%,var(--color-primary)_50%_62.5%,var(--color-accent-red)_62.5%_75%,var(--color-accent-green)_75%_87.5%,var(--color-accent-blue)_87.5%_100%)]",
+  "before:[mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000)] before:[mask-clip:content-box,border-box]",
+  "before:[mask-composite:exclude]",
+].join(" ")
+
 export default function Navbar() {
 
   const pathname = usePathname()
@@ -132,7 +142,6 @@ export default function Navbar() {
               <Link href="/#incluye">Cómo funciona</Link>
               <Link href="/#incluye">Cajas</Link>
               <Link href="/#experiencias">Experiencias</Link>
-              <Link href="/empresas">Empresas</Link>
               <Link href="/nuestra-historia">Nuestra historia</Link>
             </div>
           )}
@@ -140,6 +149,11 @@ export default function Navbar() {
           {/* ACTIONS */}
           {!isCheckout && (
             <div className="flex items-center gap-2 md:gap-3">
+
+              {/* EMPRESAS pill: transparent inside, border in the four ribbon colors (same as the /empresas WhatsApp CTA) */}
+              <Link href="/empresas" className={`${EMPRESAS_PILL} hidden md:inline-flex ${solid ? "text-ink" : "text-white"}`}>
+                Empresas
+              </Link>
 
               {/* CTA SECONDARY (activation) */}
               <Link
@@ -264,7 +278,11 @@ export default function Navbar() {
           Experiencias
         </Link>
 
-        <Link href="/empresas" onClick={() => setMenuOpen(false)}>
+        <Link
+          href="/empresas"
+          onClick={() => setMenuOpen(false)}
+          className={`${EMPRESAS_PILL} w-fit text-foreground`}
+        >
           Empresas
         </Link>
 
