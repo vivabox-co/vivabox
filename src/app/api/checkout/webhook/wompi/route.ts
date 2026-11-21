@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
-import { computeEventChecksum } from "@/services/wompi"
+import { computeEventChecksum, sandboxPaymentsBlocked } from "@/services/wompi"
 import { finalizeVentaPayment } from "@/features/checkout/finalizeVentaPayment"
 import { sendPaymentFailedAlertEmail } from "@/services/email"
 import { finalizeBookingSurplusPayment } from "@/features/checkout/finalizeBookingSurplusPayment"
@@ -50,6 +50,13 @@ export async function POST(req: Request) {
     if (expectedChecksum !== signature.checksum) {
       console.error("WOMPI WEBHOOK: checksum invalide")
       return NextResponse.json({ ok: false, error: "INVALID_SIGNATURE" }, { status: 401 })
+    }
+
+    // Événement sandbox (ou clé de test configurée) : jamais de finalisation
+    // ni d'alerte sur la base de production partagée (voir sandboxPaymentsBlocked).
+    if (sandboxPaymentsBlocked(body.environment)) {
+      console.warn("WOMPI WEBHOOK: sandbox event ignored")
+      return NextResponse.json({ ok: true, ignored: true })
     }
 
     const transaction = data.transaction

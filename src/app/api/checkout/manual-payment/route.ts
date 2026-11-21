@@ -3,10 +3,11 @@ import { getSupabase } from "@/services/supabase"
 import { sendManualPaymentReportEmail } from "@/services/email"
 import { sendBuyerEmail } from "@/services/buyerEmail"
 import { paymentReference } from "@/services/manualPayment"
-import { checkRateLimit } from "@/utils/rateLimit"
+import { checkRateLimit, getClientIp } from "@/utils/rateLimit"
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const REPORT_MAX_ATTEMPTS = 3
+const REPORT_IP_MAX_ATTEMPTS = 6
 const REPORT_WINDOW_MINUTES = 60
 
 // Texto libre que escribe el comprador: se limpia antes de guardarlo y de
@@ -66,6 +67,21 @@ export async function POST(req: Request) {
     if (action === "status") {
       const rejected = venta.payment_method === null && !!venta.transfer_reported_at
       return NextResponse.json({ ok: true, status: rejected ? "rejected" : "pending" })
+    }
+
+    // Limite por IP además de la de por venta (más abajo): sin ella, crear
+    // ventas con el email de un tercero y "reportarlas" enviaría a ese tercero
+    // tantos emails Vivabox como ventas creadas.
+    const ipAllowed = await checkRateLimit(
+      supabase,
+      `ip:${getClientIp(req)}`,
+      "manual_payment_report",
+      REPORT_IP_MAX_ATTEMPTS,
+      REPORT_WINDOW_MINUTES
+    )
+
+    if (!ipAllowed) {
+      return NextResponse.json({ ok: false, error: "TOO_MANY_ATTEMPTS" })
     }
 
     // reserved o expired : una reserva vencida (30 min de Wompi) no impide

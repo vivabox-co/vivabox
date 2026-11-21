@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
 import { normalizeCode } from "@/utils/normalizeCode"
 import { isValidEmail } from "@/utils/isValidEmail"
-import { checkRateLimit, getClientIp } from "@/utils/rateLimit"
+import { checkRateLimits, getClientIp } from "@/utils/rateLimit"
 import { generateSessionToken, hashSessionToken } from "@/utils/sessionToken"
 
 const RATE_LIMIT_MAX_ATTEMPTS = 5
@@ -33,13 +33,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error })
     }
 
-    const [ipAllowed, codeAllowed, globalAllowed] = await Promise.all([
-      checkRateLimit(supabase, `ip:${ip}`, "verify", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),
-      checkRateLimit(supabase, `code:${normalizedCode}`, "verify", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),
-      checkRateLimit(supabase, "global", "verify", GLOBAL_RATE_LIMIT_MAX_ATTEMPTS, GLOBAL_RATE_LIMIT_WINDOW_MINUTES),
+    const allowed = await checkRateLimits(supabase, "verify", [
+      { identifier: `ip:${ip}`, maxAttempts: RATE_LIMIT_MAX_ATTEMPTS, windowMinutes: RATE_LIMIT_WINDOW_MINUTES },
+      { identifier: `code:${normalizedCode}`, maxAttempts: RATE_LIMIT_MAX_ATTEMPTS, windowMinutes: RATE_LIMIT_WINDOW_MINUTES },
+      { identifier: "global", maxAttempts: GLOBAL_RATE_LIMIT_MAX_ATTEMPTS, windowMinutes: GLOBAL_RATE_LIMIT_WINDOW_MINUTES },
     ])
 
-    if (!ipAllowed || !codeAllowed || !globalAllowed) {
+    if (!allowed) {
       return rejected("TOO_MANY_ATTEMPTS")
     }
 

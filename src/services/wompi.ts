@@ -9,6 +9,17 @@ function getWompiApiBase(publicKey: string): string {
     : "https://sandbox.wompi.co/v1"
 }
 
+// Les déploiements Preview partagent la base Supabase de production : un
+// paiement sandbox (carte de test) y finaliserait une vraie venta (code
+// d'activation, email "pagado", box dans "Por preparar"). Une clé de test
+// ne peut donc rien finaliser, sauf opt-in explicite ALLOW_SANDBOX_PAYMENTS=true,
+// à ne poser que sur un environnement branché sur une base de test séparée.
+export function sandboxPaymentsBlocked(eventEnvironment?: unknown): boolean {
+  if (process.env.ALLOW_SANDBOX_PAYMENTS === "true") return false
+  const key = process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY ?? ""
+  return !key.startsWith("pub_prod_") || eventEnvironment === "test"
+}
+
 export function getWompiPublicKey(): string {
   const key = process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY
   if (!key) throw new Error("NEXT_PUBLIC_WOMPI_PUBLIC_KEY no configurada")

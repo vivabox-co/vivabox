@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
-import { computeIntegritySignature, getWompiPublicKey } from "@/services/wompi"
+import { computeIntegritySignature, getWompiPublicKey, sandboxPaymentsBlocked } from "@/services/wompi"
 
 const RESERVATION_TTL_MS = 30 * 60 * 1000 // 30 min
 
@@ -11,6 +11,11 @@ export async function POST(req: Request) {
 
     if (!ventaId) {
       return NextResponse.json({ ok: false, error: "MISSING_VENTA_ID" })
+    }
+
+    if (sandboxPaymentsBlocked()) {
+      console.error("PAY: Wompi sandbox key refused (shared production database)")
+      return NextResponse.json({ ok: false, error: "PAYMENTS_UNAVAILABLE" })
     }
 
     const supabase = getSupabase()

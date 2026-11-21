@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
 import { validatePromoCode } from "@/features/promotions/validatePromoCode"
 import { isTestPriceCode } from "@/features/promotions/testPriceCode"
-import { checkRateLimit, getClientIp } from "@/utils/rateLimit"
+import { checkRateLimits, getClientIp } from "@/utils/rateLimit"
 
 const RATE_LIMIT_MAX_ATTEMPTS = 5
 const RATE_LIMIT_WINDOW_MINUTES = 15
@@ -24,7 +24,6 @@ export async function POST(req: Request) {
 
     const supabase = getSupabase()
     const ip = getClientIp(req)
-    const normalized = code.trim().toUpperCase()
 
     // Le code "prix test" correct n'est jamais limité : le compteur par code
     // est partagé entre tous les appareils et bloquait les vrais tests.
@@ -33,18 +32,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    const [ipAllowed, codeAllowed, globalAllowed] = await Promise.all([
-      checkRateLimit(supabase, `ip:${ip}`, "promo", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),
-      checkRateLimit(supabase, `code:${normalized}`, "promo", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),
-      checkRateLimit(supabase, "global", "promo", GLOBAL_RATE_LIMIT_MAX_ATTEMPTS, GLOBAL_RATE_LIMIT_WINDOW_MINUTES),
+    // Pas de compteur par code : il laissait n'importe qui bloquer pour tout
+    // le monde un code connu (celui d'un influenceur). La devinette reste
+    // freinée par IP, puis globalement — l'IP d'abord, pour qu'un client déjà
+    // bloqué ne fasse plus monter le compteur global partagé.
+    const allowed = await checkRateLimits(supabase, "promo", [
+      { identifier: `ip:${ip}`, maxAttempts: RATE_LIMIT_MAX_ATTEMPTS, windowMinutes: RATE_LIMIT_WINDOW_MINUTES },
+      { identifier: "global", maxAttempts: GLOBAL_RATE_LIMIT_MAX_ATTEMPTS, windowMinutes: GLOBAL_RATE_LIMIT_WINDOW_MINUTES },
     ])
 
-    if (!ipAllowed || !codeAllowed || !globalAllowed) {
+    if (!allowed) {
       return NextResponse.json({ ok: false, error: "TOO_MANY_ATTEMPTS" })
-    }
-
-    if (isTestPriceCode(code)) {
-      return NextResponse.json({ ok: true })
     }
 
     const result = await validatePromoCode(supabase, code, null)

@@ -5,33 +5,68 @@ import { validatePromoCode } from "@/features/promotions/validatePromoCode"
 import { isTestPriceCode, getTestTotal, TEST_PROMO_MARKER } from "@/features/promotions/testPriceCode"
 import { deliveryPriceFor } from "@/features/checkout/delivery"
 import { SAME_DAY_PRICE_COP, SAME_DAY_SPEED, isSameDayAvailable } from "@/features/checkout/sameDay"
-import { checkRateLimit, getClientIp } from "@/utils/rateLimit"
+import { checkRateLimits, getClientIp } from "@/utils/rateLimit"
+import { isValidEmail } from "@/utils/isValidEmail"
 
 const RATE_LIMIT_MAX_ATTEMPTS = 5
 const RATE_LIMIT_WINDOW_MINUTES = 15
 const GLOBAL_RATE_LIMIT_MAX_ATTEMPTS = 100
 const GLOBAL_RATE_LIMIT_WINDOW_MINUTES = 10
 
+// Création de ventas : large pour un vrai acheteur (retours en arrière,
+// changement de box), mais empêche de remplir la base — et, via
+// manual-payment, d'envoyer des emails Vivabox à des adresses de tiers.
+const START_MAX_ATTEMPTS = 15
+const START_WINDOW_MINUTES = 15
+
+// Même plafond que le sélecteur de quantité (BoxHero).
+const MAX_QUANTITY = 10
+
 function computeDelivery(type: string, quantity: number) {
   return type === "physical" ? deliveryPriceFor(quantity) : 0
+}
+
+// Texte libre du formulaire : jamais autre chose qu'une chaîne, coupée à une
+// longueur raisonnable (aucun champ légitime n'approche ces plafonds).
+function text(value: unknown, max: number): string {
+  return typeof value === "string" ? value.trim().slice(0, max) : ""
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
 
-    const { box: boxSlug, quantity, buyer, delivery, destination, recipient, address, promoCode } = body
+    const { box: boxSlug, quantity, delivery, destination, promoCode } = body
+
+    const buyer = {
+      name: text(body.buyer?.name, 100),
+      email: text(body.buyer?.email, 254),
+      phone: text(body.buyer?.phone, 30),
+    }
+    const recipient = {
+      name: text(body.recipient?.name, 100),
+      phone: text(body.recipient?.phone, 30),
+    }
+    const address = {
+      address: text(body.address?.address, 200),
+      city: text(body.address?.city, 80),
+      addressExtra: text(body.address?.addressExtra, 200),
+    }
 
     if (!boxSlug || typeof boxSlug !== "string") {
       return NextResponse.json({ ok: false, error: "INVALID_BOX" })
     }
 
-    if (!quantity || quantity < 1) {
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QUANTITY) {
       return NextResponse.json({ ok: false, error: "INVALID_QUANTITY" })
     }
 
-    if (!buyer?.name || !buyer?.email) {
+    if (!buyer.name || !buyer.email) {
       return NextResponse.json({ ok: false, error: "MISSING_BUYER" })
+    }
+
+    if (!isValidEmail(buyer.email)) {
+      return NextResponse.json({ ok: false, error: "INVALID_EMAIL" })
     }
 
     if (!delivery?.type || !["physical", "digital"].includes(delivery.type)) {
@@ -43,11 +78,11 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: false, error: "MISSING_DESTINATION" })
       }
 
-      if (!address?.address || !address?.city) {
+      if (!address.address || !address.city) {
         return NextResponse.json({ ok: false, error: "MISSING_ADDRESS" })
       }
 
-      if (destination === "recipient" && (!recipient?.name || !recipient?.phone)) {
+      if (destination === "recipient" && (!recipient.name || !recipient.phone)) {
         return NextResponse.json({ ok: false, error: "MISSING_RECIPIENT" })
       }
 
@@ -60,7 +95,7 @@ export async function POST(req: Request) {
     // cru sur parole — l'UI peut avoir été ouverte avant l'heure limite.
     const sameDay = delivery.speed === SAME_DAY_SPEED
 
-    if (sameDay && (delivery.type !== "physical" || !isSameDayAvailable(address?.city))) {
+    if (sameDay && (delivery.type !== "physical" || !isSameDayAvailable(address.city))) {
       return NextResponse.json({ ok: false, error: "SAME_DAY_UNAVAILABLE" })
     }
 
@@ -70,13 +105,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "INVALID_BOX" })
     }
 
+    const supabase = getSupabase()
+    const ip = getClientIp(req)
+
+    const startAllowed = await checkRateLimits(supabase, "start", [
+      { identifier: `ip:${ip}`, maxAttempts: START_MAX_ATTEMPTS, windowMinutes: START_WINDOW_MINUTES },
+    ])
+
+    if (!startAllowed) {
+      return NextResponse.json({ ok: false, error: "TOO_MANY_ATTEMPTS" })
+    }
+
     const subtotal = box.price * quantity
     const originalDeliveryPrice = computeDelivery(delivery.type, quantity)
     let deliveryPrice = originalDeliveryPrice
     let discount = 0
     let chargedSubtotal = subtotal
-
-    const supabase = getSupabase()
 
     // Le code promo n'est jamais bloquant : un code invalide/expiré/déjà
     // utilisé fait juste tomber le panier au prix plein, il ne casse jamais
@@ -86,20 +130,17 @@ export async function POST(req: Request) {
 
     if (typeof promoCode === "string" && promoCode.trim()) {
       const normalizedPromo = promoCode.trim().toUpperCase()
-      const ip = getClientIp(req)
 
       // Le code "prix test" correct échappe à la limite (voir promo/validate).
-      const isTestCode = isTestPriceCode(normalizedPromo)
-
-      const [ipAllowed, codeAllowed, globalAllowed] = isTestCode
-        ? [true, true, true]
-        : await Promise.all([
-            checkRateLimit(supabase, `ip:${ip}`, "promo", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),
-            checkRateLimit(supabase, `code:${normalizedPromo}`, "promo", RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_MINUTES),
-            checkRateLimit(supabase, "global", "promo", GLOBAL_RATE_LIMIT_MAX_ATTEMPTS, GLOBAL_RATE_LIMIT_WINDOW_MINUTES),
+      // Pas de compteur par code (voir promo/validate) ; l'IP d'abord.
+      const promoAllowed = isTestPriceCode(normalizedPromo)
+        ? true
+        : await checkRateLimits(supabase, "promo", [
+            { identifier: `ip:${ip}`, maxAttempts: RATE_LIMIT_MAX_ATTEMPTS, windowMinutes: RATE_LIMIT_WINDOW_MINUTES },
+            { identifier: "global", maxAttempts: GLOBAL_RATE_LIMIT_MAX_ATTEMPTS, windowMinutes: GLOBAL_RATE_LIMIT_WINDOW_MINUTES },
           ])
 
-      if (!ipAllowed || !codeAllowed || !globalAllowed) {
+      if (!promoAllowed) {
         promoWarning = "TOO_MANY_ATTEMPTS"
       } else if (isTestPriceCode(normalizedPromo)) {
         // Code "prix test" (voir testPriceCode.ts) : montant symbolique pour
@@ -142,7 +183,7 @@ export async function POST(req: Request) {
 
         buyer_name: buyer.name,
         buyer_email: buyer.email,
-        buyer_phone: buyer.phone || "",
+        buyer_phone: buyer.phone,
 
         delivery_type: delivery.type,
         delivery_speed: sameDay ? SAME_DAY_SPEED : null,
@@ -152,7 +193,7 @@ export async function POST(req: Request) {
 
         delivery_direccion: isPhysical ? address.address : "",
         delivery_ciudad: isPhysical ? address.city : "",
-        delivery_detalles: isPhysical ? (address.addressExtra || "") : "",
+        delivery_detalles: isPhysical ? address.addressExtra : "",
 
         subtotal: chargedSubtotal,
         delivery_price: deliveryPrice,

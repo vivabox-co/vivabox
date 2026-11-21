@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
-import { fetchWompiTransaction, getWompiPublicKey } from "@/services/wompi"
+import { fetchWompiTransaction, getWompiPublicKey, sandboxPaymentsBlocked } from "@/services/wompi"
 import { finalizeVentaPayment } from "@/features/checkout/finalizeVentaPayment"
 
 // Appelée depuis l'écran de retour après le Widget Wompi — informative pour
@@ -15,6 +15,11 @@ export async function POST(req: Request) {
 
     if (!ventaId || !transactionId) {
       return NextResponse.json({ ok: false, error: "MISSING_PARAMS" })
+    }
+
+    if (sandboxPaymentsBlocked()) {
+      console.error("VERIFY: Wompi sandbox key refused (shared production database)")
+      return NextResponse.json({ ok: false, error: "PAYMENTS_UNAVAILABLE" })
     }
 
     const transaction = await fetchWompiTransaction(transactionId, getWompiPublicKey())

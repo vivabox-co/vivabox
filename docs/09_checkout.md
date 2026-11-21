@@ -319,8 +319,9 @@ Only one promotion per purchase.
 
 Removed. Shipping is already included, and the email is collected in Screen 1B
 anyway, so the "email for free shipping" offer added nothing.
-`WelcomeShippingModal` and `/api/checkout/welcome` remain in the codebase but
-are no longer called from the checkout.
+`WelcomeShippingModal` and `/api/checkout/welcome` were deleted (nov 2026): the
+unused route handed out codes and recorded marketing consent for any email,
+without rate limit or proof of ownership.
 
 ---
 

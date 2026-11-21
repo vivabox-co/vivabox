@@ -25,6 +25,28 @@ export async function checkRateLimit(
   return data === true
 }
 
+export type RateLimitRule = {
+  identifier: string
+  maxAttempts: number
+  windowMinutes: number
+}
+
+// Applies several limits in order and stops at the first one exceeded, so a
+// request refused by an early rule (per-IP) never increments the later ones
+// (global): one blocked client can't exhaust the shared counter and lock
+// everyone else out. Put the narrowest rule (per-IP) first.
+export async function checkRateLimits(
+  supabase: SupabaseClient,
+  action: string,
+  rules: RateLimitRule[]
+): Promise<boolean> {
+  for (const rule of rules) {
+    const allowed = await checkRateLimit(supabase, rule.identifier, action, rule.maxAttempts, rule.windowMinutes)
+    if (!allowed) return false
+  }
+  return true
+}
+
 export function getClientIp(req: Request): string {
   const forwarded = req.headers.get("x-forwarded-for")
   if (forwarded) return forwarded.split(",")[0].trim()
