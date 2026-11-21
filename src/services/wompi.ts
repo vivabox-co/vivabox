@@ -66,6 +66,15 @@ export function computeEventChecksum(params: {
   return crypto.createHash("sha256").update(raw).digest("hex")
 }
 
+// Comparaison en temps constant (sur des hashes, donc de longueur fixe) :
+// ne révèle rien du checksum attendu via le temps de réponse.
+export function checksumMatches(expected: string, received: unknown): boolean {
+  if (typeof received !== "string") return false
+  const a = crypto.createHash("sha256").update(expected).digest()
+  const b = crypto.createHash("sha256").update(received).digest()
+  return crypto.timingSafeEqual(a, b)
+}
+
 export type WompiTransaction = {
   id: string
   reference: string

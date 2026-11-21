@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { jsonLd } from "@/utils/jsonLd"
 import { notFound } from "next/navigation"
 
 import Navbar from "@/components/Navbar"
@@ -119,7 +120,7 @@ export default async function BoxPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(getBoxProductSchema(box, schemaItems)),
+          __html: jsonLd(getBoxProductSchema(box, schemaItems)),
         }}
       />
 

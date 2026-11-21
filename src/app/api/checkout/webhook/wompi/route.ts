@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getSupabase } from "@/services/supabase"
-import { computeEventChecksum, sandboxPaymentsBlocked } from "@/services/wompi"
+import { checksumMatches, computeEventChecksum, sandboxPaymentsBlocked } from "@/services/wompi"
 import { finalizeVentaPayment } from "@/features/checkout/finalizeVentaPayment"
 import { sendPaymentFailedAlertEmail } from "@/services/email"
 import { finalizeBookingSurplusPayment } from "@/features/checkout/finalizeBookingSurplusPayment"
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       timestamp,
     })
 
-    if (expectedChecksum !== signature.checksum) {
+    if (!checksumMatches(expectedChecksum, signature.checksum)) {
       console.error("WOMPI WEBHOOK: checksum invalide")
       return NextResponse.json({ ok: false, error: "INVALID_SIGNATURE" }, { status: 401 })
     }
@@ -96,7 +96,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    const result = await finalizeVentaPayment(supabase, reference)
+    const result = await finalizeVentaPayment(supabase, reference, {
+      amountInCents: transaction.amount_in_cents,
+      currency: transaction.currency,
+    })
+
+    if (!result.ok && result.error === "AMOUNT_MISMATCH") {
+      // Définitif : un nouvel essai de Wompi n'y changerait rien. 200 pour
+      // stopper les retries ; l'écart est logué par finalizeVentaPayment.
+      return NextResponse.json({ ok: true, ignored: true })
+    }
 
     if (!result.ok) {
       console.error(`WOMPI WEBHOOK: finalize failed for venta=${reference}`, result.error)

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { jsonLd } from "@/utils/jsonLd"
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsappButton from "@/components/WhatsappButton";
@@ -40,21 +41,21 @@ export default async function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(getFAQPageSchema()),
+          __html: jsonLd(getFAQPageSchema()),
         }}
       />
 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(getOrganizationSchema()),
+          __html: jsonLd(getOrganizationSchema()),
         }}
       />
 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(getExperienceItemListSchema(schemaItems)),
+          __html: jsonLd(getExperienceItemListSchema(schemaItems)),
         }}
       />
 

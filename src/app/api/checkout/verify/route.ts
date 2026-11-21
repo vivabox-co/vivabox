@@ -42,7 +42,10 @@ export async function POST(req: Request) {
     }
 
     const supabase = getSupabase()
-    const result = await finalizeVentaPayment(supabase, ventaId)
+    const result = await finalizeVentaPayment(supabase, ventaId, {
+      amountInCents: transaction.amount_in_cents,
+      currency: transaction.currency,
+    })
 
     if (!result.ok) {
       return NextResponse.json({ ok: false, error: result.error })

@@ -671,3 +671,16 @@ create index if not exists empresa_maquetas_created_at_idx on empresa_maquetas (
 alter table empresa_maquetas enable row level security;
 
 grant select, insert, update, delete on empresa_maquetas to service_role;
+
+-- =============================================================
+-- Fonctions réservées au serveur (audit sécurité, nov 2026)
+-- =============================================================
+-- Postgres/Supabase donnent EXECUTE à PUBLIC (donc anon/authenticated) sur
+-- toute nouvelle fonction : avec la clé anon publique, n'importe qui pourrait
+-- appeler /rest/v1/rpc/... Seuls les serveurs (service_role) les utilisent :
+-- ce site, vivabox-operativo (redeem_promo_code) et vivabox-appben
+-- (check_rate_limit). Le VivaBox_Portal (clé anon) n'appelle que ses vs_*.
+revoke execute on function redeem_promo_code(text, uuid, text) from public, anon, authenticated;
+revoke execute on function check_rate_limit(text, text, int, int) from public, anon, authenticated;
+grant execute on function redeem_promo_code(text, uuid, text) to service_role;
+grant execute on function check_rate_limit(text, text, int, int) to service_role;

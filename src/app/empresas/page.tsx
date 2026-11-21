@@ -1,4 +1,5 @@
 import { getMapExperiences } from "@/services/experiences";
+import { jsonLd } from "@/utils/jsonLd"
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsappButton from "@/components/WhatsappButton";
@@ -23,7 +24,7 @@ export default async function EmpresasPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(getEmpresasFAQPageSchema()),
+          __html: jsonLd(getEmpresasFAQPageSchema()),
         }}
       />
       <Navbar />

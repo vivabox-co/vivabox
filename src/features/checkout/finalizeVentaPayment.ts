@@ -15,7 +15,13 @@ const UNIQUE_VIOLATION = "23505"
 // box qu'elle emballe) depuis le back-office, à l'étape "Por preparar".
 export type FinalizeResult =
   | { ok: true; activationCode: string | null }
-  | { ok: false; error: "NOT_FOUND" | "SERVER_ERROR" }
+  | { ok: false; error: "NOT_FOUND" | "SERVER_ERROR" | "AMOUNT_MISMATCH" }
+
+// Ce que Wompi dit avoir réellement encaissé pour cette venta.
+export type ReceivedPayment = {
+  amountInCents: number
+  currency: string
+}
 
 // Appelée à la fois par le webhook Wompi et par la route de vérification
 // après redirection — les deux peuvent arriver en même temps pour la même
@@ -28,8 +34,32 @@ export type FinalizeResult =
 // on ne crée rien : voir le commentaire de FinalizeResult.
 export async function finalizeVentaPayment(
   supabase: SupabaseClient,
-  ventaId: string
+  ventaId: string,
+  received: ReceivedPayment
 ): Promise<FinalizeResult> {
+  // Défense en profondeur : la signature d'intégrité Wompi lie déjà montant et
+  // reference, mais on ne marque jamais payée une venta dont le montant ou la
+  // devise encaissés ne correspondent pas à son total.
+  const { data: expected, error: fetchError } = await supabase
+    .from("ventas")
+    .select("total")
+    .eq("id", ventaId)
+    .maybeSingle()
+
+  if (fetchError) {
+    console.error("FINALIZE VENTA FETCH ERROR:", fetchError)
+    return { ok: false, error: "SERVER_ERROR" }
+  }
+
+  if (!expected) return { ok: false, error: "NOT_FOUND" }
+
+  if (received.currency !== "COP" || received.amountInCents !== expected.total * 100) {
+    console.error(
+      `FINALIZE VENTA AMOUNT MISMATCH: venta=${ventaId} expected=${expected.total * 100} COP got=${received.amountInCents} ${received.currency}`
+    )
+    return { ok: false, error: "AMOUNT_MISMATCH" }
+  }
+
   const { data: updatedRows, error: updateError } = await supabase
     .from("ventas")
     .update({ status: "paid", paid_at: new Date().toISOString() })
