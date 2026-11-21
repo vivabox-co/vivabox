@@ -29,7 +29,7 @@ export const empresasFaqItems: FAQItem[] = [
   {
     question: "¿Puedo poner el logo de mi empresa y un mensaje?",
     answer:
-      "Sí. Tu logo va en la caja y en la app, y tu mensaje en la tarjeta. Puedes ver cómo queda en la maqueta de esta misma página.",
+      "Sí. Tu logo va en la caja y en la app, y tu mensaje en la tarjeta. Desde 20 boxes, tu logo va sin costo extra. Por debajo, la box con tu logo queda en $209.900 de 1 a 4 y en $199.000 de 5 a 19. Puedes ver cómo queda en la maqueta de esta misma página.",
   },
   {
     question: "¿Cuánto demora el pedido y cómo se entrega?",

@@ -1,11 +1,11 @@
-import { Landmark, Timer, ReceiptText, CalendarClock, MessageCircle } from "lucide-react";
+import { Landmark, Timer, ReceiptText, CalendarClock, MessageCircle, Check } from "lucide-react";
 import Reveal from "@/components/ui/Reveal";
 
 const TIERS = [
-  { range: "1 a 4 boxes", price: "$199.000", note: "Precio de cada box", featured: false },
-  { range: "5 a 19 boxes", price: "$194.900", note: "Por cada box", featured: false },
-  { range: "20 a 99 boxes", price: "$189.900", note: "Por cada box", featured: true },
-  { range: "100 o más", price: "A tu medida", note: "Armamos tu cotización", featured: false },
+  { range: "1 a 4 boxes", price: "$199.000", note: "Precio de cada box", logo: "Con tu logo: $209.900", logoIncluded: false, featured: false },
+  { range: "5 a 19 boxes", price: "$194.900", note: "Por cada box", logo: "Con tu logo: $199.000", logoIncluded: false, featured: false },
+  { range: "20 a 99 boxes", price: "$189.900", note: "Por cada box", logo: "Tu logo, sin costo extra", logoIncluded: true, featured: true },
+  { range: "100 o más", price: "A tu medida", note: "Armamos tu cotización", logo: "Tu logo, sin costo extra", logoIncluded: true, featured: false },
 ] as const;
 
 const DETAILS = [
@@ -75,6 +75,18 @@ export default function EmpresasPricing() {
                 </p>
                 <p className={`text-[12px] mt-1 ${tier.featured ? "text-white/60" : "text-ink/55"}`}>
                   {tier.note}
+                </p>
+                <p
+                  className={`mt-2.5 pt-2.5 border-t flex items-center justify-center gap-1 text-[12px] md:text-[13px] leading-snug ${
+                    tier.featured ? "border-white/15" : "border-ink/10"
+                  } ${
+                    tier.logoIncluded
+                      ? `font-semibold ${tier.featured ? "text-white" : "text-ink"}`
+                      : tier.featured ? "text-white/70" : "text-ink/65"
+                  }`}
+                >
+                  {tier.logoIncluded && <Check size={14} strokeWidth={2.4} className="text-primary shrink-0" />}
+                  <span>{tier.logo}</span>
                 </p>
               </div>
             ))}
