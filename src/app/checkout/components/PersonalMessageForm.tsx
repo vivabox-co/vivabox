@@ -1,7 +1,8 @@
 "use client"
 
-import { PenLine } from "lucide-react"
-import { MESSAGE_MAX_LENGTH, SIGNATURE_MAX_LENGTH } from "@/features/checkout/personalMessage"
+import { useLayoutEffect, useRef } from "react"
+import { AlertCircle, PenLine } from "lucide-react"
+import { MESSAGE_MAX_LENGTH, SIGNATURE_MAX_LENGTH, messageOverflow } from "@/features/checkout/personalMessage"
 
 type Props = {
   mensaje: string
@@ -12,6 +13,10 @@ type Props = {
   onCorazonChange: (value: boolean) => void
 }
 
+// Shared text metrics between the textarea and its highlight layer: both must
+// wrap the exact same way for the pink highlight to sit under the right words.
+const TEXT_METRICS = "px-4 py-3 text-[0.9375rem] leading-normal whitespace-pre-wrap break-words border border-transparent"
+
 export default function PersonalMessageForm({
   mensaje,
   firma,
@@ -20,7 +25,19 @@ export default function PersonalMessageForm({
   onFirmaChange,
   onCorazonChange,
 }: Props) {
-  const atLimit = mensaje.length >= MESSAGE_MAX_LENGTH
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const overflow = messageOverflow(mensaje)
+  const tooLong = overflow > 0
+  const atLimit = mensaje.length === MESSAGE_MAX_LENGTH
+
+  // The textarea grows with its content instead of scrolling, so the highlight
+  // layer behind it never has to follow a scroll position.
+  useLayoutEffect(() => {
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = "auto"
+    el.style.height = `${el.scrollHeight + 2}px`
+  }, [mensaje])
 
   return (
     <div className="vb-well p-5 space-y-4">
@@ -38,18 +55,48 @@ export default function PersonalMessageForm({
 
       <div className="space-y-1.5">
         <label htmlFor="mensaje" className="text-[13px] text-[#6B6B6B]">Tu mensaje</label>
-        <textarea
-          id="mensaje"
-          placeholder="Escribe tu mensaje"
-          value={mensaje}
-          onChange={(e) => onMensajeChange(e.target.value)}
-          maxLength={MESSAGE_MAX_LENGTH}
-          rows={4}
-          className="vb-input resize-none leading-normal"
-        />
-        <div className="flex justify-between text-xs text-[#6B6B6B]">
-          <span className="text-accent-red">{atLimit ? "Llegaste al límite" : ""}</span>
-          <span className={atLimit ? "text-accent-red" : ""}>{mensaje.length} / {MESSAGE_MAX_LENGTH}</span>
+        <div className="relative rounded-[18px] bg-card">
+          <div
+            aria-hidden="true"
+            className={`absolute inset-0 overflow-hidden rounded-[18px] text-transparent pointer-events-none ${TEXT_METRICS}`}
+          >
+            {mensaje.slice(0, MESSAGE_MAX_LENGTH)}
+            {tooLong && (
+              <mark className="bg-accent-red/20 text-transparent rounded-[3px]">{mensaje.slice(MESSAGE_MAX_LENGTH)}</mark>
+            )}
+            {/* keeps a trailing line break measurable */}
+            {" "}
+          </div>
+          <textarea
+            ref={textareaRef}
+            id="mensaje"
+            placeholder="Escribe tu mensaje"
+            value={mensaje}
+            onChange={(e) => onMensajeChange(e.target.value)}
+            rows={4}
+            aria-invalid={tooLong}
+            aria-describedby="mensaje-contador"
+            className={`vb-input relative block resize-none overflow-hidden !bg-transparent ${TEXT_METRICS} ${
+              tooLong ? "!border-accent-red focus:!border-accent-red" : ""
+            }`}
+          />
+        </div>
+        <div id="mensaje-contador" className="flex justify-between gap-3 text-xs text-[#6B6B6B]" aria-live="polite">
+          <span className="text-accent-red flex items-start gap-1">
+            {tooLong ? (
+              <>
+                <AlertCircle size={14} strokeWidth={2} className="shrink-0 mt-px" aria-hidden="true" />
+                Te sobran {overflow} {overflow === 1 ? "carácter" : "caracteres"}. Acórtalo para que quepa en la tarjeta.
+              </>
+            ) : atLimit ? (
+              "Llegaste al límite"
+            ) : (
+              ""
+            )}
+          </span>
+          <span className={`shrink-0 tabular-nums ${tooLong || atLimit ? "text-accent-red" : ""} ${tooLong ? "font-semibold" : ""}`}>
+            {mensaje.length} / {MESSAGE_MAX_LENGTH}
+          </span>
         </div>
       </div>
 

@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Package, CheckCircle2, Truck, Mail, Sparkles, Loader2, ArrowRight, MessageCircle, Clock, AlertCircle } from "lucide-react"
 import CheckoutProgress from "../CheckoutProgress"
 import { useCheckoutStore } from "@/features/checkout/checkoutStore"
-import { HEART, SIGNATURE_MAX_LENGTH } from "@/features/checkout/personalMessage"
+import { HEART, MESSAGE_MAX_LENGTH, SIGNATURE_MAX_LENGTH, messageOverflow } from "@/features/checkout/personalMessage"
 import { paymentReference } from "@/services/manualPayment"
 import { whatsappLink } from "@/utils/whatsappLink"
 import PersonalMessageForm from "../components/PersonalMessageForm"
@@ -140,6 +140,7 @@ function SuccessPageContent() {
   // The message can only be written now, once: saving or skipping both lock it.
   async function handleMessage(withMessage: boolean) {
     if (isSubmittingRef.current || !ventaId) return
+    if (withMessage && messageOverflow(mensaje) > 0) return
 
     isSubmittingRef.current = true
     setLoading(true)
@@ -182,11 +183,13 @@ function SuccessPageContent() {
   const comprobanteLink = whatsappLink(`Hola Vivabox, ya hice mi pago. Referencia ${reference}. Te envío el comprobante.`)
   const payHref = slug && useCheckoutStore.getState().ventaId === ventaId ? `/checkout/${slug}/pago` : "/cajas"
 
+  const tooLong = messageOverflow(mensaje) > 0
+
   const messageActions = (
     <div className="space-y-1">
       <button
         onClick={() => handleMessage(true)}
-        disabled={loading || !mensaje.trim()}
+        disabled={loading || !mensaje.trim() || tooLong}
         className="vb-btn-primary w-full h-12 disabled:opacity-60"
       >
         {loading ? (
@@ -201,6 +204,12 @@ function SuccessPageContent() {
           </>
         )}
       </button>
+
+      {tooLong && (
+        <p className="text-xs text-accent-red text-center pt-1 lg:hidden">
+          Tu mensaje no cabe en la tarjeta: acórtalo un poco.
+        </p>
+      )}
 
       <button
         onClick={() => handleMessage(false)}
@@ -381,7 +390,7 @@ function SuccessPageContent() {
           {showCard && (
             <div className="space-y-3 self-start">
               <MessageCardPreview
-                mensaje={writing ? mensaje : savedCard?.mensaje ?? ""}
+                mensaje={writing ? mensaje.slice(0, MESSAGE_MAX_LENGTH) : savedCard?.mensaje ?? ""}
                 firma={writing ? firma : savedCard?.firma ?? ""}
                 corazon={writing ? corazon : savedCard?.corazon ?? false}
               />
