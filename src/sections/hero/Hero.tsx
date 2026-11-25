@@ -22,6 +22,8 @@ export default function Hero() {
   // and Chrome-for-iOS, so the source is picked in JS instead.
   const [src, setSrc] = useState(DESKTOP_SRC)
   const poster = src === MOBILE_SRC ? MOBILE_POSTER : DESKTOP_POSTER
+  // True only when the browser refused autoplay -- drives the play button.
+  const [blocked, setBlocked] = useState(false)
 
   useEffect(() => {
     const mql = window.matchMedia(MOBILE_QUERY)
@@ -66,11 +68,35 @@ export default function Hero() {
     // Not in the DOM types for <video> yet, though browsers support it --
     // set imperatively instead of erroring out the JSX prop.
     video.setAttribute("fetchpriority", "high")
-    const tryPlay = () => video.play().catch(() => {})
+    const tryPlay = () =>
+      video.play().catch((err) => {
+        // iOS refuses autoplay in Low Power Mode (and some in-app browsers).
+        // Show the play button; a first touch/scroll below retries for free.
+        console.warn("[Hero] video autoplay refused:", err?.name, err?.message)
+        setBlocked(true)
+      })
+    const onPlaying = () => setBlocked(false)
+    // A user gesture unlocks play() even in Low Power Mode.
+    const onGesture = () => {
+      if (video.paused) tryPlay()
+    }
+    const gestureEvents = ["touchstart", "scroll", "pointerdown"] as const
+    gestureEvents.forEach((e) =>
+      window.addEventListener(e, onGesture, { passive: true, once: true }),
+    )
     tryPlay()
     video.addEventListener("loadedmetadata", tryPlay)
-    return () => video.removeEventListener("loadedmetadata", tryPlay)
+    video.addEventListener("playing", onPlaying)
+    return () => {
+      video.removeEventListener("loadedmetadata", tryPlay)
+      video.removeEventListener("playing", onPlaying)
+      gestureEvents.forEach((e) => window.removeEventListener(e, onGesture))
+    }
   }, [src])
+
+  const handlePlayClick = () => {
+    videoRef.current?.play().catch(() => {})
+  }
 
   return (
     <section className="relative h-[78vh] md:h-[82vh] min-h-[620px] overflow-hidden">
@@ -102,6 +128,29 @@ export default function Hero() {
           object-center
         "
       />
+
+      {/* PLAY BUTTON — only if the browser refused autoplay */}
+
+      {blocked && (
+        <button
+          type="button"
+          onClick={handlePlayClick}
+          aria-label="Reproducir video"
+          className="
+            absolute top-24 right-5 md:right-10 z-10
+            h-11 w-11 rounded-full
+            bg-white/25 backdrop-blur-sm
+            border border-white/50
+            text-white
+            inline-flex items-center justify-center
+            transition hover:bg-white/40
+          "
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </button>
+      )}
 
       {/* SUBTLE READABILITY GRADIENT */}
 
