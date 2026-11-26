@@ -6,7 +6,7 @@ export type Filter = [column: string, operator: "eq" | "gt" | "in" | "is" | "or"
 
 export type Query = {
   table: string
-  action: "select" | "update" | "insert"
+  action: "select" | "update" | "insert" | "upsert"
   payload?: Record<string, unknown>
   filters: Filter[]
 }
@@ -32,6 +32,7 @@ export function createFakeDb(handlers: Record<string, Handler>) {
       select: () => b,
       update: (payload: Record<string, unknown>) => ((query.action = "update"), (query.payload = payload), b),
       insert: (payload: Record<string, unknown>) => ((query.action = "insert"), (query.payload = payload), b),
+      upsert: (payload: Record<string, unknown>) => ((query.action = "upsert"), (query.payload = payload), b),
       eq: (column: string, value: unknown) => (query.filters.push([column, "eq", value]), b),
       gt: (column: string, value: unknown) => (query.filters.push([column, "gt", value]), b),
       in: (column: string, value: unknown) => (query.filters.push([column, "in", value]), b),
