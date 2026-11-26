@@ -26,23 +26,70 @@ function req(headers: Record<string, string> = {}) {
 beforeEach(() => {
   send.mockReset()
   send.mockResolvedValue({})
+  vi.stubEnv("VERCEL_ENV", "")
   vi.spyOn(console, "error").mockImplementation(() => {})
 })
-afterEach(() => vi.restoreAllMocks())
+afterEach(() => {
+  vi.unstubAllEnvs()
+  vi.restoreAllMocks()
+})
 
 describe("reportSecurityEvent", () => {
-  it("logs the event and sends one email with a fixed subject", async () => {
+  it("logs the full event with app, env and id", async () => {
     const { client, insert } = fakeSupabase({ rateAllowed: true })
     await reportSecurityEvent(client, req(), "bait_promo_code", "ADMIN")
 
     expect(insert).toHaveBeenCalledWith({
+      id: expect.stringMatching(/^[0-9a-f-]{36}$/),
+      app: "web",
+      env: "dev",
       kind: "bait_promo_code",
       ip: "1.2.3.4",
       user_agent: "bot/1.0",
       detail: "ADMIN",
     })
+  })
+
+  it("sends a minimal email that names the app, env, type and a short id", async () => {
+    const { client, insert } = fakeSupabase({ rateAllowed: true })
+    await reportSecurityEvent(client, req(), "trap_route", "/wp-login.php")
+
     expect(send).toHaveBeenCalledTimes(1)
-    expect(send.mock.calls[0][0].subject).toBe("🚨 Piège déclenché — code promo")
+    const { subject, html } = send.mock.calls[0][0]
+    expect(subject).toBe("🚨 [WEB·DEV] Piège — route piège")
+
+    const shortId = String(insert.mock.calls[0][0].id).slice(0, 8)
+    expect(html).toContain(`<strong>ID :</strong> ${shortId}`)
+    expect(html).toContain("<strong>App :</strong> web")
+    expect(html).toContain("<strong>Environnement :</strong> dev")
+  })
+
+  it("keeps everything the attacker controls out of the email", async () => {
+    const { client } = fakeSupabase({ rateAllowed: true })
+    await reportSecurityEvent(
+      client,
+      req({ "user-agent": `<script>alert(1)</script>` }),
+      "bait_promo_code",
+      `<img src=x onerror=1>ADMIN`
+    )
+
+    const { subject, html } = send.mock.calls[0][0]
+    for (const secret of ["1.2.3.4", "9.9.9.9", "<script>", "alert(1)", "<img", "onerror", "ADMIN"]) {
+      expect(html).not.toContain(secret)
+      expect(subject).not.toContain(secret)
+    }
+  })
+
+  it("drops the env tag from the subject in production and keeps it in preview", async () => {
+    const { client } = fakeSupabase({ rateAllowed: true })
+
+    vi.stubEnv("VERCEL_ENV", "production")
+    await reportSecurityEvent(client, req(), "bait_promo_code", "ADMIN")
+    expect(send.mock.calls[0][0].subject).toBe("🚨 [WEB] Piège — code promo appât")
+
+    vi.stubEnv("VERCEL_ENV", "preview")
+    await reportSecurityEvent(client, req(), "bait_promo_code", "ADMIN")
+    expect(send.mock.calls[1][0].subject).toBe("🚨 [WEB·PREVIEW] Piège — code promo appât")
   })
 
   it("still logs but skips the email when the IP was already alerted", async () => {
@@ -53,19 +100,15 @@ describe("reportSecurityEvent", () => {
     expect(send).not.toHaveBeenCalled()
   })
 
-  it("escapes attacker-controlled input and truncates long values", async () => {
+  it("truncates long attacker values before storing them", async () => {
     const { client, insert } = fakeSupabase({ rateAllowed: true })
     await reportSecurityEvent(
       client,
-      req({ "user-agent": `<script>alert(1)</script>${"x".repeat(500)}` }),
+      req({ "user-agent": "x".repeat(500) }),
       "bait_promo_code",
-      `<img src=x onerror=1>${"y".repeat(100)}`
+      "y".repeat(100)
     )
 
-    const html: string = send.mock.calls[0][0].html
-    expect(html).not.toContain("<script>")
-    expect(html).not.toContain("<img")
-    expect(html).toContain("&lt;script&gt;")
     expect(insert.mock.calls[0][0].user_agent).toHaveLength(300)
     expect(insert.mock.calls[0][0].detail).toHaveLength(50)
   })

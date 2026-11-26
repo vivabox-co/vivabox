@@ -313,40 +313,51 @@ export async function sendPaymentFailedAlertEmail(params: PaymentFailedAlertPara
   }
 }
 
+export type SecurityAlertEnv = "prod" | "preview" | "dev"
+
 type SecurityAlertParams = {
+  app: string
+  env: SecurityAlertEnv
   kind: string
-  ip: string
-  userAgent: string
-  detail: string
+  eventId: string
+  at: Date
 }
 
-// Alerte « piège déclenché » (honeypot). Tout ce qui arrive ici vient de
-// l'attaquant (code tapé, user-agent, IP) : tout est échappé, et le sujet est
-// fixe pour ne jamais y glisser d'entrée brute. Best-effort, comme les autres.
-export async function sendSecurityAlertEmail(params: SecurityAlertParams) {
-  const { kind, ip, userAgent, detail } = params
+const SECURITY_KIND_LABELS: Record<string, string> = {
+  bait_promo_code: "code promo appât",
+  trap_route: "route piège",
+}
 
-  const isRoute = kind === "trap_route"
+// Alerte « piège déclenché » (honeypot), volontairement MINIMALE : l'app,
+// l'environnement, le type, l'heure et un identifiant. L'IP, le user-agent et
+// le code/chemin exact — tout ce que l'attaquant contrôle — restent dans la
+// table security_events (retrouver la ligne avec l'identifiant), pas dans une
+// boîte mail. Le sujet n'est composé que de valeurs du code, jamais d'une
+// entrée utilisateur. Best-effort, comme les autres emails.
+export async function sendSecurityAlertEmail(params: SecurityAlertParams) {
+  const { app, env, kind, eventId, at } = params
+
+  const kindLabel = SECURITY_KIND_LABELS[kind] ?? "piège"
+  const tag = env === "prod" ? app.toUpperCase() : `${app.toUpperCase()}·${env.toUpperCase()}`
+  const when = at.toLocaleString("es-CO", { timeZone: "America/Bogota", dateStyle: "short", timeStyle: "medium" })
 
   const html = `
-    <h2>🚨 Piège déclenché</h2>
-    <p>${isRoute
-      ? "Quelqu'un a demandé une page qui n'existe pas sur Vivabox (WordPress, .env, admin...). Aucun vrai visiteur n'y va : c'est un bot ou un scan."
-      : "Quelqu'un a essayé un faux code promo appât. Aucun vrai client ne le connaît : c'est une devinette ou un bot."}</p>
+    <h2>🚨 Piège déclenché — ${escapeHtml(app.toUpperCase())}</h2>
     <ul>
-      <li><strong>Type :</strong> ${escapeHtml(kind)}</li>
-      <li><strong>${isRoute ? "Chemin demandé" : "Code essayé"} :</strong> ${escapeHtml(detail)}</li>
-      <li><strong>IP :</strong> ${escapeHtml(ip)}</li>
-      <li><strong>User-agent :</strong> ${escapeHtml(userAgent || "—")}</li>
+      <li><strong>App :</strong> ${escapeHtml(app)}</li>
+      <li><strong>Environnement :</strong> ${escapeHtml(env)}</li>
+      <li><strong>Type :</strong> ${escapeHtml(kindLabel)}</li>
+      <li><strong>Heure (Bogotá) :</strong> ${escapeHtml(when)}</li>
+      <li><strong>ID :</strong> ${escapeHtml(eventId)}</li>
     </ul>
-    <p style="color:#888;font-size:12px">Historique complet : table security_events dans Supabase. Un seul email par IP et par heure.</p>
+    <p style="color:#888;font-size:12px">Détails (IP, user-agent, code ou chemin) dans Supabase → security_events, ligne dont l'id commence par ${escapeHtml(eventId)}. Un seul email par IP et par heure.</p>
   `
 
   try {
     await getResend().emails.send({
       from: FROM,
       to: NOTIFY_TO,
-      subject: isRoute ? "🚨 Piège déclenché — route" : "🚨 Piège déclenché — code promo",
+      subject: `🚨 [${tag}] Piège — ${kindLabel}`,
       html,
     })
   } catch (error) {

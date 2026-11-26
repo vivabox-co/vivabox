@@ -703,6 +703,14 @@ create table if not exists security_events (
   detail text
 );
 
+-- Table partagée par toutes les apps Vivabox : "app" dit laquelle a été
+-- touchée ('web', 'appben', 'operativo'...), "env" l'environnement
+-- ('prod' | 'preview' | 'dev'). L'email d'alerte ne contient que app/env/type/
+-- heure/id ; le détail (ip, user_agent, detail) se retrouve ici avec l'id.
+-- "add column if not exists" : la table existait déjà sans ces colonnes.
+alter table security_events add column if not exists app text not null default 'web';
+alter table security_events add column if not exists env text not null default 'prod';
+
 create index if not exists security_events_created_at_idx on security_events (created_at desc);
 
 alter table security_events enable row level security;
