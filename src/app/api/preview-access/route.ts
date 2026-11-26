@@ -6,7 +6,7 @@ import {
 } from "@/services/previewAccess"
 
 function resolveNext(next: string | null) {
-  if (next && next.startsWith("/")) return next
+  if (next && next.startsWith("/") && !next.startsWith("//")) return next
   return "/checkout"
 }
 
