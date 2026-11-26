@@ -30,6 +30,13 @@ describe("/api/preview-access", () => {
     ["a protocol-relative URL", "//evil.example/phish"],
     ["a path without a leading slash", "evil.example"],
     ["a javascript URL", "javascript:alert(1)"],
+    // Le parseur d'URL normalise ces formes en "//evil.example" : un simple
+    // test de préfixe les laisserait passer.
+    ["a backslash host", "/\\evil.example"],
+    ["a slash + backslash host", "/\\/evil.example"],
+    ["a tab inside the slashes", "/\t/evil.example"],
+    ["a newline inside the slashes", "/\n/evil.example"],
+    ["a carriage return inside the slashes", "/\r/evil.example"],
   ])("never redirects off-site: %s falls back to /checkout", async (_label, next) => {
     const res = await call(`?next=${encodeURIComponent(next)}`)
     const location = new URL(res.headers.get("location")!)
