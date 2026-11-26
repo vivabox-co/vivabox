@@ -326,12 +326,16 @@ type SecurityAlertParams = {
 export async function sendSecurityAlertEmail(params: SecurityAlertParams) {
   const { kind, ip, userAgent, detail } = params
 
+  const isRoute = kind === "trap_route"
+
   const html = `
     <h2>🚨 Piège déclenché</h2>
-    <p>Quelqu'un a essayé un faux code promo appât. Aucun vrai client ne le connaît : c'est une devinette ou un bot.</p>
+    <p>${isRoute
+      ? "Quelqu'un a demandé une page qui n'existe pas sur Vivabox (WordPress, .env, admin...). Aucun vrai visiteur n'y va : c'est un bot ou un scan."
+      : "Quelqu'un a essayé un faux code promo appât. Aucun vrai client ne le connaît : c'est une devinette ou un bot."}</p>
     <ul>
       <li><strong>Type :</strong> ${escapeHtml(kind)}</li>
-      <li><strong>Code essayé :</strong> ${escapeHtml(detail)}</li>
+      <li><strong>${isRoute ? "Chemin demandé" : "Code essayé"} :</strong> ${escapeHtml(detail)}</li>
       <li><strong>IP :</strong> ${escapeHtml(ip)}</li>
       <li><strong>User-agent :</strong> ${escapeHtml(userAgent || "—")}</li>
     </ul>
@@ -342,7 +346,7 @@ export async function sendSecurityAlertEmail(params: SecurityAlertParams) {
     await getResend().emails.send({
       from: FROM,
       to: NOTIFY_TO,
-      subject: "🚨 Piège déclenché — code promo",
+      subject: isRoute ? "🚨 Piège déclenché — route" : "🚨 Piège déclenché — code promo",
       html,
     })
   } catch (error) {

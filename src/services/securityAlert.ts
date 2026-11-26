@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { sendSecurityAlertEmail } from "@/services/email"
 import { checkRateLimit, getClientIp } from "@/utils/rateLimit"
 
-export type SecurityEventKind = "bait_promo_code"
+export type SecurityEventKind = "bait_promo_code" | "trap_route"
 
 const MAX_DETAIL_LENGTH = 50
 const MAX_USER_AGENT_LENGTH = 300

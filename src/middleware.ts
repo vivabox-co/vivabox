@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from "next/server"
 import { PREVIEW_ACCESS_COOKIE, PREVIEW_ACCESS_VALUE } from "@/services/previewAccess"
+import { isTrapPath } from "@/features/security/trapPaths"
 
 export function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl
+
+  // Chemins piège (wp-login.php, .env, /admin...) : on réécrit vers une route
+  // interne qui alerte puis répond 404 — l'URL demandée ne change pas pour le
+  // visiteur. Voir features/security/trapPaths.ts.
+  if (isTrapPath(pathname)) {
+    const headers = new Headers(req.headers)
+    headers.set("x-trap-path", pathname)
+    const url = req.nextUrl.clone()
+    url.pathname = "/api/security/trap"
+    url.search = ""
+    return NextResponse.rewrite(url, { request: { headers } })
+  }
 
   // Checkout n'est pas encore prêt pour de vrais clients : on renvoie
   // toute tentative d'y accéder (lien direct, bouton, deep link) vers
@@ -40,5 +53,10 @@ export const config = {
   matcher: [
     "/checkout",
     "/checkout/:path*",
+    // Chemins piège — garder synchronisé avec features/security/trapPaths.ts
+    // (isTrapPath revérifie, donc un matcher trop large est inoffensif).
+    "/(wp-admin|wp-login\\.php|wp-content|wp-includes|xmlrpc\\.php|phpmyadmin|pma|administrator|admin|cpanel|\\.git|\\.aws|\\.ssh)/:path*",
+    "/(\\.env[^/]*)",
+    "/api/admin/:path*",
   ],
 }
