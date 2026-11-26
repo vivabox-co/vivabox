@@ -294,6 +294,13 @@ export async function getExperienceSchemaItems(): Promise<ExperienceSchemaItem[]
   return items.sort((a, b) => order.indexOf(a.categoryLabel) - order.indexOf(b.categoryLabel))
 }
 
+// An empty cell must not become 0 (Number("") === 0 would pin the experience
+// off the coast of Africa); a decimal comma is accepted.
+function parseCoordinate(value: string | undefined): number {
+  const text = String(value ?? "").trim().replace(",", ".")
+  return text === "" ? NaN : Number(text)
+}
+
 // Every published experience that has valid coordinates, in the compact shape
 // the homepage's phone map needs (same fields the beneficiary app's map reads).
 // Provider names, prices and exact addresses are deliberately not included.
@@ -304,8 +311,8 @@ export async function getMapExperiences(): Promise<MapExperience[]> {
 
   for (const row of rows) {
     const category = String(row.category || "").trim().toLowerCase() as MapCategory
-    const lat = Number(String(row.ubicacion_lat ?? "").replace(",", "."))
-    const lng = Number(String(row.ubicacion_lng ?? "").replace(",", "."))
+    const lat = parseCoordinate(row.ubicacion_lat)
+    const lng = parseCoordinate(row.ubicacion_lng)
 
     if (!row.codigo_interno || !categoryOrder.includes(category) || !Number.isFinite(lat) || !Number.isFinite(lng)) {
       continue
