@@ -8,7 +8,9 @@
     "prebuild": "node scripts/cache-experience-images.mjs",
     "cache:images": "node scripts/cache-experience-images.mjs",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run lint"
   },
   "dependencies": {
     "@google/model-viewer": "3.5.0",
