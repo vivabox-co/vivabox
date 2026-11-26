@@ -15,7 +15,7 @@ export default async function ProximamentePage({
 
   // Entrée secrète : la lettre "o" ci-dessous (aucune affordance visuelle,
   // se fond dans le texte) pose le cookie d'accès anticipé et renvoie vers
-  // le checkout — voir /api/preview-access et middleware.ts.
+  // le checkout — voir /api/preview-access et proxy.ts.
   const secretHref = `/api/preview-access${next ? `?next=${encodeURIComponent(next)}` : ""}`;
 
   return (

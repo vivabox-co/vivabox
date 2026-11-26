@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { PREVIEW_ACCESS_COOKIE, PREVIEW_ACCESS_VALUE } from "@/services/previewAccess"
 import { isTrapPath } from "@/features/security/trapPaths"
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl
 
   // Chemins piège (wp-login.php, .env, /admin...) : on réécrit vers une route

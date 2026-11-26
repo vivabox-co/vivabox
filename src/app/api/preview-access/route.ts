@@ -6,13 +6,13 @@ import {
 } from "@/services/previewAccess"
 
 function resolveNext(next: string | null) {
-  if (next && next.startsWith("/") && !next.startsWith("//")) return next
+  if (next && next.startsWith("/")) return next
   return "/checkout"
 }
 
 // Point d'entrée du "clic secret" sur /proximamente (la lettre "o" de
 // Vivabox) — pose le cookie qui laisse passer le garde-fou checkout en
-// production (voir middleware.ts) puis redirige vers la page demandée.
+// production (voir proxy.ts) puis redirige vers la page demandée.
 export async function GET(req: NextRequest) {
   const next = resolveNext(req.nextUrl.searchParams.get("next"))
 

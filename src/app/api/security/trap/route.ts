@@ -2,7 +2,7 @@ import { after } from "next/server"
 import { getSupabase } from "@/services/supabase"
 import { reportSecurityEvent } from "@/services/securityAlert"
 
-// Destination interne des chemins piège (voir middleware.ts) : le middleware y
+// Destination interne des chemins piège (voir proxy.ts) : le proxy y
 // réécrit la requête en passant le chemin d'origine dans x-trap-path. On
 // répond comme n'importe quelle page inexistante (404 vide), sans rien
 // révéler ; l'alerte part après la réponse.

@@ -23,7 +23,7 @@ Côté web app, `/activar` ne lit encore aucun code d'activation — c'est un é
 **Reste à trancher :**
 - Comment le code d'activation unique (mentionné dans `01_product.md`) est transmis à la web app — query param dans l'URL, saisie manuelle sur l'écran `/activar`, ou deep link avec token signé ?
 
-Le checkout (`/checkout/*`) est de son côté volontairement regaté derrière `/proximamente` (redirection dans `src/middleware.ts`) tant que le paiement n'est pas prêt pour de vrais clients — indépendant du lien Activar.
+Le checkout (`/checkout/*`) est de son côté volontairement regaté derrière `/proximamente` (redirection dans `src/proxy.ts`) tant que le paiement n'est pas prêt pour de vrais clients — indépendant du lien Activar.
 
 ---
 
