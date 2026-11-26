@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server"
+import { NextResponse, after } from "next/server"
 import { getSupabase } from "@/services/supabase"
+import { reportSecurityEvent } from "@/services/securityAlert"
+import { isBaitCode } from "@/features/promotions/baitCodes"
 import { validatePromoCode } from "@/features/promotions/validatePromoCode"
 import { isTestPriceCode } from "@/features/promotions/testPriceCode"
 import { checkRateLimits, getClientIp } from "@/utils/rateLimit"
@@ -30,6 +32,14 @@ export async function POST(req: Request) {
     // Les mauvais codes (devinettes) restent limités plus bas.
     if (isTestPriceCode(code)) {
       return NextResponse.json({ ok: true })
+    }
+
+    // Piège : un code appât déclenche une alerte, puis on continue comme pour
+    // n'importe quelle devinette (même limite, même réponse INVALID_CODE) —
+    // l'attaquant ne doit rien remarquer. Avant le rate limit, sinon un bot
+    // déjà bloqué ne déclencherait jamais l'alerte.
+    if (isBaitCode(code)) {
+      after(() => reportSecurityEvent(supabase, req, "bait_promo_code", code.trim().toUpperCase()))
     }
 
     // Pas de compteur par code : il laissait n'importe qui bloquer pour tout

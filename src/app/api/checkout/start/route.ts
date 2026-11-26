@@ -1,6 +1,8 @@
-import { NextResponse } from "next/server"
+import { NextResponse, after } from "next/server"
 import { boxes } from "@/data/boxes"
 import { getSupabase } from "@/services/supabase"
+import { reportSecurityEvent } from "@/services/securityAlert"
+import { isBaitCode } from "@/features/promotions/baitCodes"
 import { validatePromoCode } from "@/features/promotions/validatePromoCode"
 import { isTestPriceCode, getTestTotal, TEST_PROMO_MARKER } from "@/features/promotions/testPriceCode"
 import { deliveryPriceFor } from "@/features/checkout/delivery"
@@ -130,6 +132,12 @@ export async function POST(req: Request) {
 
     if (typeof promoCode === "string" && promoCode.trim()) {
       const normalizedPromo = promoCode.trim().toUpperCase()
+
+      // Piège : alerte silencieuse, le flux continue exactement comme pour un
+      // mauvais code (voir promo/validate). Après le test du code "prix test".
+      if (!isTestPriceCode(normalizedPromo) && isBaitCode(normalizedPromo)) {
+        after(() => reportSecurityEvent(supabase, req, "bait_promo_code", normalizedPromo))
+      }
 
       // Le code "prix test" correct échappe à la limite (voir promo/validate).
       // Pas de compteur par code (voir promo/validate) ; l'IP d'abord.

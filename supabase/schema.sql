@@ -684,3 +684,27 @@ revoke execute on function redeem_promo_code(text, uuid, text) from public, anon
 revoke execute on function check_rate_limit(text, text, int, int) from public, anon, authenticated;
 grant execute on function redeem_promo_code(text, uuid, text) to service_role;
 grant execute on function check_rate_limit(text, text, int, int) to service_role;
+
+-- =============================================================
+-- SÉCURITÉ — pièges (honeypots) déclenchés
+-- =============================================================
+-- Une ligne par déclenchement d'un piège (ex. faux code promo appât, voir
+-- src/features/promotions/baitCodes.ts). Aucun vrai client n'en génère :
+-- toute ligne ici = quelqu'un qui devine ou fouille. À consulter dans
+-- Supabase Studio ; l'email d'alerte est limité à 1 par IP et par heure,
+-- cette table garde tout.
+create table if not exists security_events (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+
+  kind text not null,
+  ip text,
+  user_agent text,
+  detail text
+);
+
+create index if not exists security_events_created_at_idx on security_events (created_at desc);
+
+alter table security_events enable row level security;
+
+grant select, insert on security_events to service_role;

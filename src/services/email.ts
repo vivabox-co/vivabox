@@ -312,3 +312,40 @@ export async function sendPaymentFailedAlertEmail(params: PaymentFailedAlertPara
     console.error("PAYMENT FAILED EMAIL ERROR:", error)
   }
 }
+
+type SecurityAlertParams = {
+  kind: string
+  ip: string
+  userAgent: string
+  detail: string
+}
+
+// Alerte « piège déclenché » (honeypot). Tout ce qui arrive ici vient de
+// l'attaquant (code tapé, user-agent, IP) : tout est échappé, et le sujet est
+// fixe pour ne jamais y glisser d'entrée brute. Best-effort, comme les autres.
+export async function sendSecurityAlertEmail(params: SecurityAlertParams) {
+  const { kind, ip, userAgent, detail } = params
+
+  const html = `
+    <h2>🚨 Piège déclenché</h2>
+    <p>Quelqu'un a essayé un faux code promo appât. Aucun vrai client ne le connaît : c'est une devinette ou un bot.</p>
+    <ul>
+      <li><strong>Type :</strong> ${escapeHtml(kind)}</li>
+      <li><strong>Code essayé :</strong> ${escapeHtml(detail)}</li>
+      <li><strong>IP :</strong> ${escapeHtml(ip)}</li>
+      <li><strong>User-agent :</strong> ${escapeHtml(userAgent || "—")}</li>
+    </ul>
+    <p style="color:#888;font-size:12px">Historique complet : table security_events dans Supabase. Un seul email par IP et par heure.</p>
+  `
+
+  try {
+    await getResend().emails.send({
+      from: FROM,
+      to: NOTIFY_TO,
+      subject: "🚨 Piège déclenché — code promo",
+      html,
+    })
+  } catch (error) {
+    console.error("SECURITY ALERT EMAIL ERROR:", error)
+  }
+}
