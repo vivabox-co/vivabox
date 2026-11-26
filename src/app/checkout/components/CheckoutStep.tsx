@@ -118,6 +118,7 @@ export default function CheckoutStep({ box }: Props) {
   }, [box, setBox, setDeliveryMethod])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only clock, avoids a hydration mismatch
     setNow(new Date())
     const id = setInterval(() => setNow(new Date()), 30_000)
     return () => clearInterval(id)

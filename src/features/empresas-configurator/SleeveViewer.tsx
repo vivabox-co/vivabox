@@ -63,6 +63,7 @@ export default function SleeveViewer({
   const lastBlobRef = useRef<string | null>(null)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- media query is client-only; SSR must render the null state first
     setMobile(window.matchMedia(BOX3D_MOBILE_QUERY).matches)
     import("@google/model-viewer").then(() => setReady(true))
   }, [])

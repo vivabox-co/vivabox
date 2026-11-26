@@ -68,6 +68,7 @@ export default function Configurator({ header, mapExperiences }: { header?: Reac
 
   useEffect(() => {
     // Random per visit, so it can only exist on the client (it feeds the WhatsApp link).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setId(newMaquetaId())
   }, [])
 

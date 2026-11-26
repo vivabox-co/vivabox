@@ -62,7 +62,7 @@ function shuffle<T>(array:T[]):T[] {
 
 // Cover photo first, then whatever's listed in the sheet's "imagenes_adicionales"
 // column (pipe-separated) -- each one resolved the same way as the cover.
-function resolveGallery(row: any): string[] {
+function resolveGallery(row: Record<string, string>): string[] {
   const additional: string[] = (row.imagenesAdicionales || "")
     .split("|")
     .map((s: string) => s.trim())
@@ -87,7 +87,7 @@ export const PREVIEW_POOL_PER_CATEGORY = 3
 
 export async function getExperiencesPreview():Promise<Experience[]> {
 
-  const rows:any[] = await getSheetData()
+  const rows = await getSheetData()
 
   const categories = [
     "gastronomia",
@@ -151,7 +151,7 @@ export async function getExperiencesPreview():Promise<Experience[]> {
 // left out.
 export async function getExperienceExamples():Promise<Experience[]> {
 
-  const rows:any[] = await getSheetData()
+  const rows = await getSheetData()
 
   const categories = [
     "gastronomia",
@@ -210,7 +210,7 @@ export async function getExperienceExamples():Promise<Experience[]> {
 // no gallery resolution here since that page never opens the modal.
 export async function getAllExperiences(): Promise<Experience[]> {
 
-  const rows: any[] = await getSheetData()
+  const rows = await getSheetData()
 
   const categories = [
     "gastronomia",
@@ -266,7 +266,7 @@ const SCHEMA_CATEGORY_LABELS: Record<string, string> = {
 // title + city, so crawlers always see the same complete list.
 export async function getExperienceSchemaItems(): Promise<ExperienceSchemaItem[]> {
 
-  const rows: any[] = await getSheetData()
+  const rows = await getSheetData()
   const seen = new Set<string>()
   const items: ExperienceSchemaItem[] = []
 
@@ -299,7 +299,7 @@ export async function getExperienceSchemaItems(): Promise<ExperienceSchemaItem[]
 // Provider names, prices and exact addresses are deliberately not included.
 export async function getMapExperiences(): Promise<MapExperience[]> {
 
-  const rows: any[] = await getSheetData()
+  const rows = await getSheetData()
   const result: MapExperience[] = []
 
   for (const row of rows) {

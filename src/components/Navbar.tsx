@@ -39,6 +39,7 @@ export default function Navbar() {
     if (cartCount !== prevCount.current) {
       prevCount.current = cartCount
       if (cartCount > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- short pulse triggered by a count change
         setBump(true)
         const t = setTimeout(() => setBump(false), 300)
         return () => clearTimeout(t)

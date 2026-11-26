@@ -42,6 +42,7 @@ export default function ExperienceModal({ experience, onClose }: Props) {
   const [photoIndex, setPhotoIndex] = useState(0)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset the gallery when a different experience opens
     setPhotoIndex(0)
     scrollRef.current?.scrollTo({ left: 0 })
   }, [experience])

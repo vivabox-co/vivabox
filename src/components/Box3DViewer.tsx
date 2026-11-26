@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { prefetchMarks, BOX3D_ENV, BOX3D_GLB_DESKTOP, BOX3D_GLB_MOBILE, BOX3D_MOBILE_QUERY } from "./box3dAssets"
 
 declare module "react" {
+  // eslint-disable-next-line @typescript-eslint/no-namespace -- module augmentation requires the namespace
   namespace JSX {
     interface IntrinsicElements {
       "model-viewer": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> &
@@ -59,6 +60,7 @@ export default function Box3DViewer({ onLoaded }: { onLoaded?: () => void }) {
   const debug = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("debug3d")
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- media query is client-only; SSR must render the null state first
     setMobile(window.matchMedia(BOX3D_MOBILE_QUERY).matches)
     import("@google/model-viewer").then(() => {
       setReady(true)
@@ -88,6 +90,7 @@ export default function Box3DViewer({ onLoaded }: { onLoaded?: () => void }) {
       : []
     if (debug) {
       const nav = navigator as Navigator & { deviceMemory?: number; connection?: { effectiveType?: string; downlink?: number } }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- debug-only timeline, subscribes to external events
       stamp(`clic à ${Math.round((window as Window & { __box3dClickAt?: number }).__box3dClickAt ?? 0)} ms après le chargement de la page`)
       Object.entries(prefetchMarks).forEach(([k, v]) => stamp(`${k} à ${v} ms de page`))
       stamp(`appareil: ${nav.hardwareConcurrency ?? "?"} coeurs, ${nav.deviceMemory ?? "?"} Go, réseau ${nav.connection?.effectiveType ?? "?"} ${nav.connection?.downlink ?? "?"} Mb/s`)

@@ -47,9 +47,11 @@ export default function ZoomOverlay({
   const drag = useRef<{ y: number } | null>(null)
   const tap = useRef<{ x: number; y: number; t: number } | null>(null)
   const [dy, setDy] = useState(0)
+  const [dragging, setDragging] = useState(false)
   const [ready3D, setReady3D] = useState(false)
   const [mounted, setMounted] = useState(false)
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- portal needs the client
   useEffect(() => setMounted(true), [])
 
   // From (or back to) the place the object had in the small preview.
@@ -105,6 +107,7 @@ export default function ZoomOverlay({
   const onPointerDown = (e: React.PointerEvent) => {
     if ((e.target as HTMLElement).closest("model-viewer, button")) return
     drag.current = { y: e.clientY }
+    setDragging(true)
   }
   const onPointerMove = (e: React.PointerEvent) => {
     if (!drag.current) return
@@ -113,6 +116,7 @@ export default function ZoomOverlay({
   const endDrag = () => {
     if (!drag.current) return
     drag.current = null
+    setDragging(false)
     if (dy > CLOSE_DRAG_PX) close()
     else setDy(0)
   }
@@ -149,7 +153,7 @@ export default function ZoomOverlay({
       {/* Taps on the empty area fall through to the backdrop */}
       <div
         className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3"
-        style={{ transform: dy ? `translateY(${dy}px)` : undefined, transition: drag.current ? "none" : "transform 200ms ease-out" }}
+        style={{ transform: dy ? `translateY(${dy}px)` : undefined, transition: dragging ? "none" : "transform 200ms ease-out" }}
       >
         <div ref={panelRef} className="pointer-events-auto relative" style={{ width: WIDTH[zoom.kind] }}>
           {zoom.kind === "box" && (

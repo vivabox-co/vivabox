@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Not part of this app: separate projects, raw media and generated exports.
+    "video/**",
+    "exports/**",
+    "assets-raw/**",
+    ".claude/**",
   ]),
 ]);
 

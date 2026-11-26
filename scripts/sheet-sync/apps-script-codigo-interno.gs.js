@@ -38,6 +38,7 @@ function normalizar(s) {
   return String(s || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- simple trigger, called by Google Sheets
 function onEdit(e) {
   try {
     const sheet = e.range.getSheet()
