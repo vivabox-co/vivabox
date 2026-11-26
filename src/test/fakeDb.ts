@@ -2,7 +2,7 @@
 // Every call is recorded; the terminal call (maybeSingle / single / awaiting an
 // insert or update) is answered by the handler registered for that table+action.
 
-export type Filter = [column: string, operator: "eq" | "gt", value: unknown]
+export type Filter = [column: string, operator: "eq" | "gt" | "in" | "is" | "or", value: unknown]
 
 export type Query = {
   table: string
@@ -34,6 +34,9 @@ export function createFakeDb(handlers: Record<string, Handler>) {
       insert: (payload: Record<string, unknown>) => ((query.action = "insert"), (query.payload = payload), b),
       eq: (column: string, value: unknown) => (query.filters.push([column, "eq", value]), b),
       gt: (column: string, value: unknown) => (query.filters.push([column, "gt", value]), b),
+      in: (column: string, value: unknown) => (query.filters.push([column, "in", value]), b),
+      is: (column: string, value: unknown) => (query.filters.push([column, "is", value]), b),
+      or: (expression: string) => (query.filters.push(["", "or", expression]), b),
       maybeSingle: run,
       single: run,
       then: (resolve: (r: Result) => unknown, reject: (e: unknown) => unknown) => run().then(resolve, reject),
